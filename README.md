@@ -20,6 +20,8 @@
    ![getcategories.png](img%2Fgetcategories.png)
    then set YAML front matter block like this:  
    ![yaml-front.png](img%2Fyaml-front.png)
+   also need set docs version:  
+   ![docs-version.png](img%2Fdocs-version.png)
 5. set branch of github workflows  
    set version of openapi version  
    up to the current readme version  
