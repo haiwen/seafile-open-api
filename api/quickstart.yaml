@@ -1,0 +1,88 @@
+openapi: 3.0.3
+info:
+  title: quick start
+  description: |-
+    Access library with API token
+  version: 1.0.1
+tags:
+  - name: Account-Token
+    description: Access library with Account-Token
+  - name: Library-Token
+    description: Access library with Library-Token
+servers:
+  - url: https://$(ENV_VAR)
+    description: Seafile Cloud
+paths:
+  /api2/ping/:
+    get:
+      summary: Ping server
+      tags:
+        - Account-Token
+      description: Ping server to check if server is alive
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSuccess'
+  /api2/auth-token/:
+    post:
+      summary: obtain account token
+      tags:
+        - Account-Token
+      description: obtain account token with username and password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountTokenRequestBody'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountTokenResponseBody'
+  /api/v2.1/repos/{repo_id}/repo-api-tokens/:
+    get:
+      summary: list repo api tokens
+      tags:
+        - Library-Token
+      description: list repo api tokens of a library
+      parameters:
+        - name: Authorization
+          in: header
+          description: Token ********
+          required: true
+          schema:
+            type: string
+            example: $(ENV_VAR)
+        - name: repo_id
+          in: path
+          description: repo id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+components:
+  schemas:
+    AccountTokenRequestBody:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    AccountTokenResponseBody:
+      type: object
+      properties:
+        token:
+          type: string
+    ResponseSuccess:
+      type: object
+      properties:
+        success:
+          type: boolean

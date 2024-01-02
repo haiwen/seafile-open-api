@@ -1,0 +1,171 @@
+openapi: 3.0.3
+info:
+  title: via repo token
+  description: |-
+    Access library with API token
+  version: 1.0.1
+tags:
+  - name: Via Repo Token
+    description: Access library with API token
+servers:
+  - url: https://seafile.example.com
+    description: Seafile Cloud
+paths:
+  /api/v2.1/via-repo-token/sync-batch-move-item/:
+    post:
+      summary: Sync batch move item
+      tags:
+        - Via Repo Token
+      description: batch move files and directories, all the parameters are required
+      parameters:
+        - name: Authorization
+          in: header
+          description: Token ********
+          required: true
+          schema:
+            type: string
+            default: Token ********
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyncBatchMoveAndCopyRequestBody'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSuccess'
+  /api/v2.1/via-repo-token/sync-batch-copy-item/:
+    post:
+      summary: Sync batch copy item
+      tags:
+        - Via Repo Token
+      description: batch copy files and directories, all the parameters are required
+      parameters:
+        - name: Authorization
+          in: header
+          description: Token ********
+          required: true
+          schema:
+            type: string
+            default: Token ********
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyncBatchMoveAndCopyRequestBody'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSuccess'
+  /api/v2.1/via-repo-token/batch-delete-item/:
+    delete:
+      summary: Batch delete item
+      tags:
+        - Via Repo Token
+      description: batch delete files and directories, all the parameters are required
+      parameters:
+        - name: Authorization
+          in: header
+          description: Token ********
+          required: true
+          schema:
+            type: string
+            default: Token ********
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteRequestBody'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSuccess'
+  /api/v2.1/via-repo-token/file/?path={path}:
+    post:
+      summary: Rename file
+      tags:
+        - Via Repo Token
+      description: Upload file
+      parameters:
+        - name: Authorization
+          in: header
+          description: Token ********
+          required: true
+          schema:
+              type: string
+              default: Token ********
+        - name: path
+          in: path
+          description: path
+          required: true
+          schema:
+            type: string
+            default: /1.txt
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RenameRequestBody'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSuccess'
+
+components:
+  schemas:
+    RenameRequestBody:
+      type: object
+      properties:
+        operation:
+          type: string
+          default: 'rename'
+          enum:
+            - rename
+            - revert
+        newname:
+          type: string
+          default: '/2.txt'
+    DeleteRequestBody:
+      type: object
+      properties:
+        parent_dir:
+          type: string
+          default: '/src'
+        dirents:
+          type: array
+          items:
+            type: string
+            default: '/1.txt'
+    SyncBatchMoveAndCopyRequestBody:
+        type: object
+        properties:
+          src_parent_dir:
+            type: string
+            default: '/src'
+          dst_parent_dir:
+            type: string
+            default: '/dst'
+          src_dirents:
+            type: array
+            items:
+              type: string
+              default: '/1.txt'
+    ResponseSuccess:
+      type: object
+      properties:
+        success:
+          type: boolean
+
+
