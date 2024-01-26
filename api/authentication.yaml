@@ -1,0 +1,137 @@
+openapi: 3.0.3
+info:
+  title: authentication
+  description: |-
+    The official Seafile API Reference
+  version: '1.0.1'
+tags:
+  - name: Account-Token
+    description: Access library with Account-Token
+  - name: Repo-Token
+    description: Access library with Repo-Token
+servers:
+  - url: https://(server)
+    variables:
+      server:
+        default: cloud.seafile.com
+
+components:
+  securitySchemes:
+    AccountTokenAuth:
+      type: http
+      scheme: bearer
+      description: This is the [Account-Token](/reference/authentication).
+      bearerFormat: Account-Token
+
+    RepoTokenAuth:
+      type: http
+      scheme: bearer
+      description: This is the [API-Token](/reference/authentication).
+      bearerFormat: API-Token
+
+  schemas:
+    AccountTokenResponse:
+      type: object
+      description: account-token
+      properties:
+        token:
+          type: string
+          example: '25285a3da6fff1f7a6f9c9abc8da12dcd2bd4470'
+          minLength: 40
+          maxLength: 40
+
+    RepoTokenResponse:
+      type: object
+      description: repo-token
+      properties:
+        repo_id:
+          type: string
+        app_name:
+          type: string
+        generated_by:
+          type: string
+          format: email
+        permission:
+          type: string
+          enum: ['', 'rw', 'r']
+        api_token:
+          type: string
+          minLength: 40
+          maxLength: 40
+      example:
+        repo_id: b8e06f24-edfe-44a3-b63b-ad9ecc59e1eb
+        app_name: test-app
+        api_token: 5213de63c247636fcd1808de00d64d21acc54129
+        generated_by: 1234566569491ba42905bf1647fd3f@auth.local
+        permission: r
+
+paths:
+  /api2/auth-token/:
+    post:
+      summary: obtain account token
+      tags:
+        - Account-Token
+      description: obtain account token with username and password
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: email address
+                password:
+                  type: string
+                  description: password
+              required:
+                - username
+                - password
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountTokenResponse'
+
+  /api/v2.1/repos/{repo_id}/repo-api-tokens/:
+    post:
+      summary: generate repo api token
+      tags:
+        - Repo-Token
+      description: generate a repo api token using the user's Account-Token.
+      security:
+        - AccountTokenAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                permission:
+                  type: string
+                  enum: ['rw', 'r']
+                  description: permission
+                app_name:
+                  type: string
+                  description: app name
+              required:
+                - app_name
+      parameters:
+        - name: repo_id
+          in: path
+          description: The unique identifier of a library
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
+          example: b8e06f24-edfe-44a3-b63b-ad9ecc59e1eb
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepoTokenResponse'

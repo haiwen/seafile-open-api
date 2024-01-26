@@ -1,0 +1,106 @@
+openapi: 3.0.3
+info:
+  title: Ping and Server Info
+  description: >-
+    The official Seafile API Reference (OpenAPI 3.0) - Part 'Ping and Server Info'.
+  version: '1.0.1'
+servers:
+  - url: 'https://{server}'
+    variables:
+      server:
+        default: cloud.seafile.com
+
+x-readme:
+  explorer-enabled: true
+  metrics-enabled: false
+  proxy-enabled: false
+
+components:
+  securitySchemes:
+    AccountTokenAuth:
+      type: http
+      scheme: bearer
+      description: This is the [Account-Token](/reference/authentication).
+      bearerFormat: Account-Token
+
+  schemas:
+    ping_response:
+      type: string
+      description: if successful, this api returns just the string `pong`
+      example: pong
+    server_info:
+      type: object
+      description: get server info like the version and the edition
+      properties:
+        version:
+          type: string
+          description: current version number of Seafile Server
+        encrypted_library_version:
+          type: integer
+          description: encrypted library version
+        features:
+          type: array
+          description: features currently supported by the service
+          items:
+            type:
+              string
+      example:
+        version: '11.0.4'
+        encrypted_library_version: 2
+        features: [
+          'seafile-basic',
+          'seafile-pro',
+          'office-preview',
+          'file-search'
+        ]
+
+paths:
+  /api2/server-info/:
+    get:
+      tags:
+        - Info
+      summary: Get Server Information
+      description: >-
+        Use this anonymous call to retrieve the current Seafile server version
+        information. The response includes the current version number and the
+        type of subscription.
+      responses:
+        '200':
+          description: Return version and edition of Seafile Server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/server_info'
+
+  /api2/ping/:
+    get:
+      tags:
+        - Ping
+      summary: Ping Server
+      description: Check the server status.
+      responses:
+        '200':
+          description: Service is available and running
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ping_response'
+
+  /api2/auth/ping/:
+    get:
+      tags:
+        - Ping
+      summary: Ping Server (with authentication)
+      description: |
+        Executes two checks against Seafile server:
+        - check the validity of the Account-Token 
+        - check the status of Seafile Server
+      security:
+        - AccountTokenAuth: []
+      responses:
+        '200':
+          description: Access granted and service is available and running
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ping_response'
