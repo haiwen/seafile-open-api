@@ -8,7 +8,7 @@ on:
       # This workflow will run every time you push code to the following branch: `v1.0.1`
       # Check out GitHub's docs for more info on configuring this:
       # https://docs.github.com/actions/using-workflows/events-that-trigger-workflows
-      - main
+      - 1.0.1
 
 jobs:
   rdme-docs:
@@ -17,27 +17,20 @@ jobs:
       - name: Check out repo 📚
         uses: actions/checkout@v3
 
-#      - name: Run `docs` command 🚀
-#        uses: readmeio/rdme@v8
-#        with:
-#          rdme: docs ./guides --key=${{ secrets.README_API_KEY }} --version=1.0.1
-#
-#      - name: Run `changelogs` command 🚀
-#        uses: readmeio/rdme@v8
-#        with:
-#          rdme: changelogs ./changelogs --key=${{ secrets.README_API_KEY }}
-
-      - name: Run `docs` command 🚀
+      # Seafile API (docs only)
+      - name: Update Seafile API 🚀
         uses: readmeio/rdme@v8
         with:
           rdme: docs ./reference --key=${{ secrets.README_API_KEY }} --version=1.0.1
 
-      - name: Run `openapi` command 🚀
+      # authentication
+      - name: authentication 🚀
         uses: readmeio/rdme@v8
         with:
-          rdme: openapi ./api/repo-api-tokens.yaml --key=${{ secrets.README_API_KEY }} --id=658a8085ddbf15002d3426cb
+          rdme: openapi ./api/authentication.yaml --key=${{ secrets.README_API_KEY }} --id=658d1b9f74a8660079f3a72e --useSpecVersion
 
-      - name: Run `openapi` command 🚀
+      # repo token api
+      - name: repo token api 🚀
         uses: readmeio/rdme@v8
         with:
-          rdme: openapi ./api/quickstart.yaml --key=${{ secrets.README_API_KEY }} --id=658d1b9f74a8660079f3a72e
+          rdme: openapi ./api/repo-api-tokens.yaml --key=${{ secrets.README_API_KEY }} --id=658a8085ddbf15002d3426cb --useSpecVersion

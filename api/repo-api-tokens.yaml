@@ -2,170 +2,607 @@ openapi: 3.0.3
 info:
   title: via repo token
   description: |-
-    Access library with API token
+    Access library via repo token
   version: 1.0.1
 tags:
   - name: Via Repo Token
-    description: Access library with API token
+    description: Access library via repo token
 servers:
-  - url: https://seafile.example.com
-    description: Seafile Cloud
-paths:
-  /api/v2.1/via-repo-token/sync-batch-move-item/:
-    post:
-      summary: Sync batch move item
-      tags:
-        - Via Repo Token
-      description: batch move files and directories, all the parameters are required
-      parameters:
-        - name: Authorization
-          in: header
-          description: Token ********
-          required: true
-          schema:
-            type: string
-            default: Token ********
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SyncBatchMoveAndCopyRequestBody'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResponseSuccess'
-  /api/v2.1/via-repo-token/sync-batch-copy-item/:
-    post:
-      summary: Sync batch copy item
-      tags:
-        - Via Repo Token
-      description: batch copy files and directories, all the parameters are required
-      parameters:
-        - name: Authorization
-          in: header
-          description: Token ********
-          required: true
-          schema:
-            type: string
-            default: Token ********
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SyncBatchMoveAndCopyRequestBody'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResponseSuccess'
-  /api/v2.1/via-repo-token/batch-delete-item/:
-    delete:
-      summary: Batch delete item
-      tags:
-        - Via Repo Token
-      description: batch delete files and directories, all the parameters are required
-      parameters:
-        - name: Authorization
-          in: header
-          description: Token ********
-          required: true
-          schema:
-            type: string
-            default: Token ********
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DeleteRequestBody'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResponseSuccess'
-  /api/v2.1/via-repo-token/file/?path={path}:
-    post:
-      summary: Rename file
-      tags:
-        - Via Repo Token
-      description: Upload file
-      parameters:
-        - name: Authorization
-          in: header
-          description: Token ********
-          required: true
-          schema:
-              type: string
-              default: Token ********
-        - name: path
-          in: path
-          description: path
-          required: true
-          schema:
-            type: string
-            default: /1.txt
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RenameRequestBody'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResponseSuccess'
+  - url: https://{server}
+    variables: 
+      server:
+        default: cloud.seafile.com
+
+x-readme:
+  explorer-enabled: true
+  metrics-enabled: false
+  proxy-enabled: false
 
 components:
+  securitySchemes:
+    AccountTokenAuth:
+      type: http
+      scheme: bearer
+      description: This is the [Account-Token](/reference/authentication).
+      bearerFormat: Account-Token
+
+    RepoTokenAuth:
+      type: http
+      scheme: bearer
+      description: This is the [Repo-Token](/reference/authentication).
+      bearerFormat: Repo-Token
+
+  # Reusable path, query, header and cookie parameters
+  parameters:
+    # Query parameters
+    file_path:
+      name: path
+      in: query
+      description: 'Path to the file'
+      required: true
+      schema:
+        type: string
+      example: '1.txt'
+
+    dir_path:
+      name: path
+      in: query
+      description: 'Path to the dir'
+      required: true
+      schema:
+        type: string
+        default: '/'
+      example: '/folder'
+
+    type:
+      name: type
+      in: query
+      description: Items' type which will be list, limit in 'f' and 'd', means file and directory
+      required: false
+      schema:
+        type: string
+        default: ''
+
+    recursive:
+      name: recursive
+      in: query
+      description: List items recursively
+      required: false
+      schema:
+        type: string
+        default: '0'
+
+    with_thumbnail:
+      name: with_thumbnail
+      in: query
+      description: Whether some kinds of files are with thumbnail, video, image, etc.
+      required: false
+      schema:
+        type: string
+        default: false
+
+    thumbnail_size:
+      name: thumbnail_size
+      in: query
+      description: Thumbnail's size
+      required: false
+      schema:
+        type: integer
+        default: 48
+
+    req_from:
+      name: from
+      in: query
+      description: The request comes from
+      required: false
+      schema:
+        type: string
+        enum:
+          - api
+          - web
+        default: api
+
+    replace:
+      name: replace
+      in: query
+      description: Whether to overwrite files with the same name when uploading files
+      required: false
+      schema:
+        type: string
+        enum:
+          - 't'
+          - 'true'
+          - '1'
+          - 'f'
+          - 'false'
+          - '0'
+        default: '0'
+
+    # Path parameters
+    repo_id:
+      name: repo_id
+      in: path
+      description: The unique identifier of a library
+      required: true
+      schema:
+        type: string
+        pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
+      example: b8e06f24-edfe-44a3-b63b-ad9ecc59e1eb
+
+    app_name:
+      name: app_name
+      in: path
+      description: App name
+      required: true
+      schema:
+        type: string
+      example: test-app
+
+  # Reusable schemas (request body)
   schemas:
-    RenameRequestBody:
+    permission:
+      type: string
+      enum:
+        - r
+        - rw
+
+    operation_dir:
       type: object
       properties:
         operation:
           type: string
-          default: 'rename'
+          enum:
+            - mkdir
+            - rename
+            - revert
+        newname:
+          type: string
+          default: 'new_folder'
+        commit_id:
+          type: string
+
+    operation_file:
+      type: object
+      properties:
+        operation:
+          type: string
           enum:
             - rename
             - revert
         newname:
           type: string
-          default: '/2.txt'
-    DeleteRequestBody:
+          default: '2.txt'
+        commit_id:
+          type: string
+      required:
+        - operation
+
+    batch_copy_or_move:
+      type: object
+      properties:
+        src_parent_dir:
+          type: string
+          default: '/src'
+        dst_parent_dir:
+          type: string
+          default: '/dst'
+        src_dirents:
+          type: array
+          items:
+            type: string
+            default: '1.txt'
+      required:
+        - src_parent_dir
+        - dst_parent_dir
+        - src_dirents
+
+    batch_delete_item:
       type: object
       properties:
         parent_dir:
           type: string
-          default: '/src'
+          default: '/folder'
         dirents:
           type: array
           items:
             type: string
-            default: '/1.txt'
-    SyncBatchMoveAndCopyRequestBody:
-        type: object
-        properties:
-          src_parent_dir:
-            type: string
-            default: '/src'
-          dst_parent_dir:
-            type: string
-            default: '/dst'
-          src_dirents:
-            type: array
-            items:
-              type: string
-              default: '/1.txt'
+            default: '1.txt'
+      required:
+        - parent_dir
+        - dirents
+
+    # response
     ResponseSuccess:
       type: object
       properties:
         success:
           type: boolean
 
+paths:
+  /api/v2.1/repos/{repo_id}/repo-api-tokens/:
+    get:
+      summary: List repo api tokens
+      tags:
+        - Via Repo Token
+      description: List all repo tokens of a library
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                description: All repo tokens of a library
+                properties:
+                  repo_api_tokens:
+                    type: array
+                    items:
+                      type: object
+                example:
+                  'repo_api_tokens': [
+                    {
+                      'repo_id': 'b8e06f24-edfe-44a3-b63b-ad9ecc59e1eb',
+                      'app_name': 'test-app',
+                      'generated_by': 'test@seafile.com',
+                      'permission': 'r',
+                      'api_token': '05cd0945e412a0d6e955c2fe29e84efc4825ede1'
+                    }
+                  ]
 
+  /api/v2.1/repos/{repo_id}/repo-api-tokens/{app_name}/:
+    put:
+      summary: Update repo api token
+      tags:
+        - Via Repo Token
+      description: Update a repo api token
+      security:
+        - AccountTokenAuth: []
+      requestBody:
+        description: description des requestBody
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/permission'
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/app_name'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Information of a repo token
+                properties:
+                  repo_id:
+                    type: string
+                  app_name:
+                    type: string
+                  generated_by:
+                    type: string
+                  permission:
+                    type: string
+                  api_token:
+                    type: string
+                example:
+                  'repo_id': 'b8e06f24-edfe-44a3-b63b-ad9ecc59e1eb'
+                  'app_name': 'test-app'
+                  'generated_by': 'test@seafile.com'
+                  'permission': 'rw'
+                  'api_token': '05cd0945e412a0d6e955c2fe29e84efc4825ede1'
+
+    delete:
+      summary: Delete repo api token
+      tags:
+        - Via Repo Token
+      description: Delete a repo api token
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/app_name'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSuccess'
+
+  /api/v2.1/via-repo-token/dir/:
+    get:
+      summary: List items in directory
+      tags:
+        - Via Repo Token
+      description: List al files and folders in a directory
+      security:
+        - RepoTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/dir_path'
+        - $ref: '#/components/parameters/type'
+        - $ref: '#/components/parameters/recursive'
+        - $ref: '#/components/parameters/with_thumbnail'
+        - $ref: '#/components/parameters/thumbnail_size'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                description: List of items
+                properties:
+                  user_perm:
+                    type: string
+                  dir_id:
+                    type: string
+                  dirent_list:
+                    type: array
+                    items:
+                      type: object
+                example:
+                  'user_perm': 'rw'
+                  'dir_id': 'dc561abe027728f36ea6d02b7b4439ba1aba1b3b'
+                  'dirent_list': [
+                    {
+                      'type': 'dir',
+                      'id': '04f3fb2b992c7aa1eb897a4e2c46b3212def1028',
+                      'name': 'folder',
+                      'mtime': 1575514722,
+                      'permission': 'rw',
+                      'parent_dir': '/',
+                      'starred': false
+                    },
+                    {
+                      'type': 'file',
+                      'id': '0000000000000000000000000000000000000000',
+                      'name': '1.txt',
+                      'mtime': 1576548579,
+                      'permission': 'rw',
+                      'parent_dir': '/',
+                      'size': 0,
+                      'modifier_email': 'test@seafile.com',
+                      'modifier_name': 'test_user',
+                      'modifier_contact_email': 'test@seafile.com',
+                      'is_locked': false,
+                      'lock_time': 0,
+                      'lock_owner': '',
+                      'lock_owner_name': '',
+                      'lock_owner_contact_email': '',
+                      'locked_by_me': false,
+                      'starred': false
+                    }
+                  ]
+
+    post:
+      summary: Operation directory
+      tags:
+        - Via Repo Token
+      description: Create or rename or revert a directory
+      security:
+        - RepoTokenAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/operation_dir'
+      parameters:
+        - $ref: '#/components/parameters/dir_path'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                description: The folder information
+                properties:
+                  type:
+                    type: string
+                  repo_id:
+                    type: string
+                  parent_dir:
+                    type: string
+                  obj_name:
+                    type: string
+                  obj_id:
+                    type: string
+                  mtime:
+                    type: string
+                example:
+                  'type': 'dir'
+                  'repo_id': 'b8e06f24-edfe-44a3-b63b-ad9ecc59e1eb'
+                  'parent_dir': '/'
+                  'obj_name': 'new_folder'
+                  'obj_id': '0000000000000000000000000000000000000000'
+                  'mtime': '2023-12-26T07:03:06+00:00'
+
+  /api/v2.1/via-repo-token/file/:
+    post:
+      summary: Operation file
+      tags:
+        - Via Repo Token
+      description: Rename or revert a file
+      security:
+        - RepoTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/file_path'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/operation_file'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                description: The file information
+                properties:
+                  type:
+                    type: string
+                  repo_id:
+                    type: string
+                  parent_dir:
+                    type: string
+                  obj_name:
+                    type: string
+                  obj_id:
+                    type: string
+                  size:
+                    type: integer
+                  mtime:
+                    type: string
+                  can_preview:
+                    type: string
+                  can_edit:
+                    type: string
+                example:
+                  'type': 'file'
+                  'repo_id': 'b8e06f24-edfe-44a3-b63b-ad9ecc59e1eb'
+                  'parent_dir': '/'
+                  'obj_name': '2.txt'
+                  'obj_id': '0000000000000000000000000000000000000000'
+                  'size': 0
+                  'mtime': '2023-12-26T06:03:06+00:00'
+                  'can_preview': true
+                  'can_edit': true
+
+  /api/v2.1/via-repo-token/upload-link/:
+    get:
+      summary: Get upload link
+      tags:
+        - Via Repo Token
+      description: Get the upload link of a directory
+      security:
+        - RepoTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/dir_path'
+        - $ref: '#/components/parameters/req_from'
+        - $ref: '#/components/parameters/replace'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                description: The upload link of a directory
+                example:
+                  'https://cloud.seafile.com/seafhttp/upload-api/62fdd868-ee80-4acb-b1ce-362de3fc0a63'
+
+  /api/v2.1/via-repo-token/download-link/:
+    get:
+      summary: Get download link
+      tags:
+        - Via Repo Token
+      description: Get the download link of a file
+      security:
+        - RepoTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/file_path'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                description: The download link of a file
+                example:
+                  'https://cloud.seafile.com/seafhttp/files/28ed9480-f48e-4734-b972-2e0d27167dd5/1.txt'
+
+  /api/v2.1/via-repo-token/repo-info/:
+    get:
+      summary: Get download link
+      tags:
+        - Via Repo Token
+      description: Get the download link of a file
+      security:
+        - RepoTokenAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                description: The information of the library
+                properties:
+                  repo_id:
+                    type: string
+                  repo_name:
+                    type: string
+                example:
+                  'repo_id': 'b8e06f24-edfe-44a3-b63b-ad9ecc59e1eb'
+                  'repo_name': 'test-library'
+
+  /api/v2.1/via-repo-token/sync-batch-move-item/:
+    post:
+      summary: Sync batch move item
+      tags:
+        - Via Repo Token
+      description: Batch move files and directories, all the parameters are required
+      security:
+        - RepoTokenAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/batch_copy_or_move'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSuccess'
+
+  /api/v2.1/via-repo-token/sync-batch-copy-item/:
+    post:
+      summary: Sync batch copy item
+      tags:
+        - Via Repo Token
+      description: Batch copy files and directories, all the parameters are required
+      security:
+        - RepoTokenAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/batch_copy_or_move'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSuccess'
+
+  /api/v2.1/via-repo-token/batch-delete-item/:
+    delete:
+      summary: Batch delete items
+      tags:
+        - Via Repo Token
+      description: Batch delete files and directories
+      security:
+        - RepoTokenAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/batch_delete_item'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSuccess'
