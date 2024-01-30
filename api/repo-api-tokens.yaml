@@ -521,10 +521,10 @@ paths:
 
   /api/v2.1/via-repo-token/repo-info/:
     get:
-      summary: Get download link
+      summary: Get repo info
       tags:
         - Via Repo Token
-      description: Get the download link of a file
+      description: Get repo info via repo token
       security:
         - RepoTokenAuth: []
       responses:
