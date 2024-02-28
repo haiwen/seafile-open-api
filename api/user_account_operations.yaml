@@ -1,0 +1,2418 @@
+openapi: 3.0.3
+info:
+  title: Account Operations - User
+  description: |-
+    The official SeaTable API Reference (OpenAPI 3.0). - Part 'User Account Operations'.
+  version: 1.0.1
+servers:
+  - url: https://{server}
+    variables: 
+      server:
+        default: cloud.seafile.com
+
+x-readme:
+  explorer-enabled: true
+  metrics-enabled: false
+  proxy-enabled: false
+
+components:
+  securitySchemes:
+    AccountTokenAuth:
+      type: http
+      scheme: bearer
+      description: This is the [Account-Token](/reference/authentication).
+
+  # Reusable path, query, header and cookie parameters
+  parameters:
+    # Query parameters
+    page:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 1
+      example: 1
+
+    per_page:
+      name: per_page
+      in: query
+      required: false
+      schema:
+        type: integer
+      example: 25
+
+    avatar_size:
+      name: avatar_size
+      in: query
+      required: false
+      schema:
+        type: integer
+      example: 72
+
+    dir_path:
+      name: path
+      in: query
+      description: 'Path to the dir'
+      required: false
+      schema:
+        type: string
+
+    directory_path:
+      name: p
+      in: query
+      description: 'Path to the dir, should not be /'
+      required: true
+      schema:
+        type: string
+
+    parent_dir:
+      name: parent_dir
+      in: query
+      description: 'Path to the parent_dir'
+      required: true
+      schema:
+        type: string
+
+    dirents:
+      name: dirents
+      in: query
+      description: 'name of the dir'
+      required: true
+      schema:
+        type: string
+
+    token:
+      name: token
+      in: query
+      description: 'The token returned from Get Task Token request'
+      required: true
+      schema:
+        type: string
+      example: b2272645-35ee-44ce-8f68-07c022107015
+
+    object_id:
+      name: oid
+      in: query
+      description: 'The object id of the directory. The object id is the checksum of the directory contents.'
+      required: false
+      schema:
+        type: string
+
+    type:
+      name: t
+      in: query
+      description: If set t argument as f, will only return file entries, and d for only dir entries.
+      required: false
+      schema:
+        type: string
+      example: 'f'
+
+    recursive:
+      name: recursive
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+          - '0'
+          - '1'
+        default: '0'
+
+    # Path parameters
+    user:
+      name: user
+      in: path
+      required: true
+      schema:
+        type: string
+      example: user@example.com
+
+    size:
+      name: size
+      in: path
+      required: true
+      schema:
+        type: integer
+      example: 64
+
+    group_id:
+      name: group_id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+    repo_id:
+      name: repo_id
+      in: path
+      description: The unique identifier of a library
+      required: true
+      schema:
+        type: string
+        pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
+
+  schemas:
+    # request body
+    avatar:
+      type: string
+      description: >-
+        Upload an image file. Authorized extensions are : .jpg, .png, .jpeg, .gif. Accepted max size is 1.0 MB.
+      format: binary
+
+    avatar_size:
+      type: string
+
+    repo_name:
+      description: 'Name of the library'
+      type: string
+      example: 'test'
+
+    permission:
+      type: string
+      example: r
+
+    password:
+      type: string
+
+    username:
+      type: string
+      example: 1@1.com
+
+    username_list:
+      type: array
+      items:
+        type: string
+      example: [1@1.com, 2@2.com]
+
+    group_id:
+      type: integer
+      example: 1
+
+    group_id_list:
+      type: array
+      items:
+        type: integer
+      example: [1, 2]
+
+    dir_path:
+      description: 'Path to the dir'
+      type: string
+      example: '/'
+
+    platform:
+      type: string
+      example: linux
+
+    device_id:
+      type: string
+      example: be10980211752515053bf9036a13139375de0cc8
+
+    remote_wipe:
+      type: string
+      default: ''
+
+    operation:
+      type: string
+      enum:
+        - mkdir
+        - rename
+      example: mkdir
+
+    create_parents:
+      type: string
+      description: whether to create multi-level directory, default false.
+      default: 'false'
+
+    newname:
+      type: string
+      description: the new name of the directory.
+      default: newfolder
+
+    commit_id:
+      type: string
+      example: b1a33768517f65ac7d618ff078dd27855374c7e0
+
+    src_repo_id:
+      type: string
+      pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
+
+    src_parent_dir:
+      type: string
+      example: '/src'
+
+    src_dirent_name:
+      type: string
+      example: folder
+
+    dst_repo_id:
+      type: string
+      pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
+
+    dst_parent_dir:
+      type: string
+      example: '/dst'
+
+    create_directory:
+      title: 'Create New Directory'
+      type: object
+      properties:
+        operation:
+          type: string
+          enum: [mkdir]
+        create_parents:
+          $ref: '#/components/schemas/create_parents'
+
+    rename_directory:
+      title: 'Rename Directory'
+      type: object
+      properties:
+        operation:
+          type: string
+          enum: [rename]
+        newname:
+          $ref: '#/components/schemas/newname'
+
+paths:
+  # Account
+  /api2/account/info/:
+    get:
+      tags:
+        - Account
+      summary: Get Account Info
+      description: Get the detailed account information with the user's Account Token.
+      security:
+        - AccountTokenAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                login_id: ''
+                is_staff: false
+                name: foo
+                email_notification_interval: 0
+                institution: ''
+                department: ''
+                avatar_url: http://127.0.0.1:8000/media/avatars/default.png
+                contact_email: test@example.com
+                space_usage: 73.40217%
+                usage: 22020651,
+                total: 30000000,
+                email: 'foo@foo.com'
+
+  /api2/client-login/:
+    get:
+      tags:
+        - Account
+      summary: Get Client Login URL
+      description: You can use this API to get a URL to login into the Web interface. The usage case is to provide the feature of 'Visit web site' in the clients.
+      security:
+        - AccountTokenAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+              example:
+                'https://cloud.seafile.com/client-login/?token=000f1f83d612836c65fed087fb9c4ca40852d0f9'
+
+  # Activities
+  /apiv2.1/activities/:
+    get:
+      tags:
+        - Activities
+      summary: Get File Activities
+      description: Get File Activities
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+        - $ref: '#/components/parameters/avatar_size'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                events:
+                  - commit_id: 56ad4dfa70f79d2c7a8a6e032acda65d824e7946
+                    obj_type: file
+                    repo_id: 231afed9-9e6c-4314-9247-dfc3ee0ac734
+                    name: temp.md
+                    author_email: a@example.com
+                    author_contact_email: a@example.com
+                    time: 2023-05-14T09:42:48+00:00
+                    author_name: aaa
+                    avatar_url: http://127.0.0.1:8000/media/avatars/d/1/0ca8d11301c2f4993ac2279ce4b930/resized/72/03e77af8819c66f25260297dd5e97dc7.png
+                    op_type: edit
+                    path: /temp.md
+                    repo_name: documents
+
+  /api/v2.1/user-avatar/:
+    post:
+      tags:
+        - Avatars
+      summary: Upload/Update User Avatar
+      description: Upload an image to make it your current avatar. After successful uploading/updating your avatar, the file will be renamed and converted to .png. The URL of your new avatar is returned in the response.
+      security:
+        - AccountTokenAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  $ref: '#/components/schemas/avatar'
+                avatar_size:
+                  $ref: '#/components/schemas/avatar_size'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                avatar_url: >-
+                  https://cloud.seafile.com/media/avatars/2/4/fa66e6b3a50e2707997ec5eed3eda0/resized/64/a92f89f3e23c7fe9cc708454cdd010df_Y7zJE8v.png
+
+  /api2/avatars/user/{user}/resized/{size}/:
+    get:
+      tags:
+        - Avatars      
+      summary: Get User Avatar
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/user'
+        - $ref: '#/components/parameters/size'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                url: http://127.0.0.1:8000/media/avatars/default.png
+                is_default: true
+                mtime: 0
+
+  /api/v2.1/groups/{group_id}/group-owned-libraries/:
+    post:
+      tags:
+        - Department Libraries
+      summary: Add Group Owned Library
+      description: Add Group Owned Library
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/group_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                repo_name:
+                  $ref: '#/components/schemas/repo_name'
+                permission:
+                  $ref: '#/components/schemas/permission'
+                password:
+                  $ref: '#/components/schemas/password'
+              required:
+                - repo_name
+                - permission
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                repo_id: 9bc59af9-265e-4110-a0e2-619450a5cb35
+                permission: r
+                encrypted: false
+                owner_email: 53@seafile_group
+                mtime: 2018-04-23T17:25:37+08:00
+                repo_name: group-owned-repo-4
+                size: 0
+
+  /api/v2.1/groups/{group_id}/group-owned-libraries/{repo_id}/:
+    put:
+      tags:
+        - Department Libraries
+      summary: Rename a Group Owned Library
+      description: Rename a Group Owned Library
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/group_id'
+        - $ref: '#/components/parameters/repo_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  $ref: '#/components/schemas/repo_name'
+              required:
+                - name
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: 9bc59af9-265e-4110-a0e2-619450a5cb35
+                name: test
+                mtime: 2018-04-23T17:25:37+08:00
+                size: 0
+                encrypted: false
+                owner: 3@seafile_group
+                group_name: test-group
+
+    delete:
+      tags:
+        - Department Libraries
+      summary: Delete Group Owned Library
+      description: Delete Group Owned Library
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/group_id'
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /api/v2.1/group-owned-libraries/{repo_id}/user-share/:
+    get:
+      tags:
+        - Department Libraries
+      summary: Get Group Owned Library User Share Info
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/dir_path'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  example:
+                    permission: rw
+                    user_name: '1'
+                    user_email: 1@1.com
+                    user_contact_email: 1@1.com
+
+    post:
+      tags:
+        - Department Libraries
+      summary: Share Group Owned Library to User
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                permission:
+                  $ref: '#/components/schemas/permission'
+                username:
+                  $ref: '#/components/schemas/username_list'
+                path:
+                  $ref: '#/components/schemas/dir_path'
+              required:
+                - username
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  failed:
+                    type: array
+                    items:
+                      type: object
+                  success:
+                    type: array
+                    items:
+                      type: object
+              example:
+                failed: [
+                  {
+                    email: 2@2.com,
+                    error_msg: User 2@2.com not found.
+                  }
+                ]
+                success: [
+                  {
+                    permission: r,
+                    user_name: '1',
+                    user_email: 1@1.com,
+                    user_contact_email: 1@1.com
+                  }
+                ]
+
+    put:
+      tags:
+        - Department Libraries
+      summary: Modify Group Owned Library User Share Permission
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                permission:
+                  $ref: '#/components/schemas/permission'
+                username:
+                  $ref: '#/components/schemas/username'
+                path:
+                  $ref: '#/components/schemas/dir_path'
+              required:
+                - username
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+    delete:
+      tags:
+        - Department Libraries
+      summary: Delete Group Owned Library User Share
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  $ref: '#/components/schemas/username'
+                path:
+                  $ref: '#/components/schemas/dir_path'
+              required:
+                - username
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /api/v2.1/group-owned-libraries/{repo_id}/group-share/:
+    get:
+      tags:
+        - Department Libraries
+      summary: Get Group Owned Library Group Share Info
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/dir_path'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  example:
+                    permission: r
+                    group_id: 1
+                    group_name: test-group
+
+    post:
+      tags:
+        - Department Libraries
+      summary: Share Group Owned Library to Group
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                permission:
+                  $ref: '#/components/schemas/permission'
+                group_id:
+                  $ref: '#/components/schemas/group_id_list'
+                path:
+                  $ref: '#/components/schemas/dir_path'
+              required:
+                - group_id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  failed:
+                    type: array
+                    items:
+                      type: object
+                  success:
+                    type: array
+                    items:
+                      type: object
+              example:
+                failed: [
+                  {
+                    error_msg: Group 2 not found.
+                  }
+                ]
+                success: [
+                  {
+                    permission: r,
+                    group_id: 1,
+                    group_name: test-group
+                  }
+                ]
+
+    put:
+      tags:
+        - Department Libraries
+      summary: Modify Group Owned Library Group Share Permission
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                permission:
+                  $ref: '#/components/schemas/permission'
+                group_id:
+                  $ref: '#/components/schemas/group_id'
+                path:
+                  $ref: '#/components/schemas/dir_path'
+              required:
+                - group_id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+    delete:
+      tags:
+        - Department Libraries
+      summary: Delete Group Owned Library Group Share
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                group_id:
+                  $ref: '#/components/schemas/group_id'
+                path:
+                  $ref: '#/components/schemas/dir_path'
+              required:
+                - group_id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /api2/devices/:
+    get:
+      tags:
+        - Devices
+      summary: List Devices
+      security:
+        - AccountTokenAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  example:
+                    last_accessed: 2016-03-15T10:28:48+08:00
+                    is_desktop_client: true
+                    device_name: laptop
+                    platform_version: ''
+                    platform: linux
+                    user: test@example.com
+                    key: 99abe1a7cc7d614db0bfa19db81e42ef675abe4f
+                    client_version: 5.0.0
+                    last_login_ip: 192.168.1.16
+                    device_id: be10980211752515053bf9036a13139375de0cc8
+
+    delete:
+      tags:
+        - Devices
+      summary: Unlink Device
+      security:
+        - AccountTokenAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                platform:
+                  $ref: '#/components/schemas/platform'
+                device_id:
+                  $ref: '#/components/schemas/device_id'
+                remote_wipe:
+                  $ref: '#/components/schemas/remote_wipe'
+              required:
+                - platform
+                - device_id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /api2/repos/{repo_id}/dir/:
+    get:
+      tags:
+        - Directories
+      summary: List Items in Directory
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/dir_path'
+        - $ref: '#/components/parameters/object_id'
+        - $ref: '#/components/parameters/type'
+        - $ref: '#/components/parameters/recursive'
+      responses:
+        '200':
+          description: If oid is the same as the current oid of the directory, returns 'uptodate' , else return a list of object.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  example:
+                    id: '0000000000000000000000000000000000000000'
+                    type: file
+                    name: test.txt
+                    size: 0
+
+    post:
+      tags:
+        - Directories
+      summary: Create New or Rename Directory
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/directory_path'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/create_directory'
+                - $ref: '#/components/schemas/rename_directory'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: string
+                example:
+                  'success'
+
+    delete:
+      tags:
+        - Directories
+      summary: Delete Directory
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/directory_path'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                example:
+                 'success'
+
+  /api/v2.1/repos/{repo_id}/dir/detail/:
+    get:
+      tags:
+        - Directories
+      summary: Get Directory Detail
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/dir_path'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  repo_id: d4f596ed-09ea-4ac6-8d59-12acbd089097
+                  name: Develop
+                  mtime: 2018-01-05T17:45:41+08:00
+                  path: /Develop/
+
+  /api2/repos/{repo_id}/dir/revert/:
+    put:
+      tags:
+        - Directories
+      summary: Revert Directory to a History Status
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                p:
+                  $ref: '#/components/schemas/dir_path'
+                commit_id:
+                  $ref: '#/components/schemas/commit_id'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /api/v2.1/repos/{repo_id}/zip-task/:
+    get:
+      tags:
+        - Directories
+      summary: Download Directory
+      description: Get Task Token
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/parent_dir'
+        - $ref: '#/components/parameters/dirents'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  zip_token:
+                    type: string
+                example:
+                  zip_token: b2272645-35ee-44ce-8f68-07c022107015
+
+    post:
+      tags:
+        - Directories
+      summary: Download Directory
+      description: Download Multiple Items, Get Task Token
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           parent_dir:
+      #             $ref: '#/components/schemas/parent_dir'
+      #           dirents:
+      #             $ref: '#/components/schemas/dirents'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  zip_token:
+                    type: string
+                example:
+                  zip_token: b2272645-35ee-44ce-8f68-07c022107015
+
+  /api/v2.1/query-zip-progress/:
+    get:
+      tags:
+        - Directories
+      summary: Download Directory
+      description: Query Task Progress
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/token'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  zipped:
+                    type: integer
+                  total:
+                    type: integer
+                example:
+                  zipped: 2
+                  total: 2
+
+  /api/v2.1/move-folder-merge/:
+    post:
+      tags:
+        - Directories
+      summary: Move directory with items merged
+      security:
+        - AccountTokenAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                src_repo_id:
+                  $ref: '#/components/schemas/src_repo_id'
+                src_parent_dir:
+                  $ref: '#/components/schemas/src_parent_dir'
+                src_dirent_name:
+                  $ref: '#/components/schemas/src_dirent_name'
+                dst_repo_id:
+                  $ref: '#/components/schemas/dst_repo_id'
+                dst_parent_dir:
+                  $ref: '#/components/schemas/dst_parent_dir'
+              required:
+                - src_repo_id
+                - src_parent_dir
+                - src_dirent_name
+                - dst_repo_id
+                - dst_parent_dir
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  # TODO: Supplementary parameters, requestBody, responses, etc.
+  /api2/repos/{repo_id}/file/comments/:
+    get:
+      tags:
+        - File Comments
+      summary: List file comments
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/file_path'
+      responses:
+        '200':
+          description: OK
+
+    post:
+      tags:
+        - File Comments
+      summary: Submit a file comment
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/file_path'
+      responses:
+        '200':
+          description: OK
+
+  /api2/repos/{repo_id}/file/comments/{comment_id}/:
+    get:
+      tags:
+        - File Comments
+      summary: Get a file comment
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/comment_id'
+      responses:
+        '200':
+          description: OK
+
+    put:
+      tags:
+        - File Comments
+      summary: Update a file comment
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/comment_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              # properties:
+              #   detail:
+              #   resolved:
+              # required:
+              #   - detail
+              #   - resolved
+      responses:
+        '200':
+          description: OK
+
+    delete:
+      tags:
+        - File Comments
+      summary: Delete a file comment
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/comment_id'
+      responses:
+        '200':
+          description: OK
+
+  /api2/repos/{repo_id}/file/comments/counts/:
+    get:
+      tags:
+        - File Comments
+      summary: Get all comments for a file
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/file_path'
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/repos/{repo_id}/file/history/:
+    get:
+      tags:
+        - File History
+      summary: Get File History
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/file_path'
+        # - $ref: '#/components/parameters/commit_id'
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/repos/{repo_id}/file/:
+    post:
+      tags:
+        - File History
+      description: Create File/Restore File From History
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/file_path'
+        # - $ref: '#/components/parameters/operation'
+        # - $ref: '#/components/parameters/commit_id'
+      responses:
+        '200':
+          description: OK
+
+  /api2/repos/{repo_id}/file/revision/:
+    get:
+      tags:
+        - File History
+      summary: Download File From a Revision
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/file_path'
+        # - $ref: '#/components/parameters/commit_id'
+      responses:
+        '200':
+          description: OK
+
+  /api2/search/:
+    get:
+      tags:
+        - File Search
+      summary: Search Files in Libraries
+      security:
+        - AccountTokenAuth: []
+      # parameters:
+        # - $ref: '#/components/parameters/q'
+        # - $ref: '#/components/parameters/page'
+        # - $ref: '#/components/parameters/per_page'
+        # - $ref: '#/components/parameters/search_repo'
+        # - $ref: '#/components/parameters/search_path'
+        # - $ref: '#/components/parameters/search_ftypes'
+        # - $ref: '#/components/parameters/ftype'
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/search-file/:
+    get:
+      tags:
+        - File Search
+      summary: Search Files by Name in Library
+      security:
+        - AccountTokenAuth: []
+      # parameters:
+        # - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/q'
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/repos/{repo_id}/repo-tags/:
+    get:
+      tags:
+        - File Tags
+      summary: List All Tags of a Library
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+        '200':
+          description: OK
+
+    post:
+      tags:
+        - File Tags
+      summary: Add a Tag to a Library
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              # properties:
+              #   name:
+              #   color:
+              # required:
+              #   - name
+              #   - color
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/repos/{repo_id}/repo-tags/{repo_tag_id}/:
+    put:
+      tags:
+        - File Tags
+      summary: Update a Tag of a Library
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/repo_tag_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              # properties:
+              #   name:
+              #   color:
+      responses:
+        '200':
+          description: OK
+
+    delete:
+      tags:
+        - File Tags
+      summary: Delete a Tag of a Library
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/repo_tag_id'
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/repos/{repo_id}/file-tags/:
+    get:
+      tags:
+        - File Tags
+      summary: List All Tags of a File
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/file_path'
+      responses:
+        '200':
+          description: OK
+
+    post:
+      tags:
+        - File Tags
+      summary: Add a Tag for a File
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/file_path'
+        # - $ref: '#/components/parameters/repo_tag_id'
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/repos/{repo_id}/file-tags/{file_tag_id}/:
+    delete:
+      tags:
+        - File Tags
+      summary: Delete a Tag from a File
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/file_tag_id'
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/repos/{repo_id}/tagged-files/{repo_tag_id}/:
+    get:
+      tags:
+        - File Tags
+      summary: List Tagged Files By Tag
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/repo_tag_id'
+      responses:
+        '200':
+          description: OK
+
+  /api2/repos/{repo_id}/upload-link/:
+    get:
+      tags:
+        - File Upload
+      summary: Upload File
+      description: Get Upload Link
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/p'
+      responses:
+        '200':
+          description: OK
+
+  /seafhttp/upload-aj/{upload_token}?ret-json=1:
+    post:
+      tags:
+        - File Upload
+      summary: Upload File
+      description: Upload File
+      security:
+        - AccountTokenAuth: []
+      # requestBody:
+      #   content:
+      #     multipart/form-data:
+      #       schema:
+      #         $ref: '#/components/schemas/upload_file'
+      # parameters:
+      #   - $ref: '#/components/parameters/upload_token'
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/repos/{repo_id}/file-uploaded-bytes/:
+    get:
+      tags:
+        - File Upload
+      summary: Resumable Upload File
+      description: Check If Enable Resumable Upload, Get Bytes Already Uploaded
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/parent_dir'
+        # - $ref: '#/components/parameters/file_name'
+      responses:
+        '200':
+          description: OK
+
+  /seafhttp/upload-api/{upload_token}/:
+    post:
+      tags:
+        - File Upload
+      summary: Resumable Upload File
+      description: Upload File in Chunks
+      security:
+        - AccountTokenAuth: []
+      # requestBody:
+      #   content:
+      #     multipart/form-data:
+      #       schema:
+      #         $ref: '#/components/schemas/upload_file'
+      #         $ref: '#/components/schemas/file_name'
+      #         $ref: '#/components/schemas/parent_dir'
+      # parameters:
+      #   - $ref: '#/components/parameters/upload_token'
+      responses:
+        '200':
+          description: OK
+
+  /api2/repos/{repo_id}/update-link/:
+    get:
+      tags:
+        - File Upload
+      summary: Update file
+      description: Get Update Link
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/p'
+      responses:
+        '200':
+          description: OK
+
+  /seafhttp/update-api/{upload_token}/:
+    post:
+      tags:
+        - File Upload
+      summary: Update file
+      description: Update file
+      security:
+        - AccountTokenAuth: []
+      # requestBody:
+      #   content:
+      #     multipart/form-data:
+      #       schema:
+      #         $ref: '#/components/schemas/file'
+      #         $ref: '#/components/schemas/target_file'
+      # parameters:
+      #   - $ref: '#/components/parameters/update_token'
+      responses:
+        '200':
+          description: OK
+
+  /api2/repos/{repo_id}/file/:
+    get:
+      tags:
+        - Files
+      summary: Download File
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/p'
+        # - $ref: '#/components/parameters/reuse'
+      responses:
+        '200':
+          description: OK
+
+    post:
+      tags:
+        - Files
+      summary: Rename/Move/Copy File
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/p'
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           operation:
+      #             $ref: '#/components/schemas/file_operation'
+      #           newname:
+      #             $ref: '#/components/schemas/new_name'
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           operation:
+      #             $ref: '#/components/schemas/file_operation'
+      #           dst_repo:
+      #             $ref: '#/components/schemas/dst_repo'
+      #           dst_dir:
+      #             $ref: '#/components/schemas/dst_dir'
+      responses:
+        '200':
+          description: OK
+
+    put:
+      tags:
+        - Files
+      summary: Lock/Unlock File
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/p'
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           operation:
+      #             $ref: '#/components/schemas/file_operation'
+      responses:
+        '200':
+          description: OK
+
+    delete:
+      tags:
+        - Files
+      summary: Delete File
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/p'
+      responses:
+        '200':
+          description: OK
+
+  /api2/repos/{repo_id}/file/detail/:
+    get:
+      tags:
+        - Files
+      summary: Get File Detail
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/p'
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/smart-link/:
+    get:
+      tags:
+        - Files
+      summary: Get Smart Link for a File
+      security:
+        - AccountTokenAuth: []
+      # parameters:
+      #   - $ref: '#/components/parameters/repo_id_query'
+      #   - $ref: '#/components/parameters/path'
+      #   - $ref: '#/components/parameters/is_dir'
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/repos/sync-batch-copy-item/:
+    post:
+      tags:
+        - Batch Operation with Multiple Files/Directories
+      summary: Synchronized Operations
+      description: Batch Copy Items Synchronously
+      security:
+        - AccountTokenAuth: []
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           src_repo_id:
+      #             $ref: '#/components/schemas/src_repo_id'
+      #           src_parent_dir:
+      #             $ref: '#/components/schemas/src_parent_dir'
+      #           src_dirents:
+      #             $ref: '#/components/schemas/src_dirents'
+      #           dst_repo_id:
+      #             $ref: '#/components/schemas/dst_repo_id'
+      #           dst_parent_dir:
+      #             $ref: '#/components/schemas/dst_parent_dir'
+      #         required:
+      #           - src_repo_id
+      #           - src_parent_dir
+      #           - src_dirents
+      #           - dst_repo_id
+      #           - dst_parent_dir
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/repos/sync-batch-move-item/:
+    post:
+      tags:
+        - Batch Operation with Multiple Files/Directories
+      summary: Synchronized Operations
+      description: Batch Move Items Synchronously
+      security:
+        - AccountTokenAuth: []
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           src_repo_id:
+      #             $ref: '#/components/schemas/src_repo_id'
+      #           src_parent_dir:
+      #             $ref: '#/components/schemas/src_parent_dir'
+      #           src_dirents:
+      #             $ref: '#/components/schemas/src_dirents'
+      #           dst_repo_id:
+      #             $ref: '#/components/schemas/dst_repo_id'
+      #           dst_parent_dir:
+      #             $ref: '#/components/schemas/dst_parent_dir'
+      #         required:
+      #           - src_repo_id
+      #           - src_parent_dir
+      #           - src_dirents
+      #           - dst_repo_id
+      #           - dst_parent_dir
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/repos/batch-delete-item/:
+    delete:
+      tags:
+        - Batch Operation with Multiple Files/Directories
+      summary: Synchronized Operations
+      description: Batch Delete Items
+      security:
+        - AccountTokenAuth: []
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           repo_id:
+      #             $ref: '#/components/schemas/src_repo_id'
+      #           parent_dir:
+      #             $ref: '#/components/schemas/src_parent_dir'
+      #           dirents:
+      #             $ref: '#/components/schemas/src_dirents'
+      #         required:
+      #           - repo_id
+      #           - parent_dir
+      #           - dirents
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/repos/async-batch-copy-item/:
+    post:
+      tags:
+        - Batch Operation with Multiple Files/Directories
+      summary: Asynchronized Operations
+      description: Batch Copy Items Asynchronously
+      security:
+        - AccountTokenAuth: []
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           src_repo_id:
+      #             $ref: '#/components/schemas/src_repo_id'
+      #           src_parent_dir:
+      #             $ref: '#/components/schemas/src_parent_dir'
+      #           src_dirents:
+      #             $ref: '#/components/schemas/src_dirents'
+      #           dst_repo_id:
+      #             $ref: '#/components/schemas/dst_repo_id'
+      #           dst_parent_dir:
+      #             $ref: '#/components/schemas/dst_parent_dir'
+      #         required:
+      #           - src_repo_id
+      #           - src_parent_dir
+      #           - src_dirents
+      #           - dst_repo_id
+      #           - dst_parent_dir
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/repos/async-batch-move-item/:
+    post:
+      tags:
+        - Batch Operation with Multiple Files/Directories
+      summary: Asynchronized Operations
+      description: Batch Move Items Asynchronously
+      security:
+        - AccountTokenAuth: []
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           src_repo_id:
+      #             $ref: '#/components/schemas/src_repo_id'
+      #           src_parent_dir:
+      #             $ref: '#/components/schemas/src_parent_dir'
+      #           src_dirents:
+      #             $ref: '#/components/schemas/src_dirents'
+      #           dst_repo_id:
+      #             $ref: '#/components/schemas/dst_repo_id'
+      #           dst_parent_dir:
+      #             $ref: '#/components/schemas/dst_parent_dir'
+      #         required:
+      #           - src_repo_id
+      #           - src_parent_dir
+      #           - src_dirents
+      #           - dst_repo_id
+      #           - dst_parent_dir
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/query-copy-move-progress/:
+    get:
+      tags:
+        - Batch Operation with Multiple Files/Directories
+      summary: Asynchronized Operations
+      description: Query Async Operation Progress
+      security:
+        - AccountTokenAuth: []
+      # parameters:
+      #   - $ref: '#/components/parameters/task_id'
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/copy-move-task/:
+    delete:
+      tags:
+        - Batch Operation with Multiple Files/Directories
+      summary: Asynchronized Operations
+      description: Cancel Async operation
+      security:
+        - AccountTokenAuth: []
+      # parameters:
+      #   - $ref: '#/components/parameters/task_id'
+      responses:
+        '200':
+          description: OK
+
+  /api2/groups/:
+    get:
+      tags:
+        - Groups
+      summary: List Groups
+      security:
+        - AccountTokenAuth: []
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/groups/:
+    post:
+      tags:
+        - Groups
+      summary: Add a Group
+      security:
+        - AccountTokenAuth: []
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           name:
+      #             $ref: '#/components/schemas/group_name'
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/groups/{group_id}/:
+    get:
+      tags:
+        - Groups
+      summary: Get Info of a Group
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/group_id'
+        - $ref: '#/components/parameters/avatar_size'
+      responses:
+        '200':
+          description: OK
+
+    put:
+      tags:
+        - Groups
+      summary: Rename/Transfer a Group
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/group_id'
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         oneOf:
+      #           - $ref: '#/components/schemas/name'
+      #           - $ref: '#/components/schemas/owner'
+      responses:
+        '200':
+          description: OK
+
+    delete:
+      tags:
+        - Groups
+      summary: Delete a Group
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/group_id'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /api/v2.1/groups/770/members/:
+    get:
+      tags:
+        - Groups
+      summary: List All Group Members
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/group_id'
+        - $ref: '#/components/parameters/avatar_size'
+        # - $ref: '#/components/parameters/is_admin'
+      responses:
+        '200':
+          description: OK
+
+    post:
+      tags:
+        - Groups
+      summary: Add a Group Member
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/group_id'
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           email:
+      #             $ref: '#/components/schemas/email'
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/groups/770/members/bulk/:
+    post:
+      tags:
+        - Groups
+      summary: Bulk Add Group Members
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/group_id'
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           emails:
+      #             $ref: '#/components/schemas/emails'
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/groups/770/members/{email}/:
+    get:
+      tags:
+        - Groups
+      summary: Get Info of a Group Member
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/group_id'
+        # - $ref: '#/components/parameters/username'
+        # - $ref: '#/components/parameters/avatar_size'
+      responses:
+        '200':
+          description: OK
+
+    put:
+      tags:
+        - Groups
+      summary: Set/Unset a Group Admin
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/group_id'
+        # - $ref: '#/components/parameters/username'
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           is_admin:
+      #             $ref: '#/components/schemas/is_admin'
+      responses:
+        '200':
+          description: OK
+
+    delete:
+      tags:
+        - Groups
+      summary: Leave group or group owner/admin delete a group member
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/group_id'
+        # - $ref: '#/components/parameters/username'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /api/v2.1/invitations/:
+    get:
+      tags:
+        - Invitations
+      summary: List invitations
+      security:
+        - AccountTokenAuth: []
+      responses:
+        '200':
+          description: OK
+
+    post:
+      tags:
+        - Invitations
+      summary: Add invitation
+      security:
+        - AccountTokenAuth: []
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           type:
+      #             $ref: '#/components/schemas/type'
+      #           accepter:
+      #             $ref: '#/components/schemas/accepter'
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/invitations/batch/:
+    post:
+      tags:
+        - Invitations
+      summary: Batch add invitations
+      security:
+        - AccountTokenAuth: []
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           type:
+      #             $ref: '#/components/schemas/type'
+      #           accepter:
+      #             $ref: '#/components/schemas/batch_accepter'
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/invitations/{token}/:
+    get:
+      tags:
+        - Invitations
+      summary: Get invitation
+      security:
+        - AccountTokenAuth: []
+      # parameters:
+      #   - $ref: '#/components/parameters/invitation_token'
+      responses:
+        '200':
+          description: OK
+
+    delete:
+      tags:
+        - Invitations
+      summary: Delete invitation
+      security:
+        - AccountTokenAuth: []
+      # parameters:
+      #   - $ref: '#/components/parameters/invitation_token'
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/invitations/{token}/revoke/:
+    delete:
+      tags:
+        - Invitations
+      summary: Revoke invitation
+      security:
+        - AccountTokenAuth: []
+      # parameters:
+      #   - $ref: '#/components/parameters/invitation_token'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /api2/default-repo/:
+    get:
+      tags:
+        - Libraries
+      summary: Default Library
+      description: Get Default Library
+      security:
+        - AccountTokenAuth: []
+      responses:
+        '200':
+          description: OK
+
+    post:
+      tags:
+        - Libraries
+      summary: Default Library
+      description: Create Default Library
+      security:
+        - AccountTokenAuth: []
+      responses:
+        '200':
+          description: OK
+
+  /api2/repos/:
+    get:
+      tags:
+        - Libraries
+      summary: List Libraries/Search Library By Name
+      security:
+        - AccountTokenAuth: []
+      # parameters:
+      #   - $ref: '#/components/parameters/library_type'
+      #   - $ref: '#/components/parameters/nameContains'
+      responses:
+        '200':
+          description: OK
+
+    post:
+      tags:
+        - Libraries
+      summary: Create (Encrypted) Library
+      security:
+        - AccountTokenAuth: []
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           name:
+      #             $ref: '#/components/schemas/repo_name'
+      #           passwd:
+      #             $ref: '#/components/schemas/library_passwd'
+      #           storage_id:
+      #             $ref: '#/components/schemas/storage_id'
+      responses:
+        '200':
+          description: OK
+
+  /api2/repos/{repo_id}/:
+    get:
+      tags:
+        - Libraries
+      summary: Get Library Info
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+        '200':
+          description: OK
+
+    post:
+      tags:
+        - Libraries
+      summary: Rename/Decrypt Library
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           repo_name:
+      #             $ref: '#/components/schemas/repo_name'
+      #           password:
+      #             $ref: '#/components/schemas/password'
+      responses:
+        '200':
+          description: OK
+
+    delete:
+      tags:
+        - Libraries
+      summary: Delete Library
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+        '200':
+          description: OK
+
+  /api2/repos/{repo_id}/owner/:
+    get:
+      tags:
+        - Libraries
+      summary: Get Library Owner
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+        '200':
+          description: OK
+
+    put:
+      tags:
+        - Libraries
+      summary: Transfer Library
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           owner:
+      #             $ref: '#/components/schemas/repo_owner'
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/repos/{repo_id}/history/:
+    get:
+      tags:
+        - Libraries
+      summary: Get Library History
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+      responses:
+        '200':
+          description: OK
+
+  /api2/repos/{repo-id}/history-limit/:
+    get:
+      tags:
+        - Libraries
+      summary: Get Library History Limit Days
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+        '200':
+          description: OK
+
+    put:
+      tags:
+        - Libraries
+      summary: Set Library History Limit Days
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           keep_days:
+      #             $ref: '#/components/schemas/keep_days'
+      responses:
+        '200':
+          description: OK
+
+  /api/v2.1/repos/{repo_id}/trash/:
+    get:
+      tags:
+        - Libraries
+      summary: Get Library Trash
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/path'
+        # - $ref: '#/components/parameters/show_days'
+        # - $ref: '#/components/parameters/scan_stat'
+      responses:
+        '200':
+          description: OK
+
+    delete:
+      tags:
+        - Libraries
+      summary: Clean Library Trash
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /api/v2.1/repos/{repo_id}/commits/{commit_id}/:
+    get:
+      tags:
+        - Libraries
+      summary: Get Library Commit Info
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/commit_id'
+      responses:
+        '200':
+          description: OK
+
+  /api2/repos/public/:
+    post:
+      tags:
+        - Shared with All Libraries
+      summary: Create Shared with All Library
+      security:
+        - AccountTokenAuth: []
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           repo_name:
+      #             $ref: '#/components/schemas/repo_name'
+      #           permission:
+      #             $ref: '#/components/schemas/permission'
+      #           passwd:
+      #             $ref: '#/components/schemas/password'
+      responses:
+        '200':
+          description: OK
+
+  /api2/shared-repos/{repo_id}/:
+    put:
+      tags:
+        - Shared with All Libraries
+      summary: Set Exist Lib as Shared with All Library
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           permission:
+      #             $ref: '#/components/schemas/permission'
+      #           share_type:
+      #             $ref: '#/components/schemas/share_type'
+      responses:
+        '200':
+          description: OK
+
+    delete:
+      tags:
+        - Shared with All Libraries
+      summary: Remove Shared with All Library
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         type: object
+      #         properties:
+      #           share_type:
+      #             $ref: '#/components/schemas/share_type'
+      responses:
+        '200':
+          description: OK
+
+  /api2/repos/{repo_id}/download-info/:
+    get:
+      tags:
+        - Library Sync
+      summary: Fetch library Sync info
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+        '200':
+          description: OK
+
+
