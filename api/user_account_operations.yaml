@@ -2415,4 +2415,58 @@ paths:
         '200':
           description: OK
 
+  /api2/repos/{repo-id}/owa-file/:
+    get:
+      tags:
+        - Office Web APP Integration
+      summary: View File Through Office Web APP
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        # - $ref: '#/components/parameters/file_path'
+        # - $ref: '#/components/parameters/action'
+      responses:
+        '200':
+          description: OK
+
+  /api2/server-info/:
+    get:
+      tags:
+        - Server Info
+      summary: Get Server Information
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    type: string
+                  encrypted_library_version:
+                    type: integer
+                  features:
+                    type: array
+                    items:
+                      type: string
+                example:
+                  version: '10.0'
+                  encrypted_library_version: 2
+                  features: [
+                    seafile-basic,
+                  ]
+
+  /api/v2.1/share-links/:
+    get:
+      tags:
+        - Share Links
+      summary: List all Share Links
+      security:
+        - AccountTokenAuth: []
+      responses:
+        '200':
+          description: OK
+
 
