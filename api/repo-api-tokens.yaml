@@ -79,7 +79,7 @@ components:
       required: false
       schema:
         type: string
-        default: false
+        default: 'false'
 
     thumbnail_size:
       name: thumbnail_size
@@ -157,7 +157,7 @@ components:
             - revert
         newname:
           type: string
-          default: 'new_folder'
+          example: 'new_folder'
         commit_id:
           type: string
 
@@ -171,7 +171,7 @@ components:
             - revert
         newname:
           type: string
-          default: '2.txt'
+          example: '2.txt'
         commit_id:
           type: string
       required:
@@ -182,15 +182,15 @@ components:
       properties:
         src_parent_dir:
           type: string
-          default: '/src'
+          example: '/src'
         dst_parent_dir:
           type: string
-          default: '/dst'
+          example: '/dst'
         src_dirents:
           type: array
           items:
             type: string
-            default: '1.txt'
+            example: '1.txt'
       required:
         - src_parent_dir
         - dst_parent_dir
@@ -201,12 +201,12 @@ components:
       properties:
         parent_dir:
           type: string
-          default: '/folder'
+          example: '/folder'
         dirents:
           type: array
           items:
             type: string
-            default: '1.txt'
+            example: '1.txt'
       required:
         - parent_dir
         - dirents
