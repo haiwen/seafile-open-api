@@ -224,7 +224,7 @@ paths:
       summary: List repo api tokens
       tags:
         - Via Repo Token
-      description: List all repo tokens of a library
+      description: List all repo tokens of a library==1
       security:
         - AccountTokenAuth: []
       parameters:
