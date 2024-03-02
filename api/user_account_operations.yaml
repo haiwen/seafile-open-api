@@ -91,6 +91,14 @@ components:
         type: string
       example: b2272645-35ee-44ce-8f68-07c022107015
 
+    invitation_token:
+      name: invitation_token
+      in: path
+      required: true
+      schema:
+        type: string
+      example: b2272645-35ee-44ce-8f68-07c022107015
+
     object_id:
       name: oid
       in: query
@@ -143,6 +151,13 @@ components:
       schema:
         type: integer
 
+    email:
+      name: email
+      in: path
+      required: true
+      schema:
+        type: string
+
     repo_id:
       name: repo_id
       in: path
@@ -151,7 +166,46 @@ components:
       schema:
         type: string
         pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
+    
+    comment_id:
+      name: comment_id
+      in: path
+      required: true
+      schema:
+        type: integer
 
+    repo_tag_id:
+      name: repo_tag_id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+    file_tag_id:
+      name: file_tag_id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+    upload_token:
+      name: upload_token
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
+
+    commit_id:
+      name: commit_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
+    
+        
+  
   schemas:
     # request body
     avatar:
@@ -1136,7 +1190,7 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/comment_id'
+        - $ref: '#/components/parameters/comment_id'
       responses:
         '200':
           description: OK
@@ -1149,7 +1203,7 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/comment_id'
+        - $ref: '#/components/parameters/comment_id'
       requestBody:
         content:
           application/json:
@@ -1173,7 +1227,7 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/comment_id'
+        - $ref: '#/components/parameters/comment_id'
       responses:
         '200':
           description: OK
@@ -1316,7 +1370,7 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/repo_tag_id'
+        - $ref: '#/components/parameters/repo_tag_id'
       requestBody:
         content:
           application/json:
@@ -1337,7 +1391,7 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/repo_tag_id'
+        - $ref: '#/components/parameters/repo_tag_id'
       responses:
         '200':
           description: OK
@@ -1379,7 +1433,7 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/file_tag_id'
+        - $ref: '#/components/parameters/file_tag_id'
       responses:
         '200':
           description: OK
@@ -1393,7 +1447,7 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/repo_tag_id'
+        - $ref: '#/components/parameters/repo_tag_id'
       responses:
         '200':
           description: OK
@@ -1426,8 +1480,8 @@ paths:
       #     multipart/form-data:
       #       schema:
       #         $ref: '#/components/schemas/upload_file'
-      # parameters:
-      #   - $ref: '#/components/parameters/upload_token'
+      parameters:
+        - $ref: '#/components/parameters/upload_token'
       responses:
         '200':
           description: OK
@@ -1463,8 +1517,8 @@ paths:
       #         $ref: '#/components/schemas/upload_file'
       #         $ref: '#/components/schemas/file_name'
       #         $ref: '#/components/schemas/parent_dir'
-      # parameters:
-      #   - $ref: '#/components/parameters/upload_token'
+      parameters:
+        - $ref: '#/components/parameters/upload_token'
       responses:
         '200':
           description: OK
@@ -1498,8 +1552,8 @@ paths:
       #       schema:
       #         $ref: '#/components/schemas/file'
       #         $ref: '#/components/schemas/target_file'
-      # parameters:
-      #   - $ref: '#/components/parameters/update_token'
+      parameters:
+        - $ref: '#/components/parameters/upload_token'
       responses:
         '200':
           description: OK
@@ -1891,7 +1945,7 @@ paths:
                   success:
                     type: boolean
 
-  /api/v2.1/groups/770/members/:
+  /api/v2.1/groups/{group_id}/members/:
     get:
       tags:
         - Groups
@@ -1926,7 +1980,7 @@ paths:
         '200':
           description: OK
 
-  /api/v2.1/groups/770/members/bulk/:
+  /api/v2.1/groups/{group_id}/members/bulk/:
     post:
       tags:
         - Groups
@@ -1947,7 +2001,7 @@ paths:
         '200':
           description: OK
 
-  /api/v2.1/groups/770/members/{email}/:
+  /api/v2.1/groups/{group_id}/members/{email}/:
     get:
       tags:
         - Groups
@@ -1956,8 +2010,8 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/group_id'
-        # - $ref: '#/components/parameters/username'
-        # - $ref: '#/components/parameters/avatar_size'
+        - $ref: '#/components/parameters/email'
+        - $ref: '#/components/parameters/avatar_size'
       responses:
         '200':
           description: OK
@@ -1970,7 +2024,7 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/group_id'
-        # - $ref: '#/components/parameters/username'
+        - $ref: '#/components/parameters/email'
       # requestBody:
       #   content:
       #     application/json:
@@ -1991,7 +2045,7 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/group_id'
-        # - $ref: '#/components/parameters/username'
+        - $ref: '#/components/parameters/email'
       responses:
         '200':
           description: OK
@@ -2055,15 +2109,15 @@ paths:
         '200':
           description: OK
 
-  /api/v2.1/invitations/{token}/:
+  /api/v2.1/invitations/{invitation_token}/:
     get:
       tags:
         - Invitations
       summary: Get invitation
       security:
         - AccountTokenAuth: []
-      # parameters:
-      #   - $ref: '#/components/parameters/invitation_token'
+      parameters:
+        - $ref: '#/components/parameters/invitation_token'
       responses:
         '200':
           description: OK
@@ -2074,21 +2128,21 @@ paths:
       summary: Delete invitation
       security:
         - AccountTokenAuth: []
-      # parameters:
-      #   - $ref: '#/components/parameters/invitation_token'
+      parameters:
+        - $ref: '#/components/parameters/invitation_token'
       responses:
         '200':
           description: OK
 
-  /api/v2.1/invitations/{token}/revoke/:
+  /api/v2.1/invitations/{invitation_token}/revoke/:
     delete:
       tags:
         - Invitations
       summary: Revoke invitation
       security:
         - AccountTokenAuth: []
-      # parameters:
-      #   - $ref: '#/components/parameters/invitation_token'
+      parameters:
+        - $ref: '#/components/parameters/invitation_token'
       responses:
         '200':
           description: OK
@@ -2254,7 +2308,7 @@ paths:
         '200':
           description: OK
 
-  /api2/repos/{repo-id}/history-limit/:
+  /api2/repos/{repo_id}/history-limit/:
     get:
       tags:
         - Libraries
@@ -2331,7 +2385,7 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/commit_id'
+        - $ref: '#/components/parameters/commit_id'
       responses:
         '200':
           description: OK
@@ -2415,7 +2469,7 @@ paths:
         '200':
           description: OK
 
-  /api2/repos/{repo-id}/owa-file/:
+  /api2/repos/{repo_id}/owa-file/:
     get:
       tags:
         - Office Web APP Integration
