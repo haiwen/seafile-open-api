@@ -168,7 +168,7 @@ components:
         pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
     
     p:
-      name: p
+      name: path
       in: path
       description: 'The path to the file in the library'
       required: true
@@ -1620,7 +1620,7 @@ paths:
         '200':
           description: OK
 
-  /api2/repos/{repo_id}/file/:
+  /api2/repos/{repo_id}/file/?p={p}:
     get:
       tags:
         - Files
