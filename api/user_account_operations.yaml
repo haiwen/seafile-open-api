@@ -186,21 +186,21 @@ components:
     repo_id_query:
       name: repo_id
       in: path
-      description: ''
+      description: 'The unique identifier of a library'
       required: true
       schema:
         type: string
     path:
       name: path
       in: path
-      description: ''
+      description: 'path of file/folder.'
       required: true
       schema:
         type: string
     is_dir:
       name: is_dir
       in: path
-      description: ''
+      description: 'true or false'
       required: true
       schema: 
         type: string
@@ -368,7 +368,7 @@ components:
     file_operation:
       title: 'operation'
       type: string
-      example: "rename"
+      example: "lock"
     new_name:
       title: 'newname'
       type: string
@@ -1665,37 +1665,57 @@ paths:
     put:
       tags:
         - Files
-      summary: Lock/Unlock File
+      summary: Lock/Unlock file
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/p'
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           operation:
-      #             $ref: '#/components/schemas/file_operation'
+        - $ref: '#/components/parameters/p'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                operation:
+                  $ref: '#/components/schemas/file_operation'
       responses:
         '200':
           description: OK
-
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  type: "file"
+                  repo_id: "eaa2b714-7993-4abc-93ce-56286d45d3de"
+                  parent_dir: "/内层"
+                  obj_name: "b"
+                  obj_id: "0000000000000000000000000000000000000000"
+                  size: 0
+                  mtime: "2024-03-04T15:44:56+08:00"
+                  is_locked: true
+                  can_preview: false
+                  can_edit: false
     delete:
       tags:
         - Files
-      summary: Delete File
+      summary: Delete file
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/p'
+        - $ref: '#/components/parameters/p'
       responses:
         '200':
           description: OK
-
+          content:
+            application/json:
+              schema:
+                type: string
+                example:
+                  success
+                  
   /api2/repos/{repo_id}/file/detail/:
     get:
       tags:
