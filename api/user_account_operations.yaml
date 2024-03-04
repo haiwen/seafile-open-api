@@ -2456,34 +2456,6 @@ paths:
         '200':
           description: OK
 
-  /api2/repos/{repo_id}/download-info/:
-    get:
-      tags:
-        - Library Sync
-      summary: Fetch library Sync info
-      security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
-      responses:
-        '200':
-          description: OK
-
-  /api2/repos/{repo_id}/owa-file/:
-    get:
-      tags:
-        - Office Web APP Integration
-      summary: View File Through Office Web APP
-      security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/file_path'
-        # - $ref: '#/components/parameters/action'
-      responses:
-        '200':
-          description: OK
-
   /api2/server-info/:
     get:
       tags:
