@@ -318,8 +318,7 @@ components:
 
     newname:
       type: string
-      description: the new name of the directory.
-      default: newfolder
+      description: the new name of the directory / file.
 
     commit_id:
       type: string
@@ -365,10 +364,65 @@ components:
         newname:
           $ref: '#/components/schemas/newname'
 
+    
+    file_operation_create:
+      title: 'Create file'
+      type: object
+      properties:
+        operation:
+          type: string
+          enum: [create]
+        
+
+    file_operation_move:
+      title: 'Move file'
+      type: object
+      properties:
+        operation:
+          type: string
+          enum: [move]
+        dst_repo:
+          $ref: '#/components/schemas/dst_repo'
+        dst_dir:
+          $ref: '#/components/schemas/dst_dir'
+
+    file_operation_copy:
+      title: 'Copy file'
+      type: object
+      properties:
+        operation:
+          type: string
+          enum: [copy]
+        dst_repo:
+          $ref: '#/components/schemas/dst_repo'
+        dst_dir:
+          $ref: '#/components/schemas/dst_dir'
+    
+    file_operation_rename:
+      title: 'Rename file'
+      type: object
+      properties:
+        operation:
+          type: string
+          enum: [rename]
+        newname:
+          $ref: '#/components/schemas/new_name'
+
     file_operation:
+      oneOf:
+        - $ref: '#/components/schemas/file_operation_create'
+        - $ref: '#/components/schemas/file_operation_copy'
+        - $ref: '#/components/schemas/file_operation_move'
+        - $ref: '#/components/schemas/file_operation_rename'
+      
+    file_lock_operation:
       title: 'operation'
       type: string
+      enum:
+        - lock
+        - unlock
       example: "lock"
+
     new_name:
       title: 'newname'
       type: string
@@ -1648,16 +1702,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              type: object
-              properties:
-                newname:
-                  $ref: '#/components/schemas/new_name'
-                operation:
-                  $ref: '#/components/schemas/file_operation'
-                dst_repo:
-                  $ref: '#/components/schemas/dst_repo'
-                dst_dir:
-                  $ref: '#/components/schemas/dst_dir'
+              $ref: '#/components/schemas/file_operation'
       responses:
         '200':
           description: OK
@@ -1678,7 +1723,7 @@ paths:
               type: object
               properties:
                 operation:
-                  $ref: '#/components/schemas/file_operation'
+                  $ref: '#/components/schemas/file_lock_operation'
       responses:
         '200':
           description: OK
@@ -1759,7 +1804,7 @@ paths:
                   can_edit: true
 
 
-  /api/v2.1/smart-link/:
+  /api/v2.1/smart-link/?repo_id={repo_id}&path={path}&is_dir={is_dir}:
     get:
       tags:
         - Files
