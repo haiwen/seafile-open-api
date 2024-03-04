@@ -1716,7 +1716,7 @@ paths:
                 example:
                   success
                   
-  /api2/repos/{repo_id}/file/detail/:
+  /api2/repos/{repo_id}/file/detail/?p={p}:
     get:
       tags:
         - Files
