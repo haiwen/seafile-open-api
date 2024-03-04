@@ -167,6 +167,44 @@ components:
         type: string
         pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
     
+    p:
+      name: p
+      in: path
+      description: 'The path to the file in the library'
+      required: true
+      schema:
+        type: string
+
+    reuse:
+      name: reuse
+      in: query
+      description: Set reuse to 1 if you want the generated download link can be accessed more than once in one hour.
+      required: false
+      schema:
+        type: string
+    
+    repo_id_query:
+      name: repo_id
+      in: path
+      description: 'The unique identifier of a library'
+      required: true
+      schema:
+        type: string
+    path:
+      name: path
+      in: path
+      description: 'path of file/folder.'
+      required: true
+      schema:
+        type: string
+    is_dir:
+      name: is_dir
+      in: path
+      description: 'true or false'
+      required: true
+      schema: 
+        type: string
+      
     comment_id:
       name: comment_id
       in: path
@@ -326,6 +364,30 @@ components:
           enum: [rename]
         newname:
           $ref: '#/components/schemas/newname'
+
+    file_operation:
+      title: 'operation'
+      type: string
+      example: "lock"
+    new_name:
+      title: 'newname'
+      type: string
+      example: 'test.md'
+
+    dst_repo:
+      title: dst_repo
+      type: string
+      example: affc837f-7fdd-4e91-b88a-32caf99897f2
+    
+    dst_dir: 
+      title: dst_dir
+      type: string
+      example: /123
+
+
+
+        
+
 
 paths:
   # Account
@@ -1558,52 +1620,44 @@ paths:
         '200':
           description: OK
 
-  /api2/repos/{repo_id}/file/:
+  /api2/repos/{repo_id}/file/?p={p}:
     get:
       tags:
         - Files
-      summary: Download File
+      summary: Download file
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/p'
-        # - $ref: '#/components/parameters/reuse'
+        - $ref: '#/components/parameters/p'
+        - $ref: '#/components/parameters/reuse'
       responses:
         '200':
           description: OK
-
+          
     post:
       tags:
         - Files
-      summary: Rename/Move/Copy File
+      summary: Rename/Move/Copy file
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/p'
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           operation:
-      #             $ref: '#/components/schemas/file_operation'
-      #           newname:
-      #             $ref: '#/components/schemas/new_name'
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           operation:
-      #             $ref: '#/components/schemas/file_operation'
-      #           dst_repo:
-      #             $ref: '#/components/schemas/dst_repo'
-      #           dst_dir:
-      #             $ref: '#/components/schemas/dst_dir'
+        - $ref: '#/components/parameters/p'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                newname:
+                  $ref: '#/components/schemas/new_name'
+                operation:
+                  $ref: '#/components/schemas/file_operation'
+                dst_repo:
+                  $ref: '#/components/schemas/dst_repo'
+                dst_dir:
+                  $ref: '#/components/schemas/dst_dir'
       responses:
         '200':
           description: OK
@@ -1611,65 +1665,130 @@ paths:
     put:
       tags:
         - Files
-      summary: Lock/Unlock File
+      summary: Lock/Unlock file
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/p'
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           operation:
-      #             $ref: '#/components/schemas/file_operation'
+        - $ref: '#/components/parameters/p'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                operation:
+                  $ref: '#/components/schemas/file_operation'
       responses:
         '200':
           description: OK
-
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  type: "file"
+                  repo_id: "eaa2b714-7993-4abc-93ce-56286d45d3de"
+                  parent_dir: "/内层"
+                  obj_name: "b"
+                  obj_id: "0000000000000000000000000000000000000000"
+                  size: 0
+                  mtime: "2024-03-04T15:44:56+08:00"
+                  is_locked: true
+                  can_preview: false
+                  can_edit: false
     delete:
       tags:
         - Files
-      summary: Delete File
+      summary: Delete file
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/p'
+        - $ref: '#/components/parameters/p'
       responses:
         '200':
           description: OK
-
-  /api2/repos/{repo_id}/file/detail/:
+          content:
+            application/json:
+              schema:
+                type: string
+                example:
+                  success
+                  
+  /api2/repos/{repo_id}/file/detail/?p={p}:
     get:
       tags:
         - Files
-      summary: Get File Detail
+      summary: Get file detail
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/p'
+        - $ref: '#/components/parameters/p'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  permission: 
+                    type: string
+                  
+                example:
+                  type: 'file'
+                  id: '000000000000'
+                  name: 'test.md'
+                  permission: 'rw'
+                  mtime: 1709530197
+                  last_modified: "2024-03-04T13:29:57+08:00"
+                  last_modifier_email: "77a423e4804a4d7ca1ec78a150d71229@auth.local"
+                  last_modifier_name: "xiaowu"
+                  last_modifier_contact_email: "1942999482@qq.com"
+                  size: 7839
+                  starred: false
+                  comment_total: 0
+                  can_edit: true
+
 
   /api/v2.1/smart-link/:
     get:
       tags:
         - Files
-      summary: Get Smart Link for a File
+      summary: Get smart link for a file
       security:
         - AccountTokenAuth: []
-      # parameters:
-      #   - $ref: '#/components/parameters/repo_id_query'
-      #   - $ref: '#/components/parameters/path'
-      #   - $ref: '#/components/parameters/is_dir'
+      parameters:
+        - $ref: '#/components/parameters/repo_id_query'
+        - $ref: '#/components/parameters/path'
+        - $ref: '#/components/parameters/is_dir'
       responses:
         '200':
           description: OK
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  smart_link:
+                    type: string
+                  smart_link_token:
+                    type: string
+                  name:
+                    type: string
+              example:
+                smart_link: "https://cloud.seafile.com/smart-link/e5f748cf-be0b-4b9c-bcb5-63b6eccf791c/"
+                smart_link_token: "e5f748cf-be0b-4b9c-bcb5-63b6eccf791c"
+                name: "b"
+
 
   /api/v2.1/repos/sync-batch-copy-item/:
     post:
@@ -2452,34 +2571,6 @@ paths:
       #         properties:
       #           share_type:
       #             $ref: '#/components/schemas/share_type'
-      responses:
-        '200':
-          description: OK
-
-  /api2/repos/{repo_id}/download-info/:
-    get:
-      tags:
-        - Library Sync
-      summary: Fetch library Sync info
-      security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
-      responses:
-        '200':
-          description: OK
-
-  /api2/repos/{repo_id}/owa-file/:
-    get:
-      tags:
-        - Office Web APP Integration
-      summary: View File Through Office Web APP
-      security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/file_path'
-        # - $ref: '#/components/parameters/action'
       responses:
         '200':
           description: OK
