@@ -1700,7 +1700,7 @@ paths:
         - $ref: '#/components/parameters/p'
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
               $ref: '#/components/schemas/file_operation'
       responses:
