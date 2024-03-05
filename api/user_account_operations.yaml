@@ -157,13 +157,21 @@ components:
         enum: [rename]
         default: rename
     
-    path:
+    path_in_query:
       name: path
       in: query
       required: false
       schema:
         type: string
         default: '/'
+
+    path:
+      name: path
+      in: path
+      description: 'path of file/folder.'
+      required: true
+      schema:
+        type: string
 
     show_days:
       name: show_days
@@ -245,13 +253,7 @@ components:
       required: true
       schema:
         type: string
-    path:
-      name: path
-      in: path
-      description: 'path of file/folder.'
-      required: true
-      schema:
-        type: string
+    
     is_dir:
       name: is_dir
       in: path
