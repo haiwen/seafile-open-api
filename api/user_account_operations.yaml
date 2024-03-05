@@ -2772,7 +2772,7 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        - $ref: '#/components/parameters/path'
+        - $ref: '#/components/parameters/path_in_query'
         - $ref: '#/components/parameters/show_days'
         - $ref: '#/components/parameters/scan_stat'
       responses:
