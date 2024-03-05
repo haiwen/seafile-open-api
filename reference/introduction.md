@@ -15,7 +15,3 @@ Before you begin, ensure that you have a Seafile Cloud account. If you have no a
 ## Get started with the Seafile API
 
 Start experimenting with Seafile API using this website, which lets you run Seafile API commands directly from your browser. You need no testing environment, you can start right away to work with your bases, tables and rows via the Seafile API.
-
-## Get started with the Seafile API
-
-Start experimenting with Seafile API using this website, which lets you run Seafile API commands directly from your browser. You need no testing environment, you can start right away to work with your repos, files via the Seafile API.
