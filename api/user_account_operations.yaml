@@ -127,6 +127,61 @@ components:
           - '1'
         default: '0'
 
+    library_type:
+      name: type
+      in: query
+      required: false
+      schema:
+        enum:
+          - mine
+          - shared
+          - group
+          - org
+        default: mine
+
+    nameContains:
+      name: nameContains
+      in: query
+      required: false
+      description: The name of the library 
+      schema:
+          type: string
+
+    op:
+      name: op
+      in: query
+      required: false
+      description: Modify the name passing parameter 
+      schema:
+        type: string
+        enum: [rename]
+        default: rename
+    
+    path:
+      name: path
+      in: query
+      required: false
+      schema:
+        type: string
+        default: '/'
+
+    show_days:
+      name: show_days
+      in: query
+      required: false
+      schema:
+        type: string
+        default: 100
+
+    scan_stat:
+      name: scan_stat
+      in: query
+      description: "An opaque status returned by the last call. In the first call, None must be passed. The last entry of the result list contains a 'scan_stat' attribute. In the next call, pass in the returned 'scan_stat'."
+      required: false
+      schema:
+        type: string
+        
+
     # Path parameters
     user:
       name: user
@@ -242,8 +297,7 @@ components:
         type: string
         pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
     
-        
-  
+    
   schemas:
     # request body
     avatar:
@@ -437,10 +491,44 @@ components:
       title: dst_dir
       type: string
       example: /123
+    
+    library_passwd:
+      type: string
+      example: test
+      description: needed by encrypted library
 
+    storage_id:
+      type: string
+      description: when multiple storage backends enabled, use this identifier for storage object.
 
+    op_rename:
+      title: 'Rename library'
+      type: object
+      properties:
+        repo_name:
+          type: string
+          
+    op_password:
+      title: 'Decrypt library'
+      type: object
+      properties:
+        password:
+          type: string
 
-        
+    library_operation:
+      oneOf:
+        - $ref: '#/components/schemas/op_rename'
+        - $ref: '#/components/schemas/op_password'
+
+    repo_owner:
+      type: string
+      description: The format should be "department_id@seafile_group"
+      example: 62e7d27c7d4f42d8afcc35e2002b812c@auth.local
+
+    keep_days:
+      type: string
+      description: -1 for keep full history; 0 for do not keep history; positive number for keep a period of limit days.
+      example:  8
 
 
 paths:
@@ -2322,66 +2410,139 @@ paths:
     get:
       tags:
         - Libraries
-      summary: Default Library
+      summary: Default library
       description: Get Default Library
       security:
         - AccountTokenAuth: []
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example:
+                exists: true,
+                repo_id: "eaa2b714-7993-4abc-93ce-56286d45d3de"
 
     post:
       tags:
         - Libraries
-      summary: Default Library
+      summary: Default library
       description: Create Default Library
       security:
         - AccountTokenAuth: []
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example:
+                exists: true,
+                repo_id: "eaa2b714-7993-4abc-93ce-56286d45d3de"
+
 
   /api2/repos/:
     get:
       tags:
         - Libraries
-      summary: List Libraries/Search Library By Name
+      summary: List libraries/Search library by name
       security:
         - AccountTokenAuth: []
-      # parameters:
-      #   - $ref: '#/components/parameters/library_type'
-      #   - $ref: '#/components/parameters/nameContains'
+      parameters:
+        - $ref: '#/components/parameters/library_type'
+        - $ref: '#/components/parameters/nameContains'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                properties:
+                  "type":
+                    type: string
+                    description: |
+                      The `type` field in the response indicates the type of library:
+                      - `repo`: Libraries owned by the user.
+                      - `srepo`: Libraries shared with the user.
+                      - `grepo`: Group libraries or libraries shared with all users.
+
+                example: [
+                    {
+                        "type": "repo",
+                        "id": "d5620899-1e9b-4a8c-b9af-b00a26324407",
+                        "owner": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                        "owner_name": "syq",
+                        "owner_contact_email": "1942999482@qq.com",
+                        "name": "reply",
+                        "mtime": 1709560091,
+                        "modifier_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                        "modifier_contact_email": "1942999482@qq.com",
+                        "modifier_name": "syq",
+                        "mtime_relative": "<time datetime=\"2024-03-04T21:48:11\" is=\"relative-time\" title=\"Mon, 04 Mar 2024 21:48:11 +0800\" >12 hours ago</time>",
+                        "size": 2483389,
+                        "size_formatted": "2.4 MB",
+                        "encrypted": false,
+                        "permission": "rw",
+                        "virtual": false,
+                        "root": "",
+                        "head_commit_id": "5e9ef6db4105cdc44dc5270da3f55a3036970d42",
+                        "version": 1,
+                        "salt": ""
+                    }
+                ]
 
     post:
       tags:
         - Libraries
-      summary: Create (Encrypted) Library
+      summary: Create (Encrypted) library
       security:
         - AccountTokenAuth: []
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           name:
-      #             $ref: '#/components/schemas/repo_name'
-      #           passwd:
-      #             $ref: '#/components/schemas/library_passwd'
-      #           storage_id:
-      #             $ref: '#/components/schemas/storage_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  $ref: '#/components/schemas/repo_name'
+                passwd:
+                  $ref: '#/components/schemas/library_passwd'
+                storage_id:
+                  $ref: '#/components/schemas/storage_id'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example:
+                {
+                "relay_id": "44e8f253849ad910dc142247227c8ece8ec0f971",
+                "relay_addr": "127.0.0.1",
+                "relay_port": "80",
+                "email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                "token": "89661286502d98af109f30bb54b63a4b587e5e60",
+                "repo_id": "6d833ca8-392e-4dbf-8f4f-af4895fff121",
+                "repo_name": "test",
+                "repo_desc": "",
+                "repo_size": 0,
+                "repo_size_formatted": "0 bytes",
+                "mtime": 1709609851,
+                "mtime_relative": "<time datetime=\"2024-03-05T11:37:31\" is=\"relative-time\" title=\"Tue, 05 Mar 2024 11:37:31 +0800\" >Just now</time>",
+                "encrypted": 1,
+                "enc_version": 2,
+                "salt": "",
+                "magic": "bc184948365cf90d211b53a82d5cc0c1921eb757788527e0be09c4d7ca22d0cf",
+                "random_key": "0fb038875aa44237db4a7567facf02397fbe2cc890ddcf244af97632510dcab042500a15848bdc326ff3289f48d18afe",
+                "repo_version": 1,
+                "head_commit_id": "4875e1352495c8248349b47619718597e7b3a6ab",
+                "permission": "rw"
+              }
 
   /api2/repos/{repo_id}/:
     get:
       tags:
         - Libraries
-      summary: Get Library Info
+      summary: Get library info
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2389,25 +2550,63 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              examples:
+                For normal library:
+                  value:
+                    type: "repo"
+                    id: "f02212a2-a899-403c-93b7-334dffb8ea6e"
+                    owner: "self"
+                    name: "python"
+                    mtime: 1709537557
+                    size: 7839
+                    encrypted: false
+                    root: "abddbda4e1315a4d2ed671194a47fad34637e4f2"
+                    permission: "rw"
+                    modifier_email: "77a423e4804a4d7ca1ec78a150d71229@auth.local"
+                    modifier_contact_email: "1942999482@qq.com"
+                    modifier_name: "test"
+                    file_count: 2
+                    head_commit_id: "1afe67b9bb1816912d496412c6076316937da58c"
+                For encrypted library:
+                  value:
+                    {
+                    "type": "repo",
+                    "id": "6d833ca8-392e-4dbf-8f4f-af4895fff121",
+                    "owner": "self",
+                    "name": "test",
+                    "mtime": 1709609851,
+                    "size": 0,
+                    "encrypted": true,
+                    "root": "0000000000000000000000000000000000000000",
+                    "permission": "rw",
+                    "modifier_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                    "modifier_contact_email": "1942999482@qq.com",
+                    "modifier_name": "test",
+                    "file_count": 0,
+                    "head_commit_id": "4875e1352495c8248349b47619718597e7b3a6ab",
+                    "enc_version": 2,
+                    "salt": "",
+                    "magic": "bc184948365cf90d211b53a82d5cc0c1921eb757788527e0be09c4d7ca22d0cf",
+                    "random_key": "0fb038875aa44237db4a7567facf02397fbe2cc890ddcf244af97632510dcab042500a15848bdc326ff3289f48d18afe"
+                  }
 
     post:
       tags:
         - Libraries
-      summary: Rename/Decrypt Library
+      summary: Rename/Decrypt library
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           repo_name:
-      #             $ref: '#/components/schemas/repo_name'
-      #           password:
-      #             $ref: '#/components/schemas/password'
+        - $ref: '#/components/parameters/op'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/library_operation'
+              
       responses:
         '200':
           description: OK
@@ -2415,7 +2614,7 @@ paths:
     delete:
       tags:
         - Libraries
-      summary: Delete Library
+      summary: Delete library
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2428,7 +2627,7 @@ paths:
     get:
       tags:
         - Libraries
-      summary: Get Library Owner
+      summary: Get library owner
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2436,23 +2635,27 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example:
+                {"owner": "77a423e4804a4d7ca1ec78a150d71229@auth.local"}
 
     put:
       tags:
         - Libraries
-      summary: Transfer Library
+      summary: Transfer library
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           owner:
-      #             $ref: '#/components/schemas/repo_owner'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                owner:
+                  $ref: '#/components/schemas/repo_owner'
       responses:
         '200':
           description: OK
@@ -2461,7 +2664,7 @@ paths:
     get:
       tags:
         - Libraries
-      summary: Get Library History
+      summary: Get library history
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2471,12 +2674,60 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example:
+                {
+                "commits": [
+                    {
+                        "id": "5853e0638e31555fc606b28b57ff653b44703c19",
+                        "creator_name": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                        "creator": "0000000000000000000000000000000000000000",
+                        "desc": "Changed library name or description",
+                        "ctime": 1709616042,
+                        "parent_id": "d6955bc6cdd7856dc5fcce9485f5d337e132aaa5",
+                        "second_parent_id": null,
+                        "repo_id": "a55a7292-0f75-4803-8914-0279e3e701b0",
+                        "root_id": "0000000000000000000000000000000000000000",
+                        "version": 1,
+                        "new_merge": false,
+                        "conflict": false,
+                        "rev_file_id": null,
+                        "rev_file_size": 0,
+                        "rev_renamed_old_path": null,
+                        "device_name": null,
+                        "client_version": null,
+                        "next_start_commit": null
+                    },
+                    {
+                        "id": "d6955bc6cdd7856dc5fcce9485f5d337e132aaa5",
+                        "creator_name": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                        "creator": "0000000000000000000000000000000000000000",
+                        "desc": "Changed library name or description",
+                        "ctime": 1709616025,
+                        "parent_id": "a6143d7b0c91bb08a4a3264e61bb4689a9d4e88a",
+                        "second_parent_id": null,
+                        "repo_id": "a55a7292-0f75-4803-8914-0279e3e701b0",
+                        "root_id": "0000000000000000000000000000000000000000",
+                        "version": 1,
+                        "new_merge": false,
+                        "conflict": false,
+                        "rev_file_id": null,
+                        "rev_file_size": 0,
+                        "rev_renamed_old_path": null,
+                        "device_name": null,
+                        "client_version": null,
+                        "next_start_commit": null
+                    },
+                ],
+                "page_next": false
+                }
 
   /api2/repos/{repo_id}/history-limit/:
     get:
       tags:
         - Libraries
-      summary: Get Library History Limit Days
+      summary: Get library history limit days
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2484,23 +2735,27 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example:
+                {"keep_days": 60}
 
     put:
       tags:
         - Libraries
-      summary: Set Library History Limit Days
+      summary: Set library history limit days
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           keep_days:
-      #             $ref: '#/components/schemas/keep_days'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                keep_days:
+                  $ref: '#/components/schemas/keep_days'
       responses:
         '200':
           description: OK
@@ -2509,22 +2764,41 @@ paths:
     get:
       tags:
         - Libraries
-      summary: Get Library Trash
+      summary: Get library trash
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/path'
-        # - $ref: '#/components/parameters/show_days'
-        # - $ref: '#/components/parameters/scan_stat'
+        - $ref: '#/components/parameters/path'
+        - $ref: '#/components/parameters/show_days'
+        - $ref: '#/components/parameters/scan_stat'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: 
+                {
+                  "data": [
+                        {
+                            "parent_dir": "/",
+                            "obj_name": "1.pptx",
+                            "deleted_time": "2024-03-05T15:11:29+08:00",
+                            "scan_stat": null,
+                            "commit_id": "9ddc5bb951a91e1f761d37f74620231ce5c8604c",
+                            "is_dir": false,
+                            "size": 34707,
+                            "obj_id": "36ad147552afe49ad0cf60754d0ed4e61efe35d1"
+                        }
+                    ],
+                    "more": false,
+                    "scan_stat": null
+                    }
 
     delete:
       tags:
         - Libraries
-      summary: Clean Library Trash
+      summary: Clean library trash
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2544,7 +2818,7 @@ paths:
     get:
       tags:
         - Libraries
-      summary: Get Library Commit Info
+      summary: Get library commit info
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2553,6 +2827,65 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: {
+                "commit_info": {
+                    "description": "Added or modified \"1.md\" and 2 more files.\nDeleted \"default.jpeg\".\nRenamed \"123.umind\" and 1 more files.\nAdded \"789\" and 1 more directories.\nRemoved directory \"456\".\n",
+                    "creator_name": "lian-name",
+                    "creator_email": "lian@lian.com",
+                    "device_name": "lian mac pro work",
+                    "time": "2024-03-4T10:17:03+08:00",
+                    "creator_contact_email": "lian@lian.com"
+                },
+                "commit_diffs": [
+                    {
+                        "op_type": "renamed",
+                        "path": "/123/123.umind",
+                        "new_path": "/123/123.umind copy"
+                    },
+                    {
+                        "op_type": "renamed",
+                        "path": "/d0efd88ejw1f6vqsjmjh9j20c846i4i6.jpg",
+                        "new_path": "/123.jpg"
+                    },
+                    {
+                        "op_type": "modified",
+                        "path": "/123/1.md",
+                        "new_path": ""
+                    },
+                    {
+                        "op_type": "deldir",
+                        "path": "/123/456",
+                        "new_path": ""
+                    },
+                    {
+                        "op_type": "newdir",
+                        "path": "/123/789",
+                        "new_path": ""
+                    },
+                    {
+                        "op_type": "newdir",
+                        "path": "/abd",
+                        "new_path": ""
+                    },
+                    {
+                        "op_type": "removed",
+                        "path": "/default.jpeg",
+                        "new_path": ""
+                    },
+                    {
+                        "op_type": "new",
+                        "path": "/departments copy.md",
+                        "new_path": ""
+                    },
+                    {
+                        "op_type": "modified",
+                        "path": "/info.md",
+                        "new_path": ""
+                    }
+                ]
+              }
 
   /api2/repos/public/:
     post:
