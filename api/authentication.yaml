@@ -10,7 +10,7 @@ tags:
   - name: Repo-Token
     description: Access library with Repo-Token
 servers:
-  - url: https://(server)
+  - url: https://{server}
     variables:
       server:
         default: cloud.seafile.com
