@@ -2459,19 +2459,20 @@ paths:
             application/json:
               schema:
                 type: array
-                properties:
-                  "type":
-                    type: string
-                    description: |
-                      The `type` field in the response indicates the type of library:
-                      - `repo`: Libraries owned by the user.
-                      - `srepo`: Libraries shared with the user.
-                      - `grepo`: Group libraries or libraries shared with all users.
+                items:
+                  properties:
+                    "type":
+                      type: string
+                      description: |
+                        The `type` field in the response indicates the type of library:
+                        - `repo`: Libraries owned by the user.
+                        - `srepo`: Libraries shared with the user.
+                        - `grepo`: Group libraries or libraries shared with all users.
 
-                example: [
-                    {
-                        "type": "repo",
-                        "id": "d5620899-1e9b-4a8c-b9af-b00a26324407",
+                  example: [
+                      {
+                          "type": "repo",
+                          "id": "d5620899-1e9b-4a8c-b9af-b00a26324407",
                         "owner": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
                         "owner_name": "syq",
                         "owner_contact_email": "1942999482@qq.com",
@@ -2491,7 +2492,7 @@ paths:
                         "version": 1,
                         "salt": ""
                     }
-                ]
+                   ]
 
     post:
       tags:
