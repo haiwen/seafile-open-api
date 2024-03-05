@@ -318,8 +318,7 @@ components:
 
     newname:
       type: string
-      description: the new name of the directory.
-      default: newfolder
+      description: the new name of the directory / file.
 
     commit_id:
       type: string
@@ -407,9 +406,14 @@ components:
           type: string
           enum: [rename]
         newname:
-          $ref: '#/components/schemas/newname'
+          $ref: '#/components/schemas/new_name'
 
-
+    file_operation:
+      oneOf:
+        - $ref: '#/components/schemas/file_operation_create'
+        - $ref: '#/components/schemas/file_operation_copy'
+        - $ref: '#/components/schemas/file_operation_move'
+        - $ref: '#/components/schemas/file_operation_rename'
       
     file_lock_operation:
       title: 'operation'
@@ -418,7 +422,6 @@ components:
         - lock
         - unlock
       example: "lock"
-
 
     new_name:
       title: 'newname'
@@ -1697,13 +1700,9 @@ paths:
         - $ref: '#/components/parameters/p'
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
-              oneOf:
-                - $ref: '#/components/schemas/file_operation_create'
-                - $ref: '#/components/schemas/file_operation_rename'
-                - $ref: '#/components/schemas/file_operation_move'
-                - $ref: '#/components/schemas/file_operation_copy'
+              $ref: '#/components/schemas/file_operation'
       responses:
         '200':
           description: OK
