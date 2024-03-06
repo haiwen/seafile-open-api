@@ -189,6 +189,36 @@ components:
       schema:
         type: string
         
+    upload_ret-json:
+      name: ret-json
+      in: query
+      description:  returns a json array including file info if set to 1. If this parameter is not set, the file ids will be returned in a tab-separated string. New apps should set ret-json to 1.
+      required: false
+      schema:
+        type: string
+    
+    upload_need_idx_progres:
+      name: need_idx_progres
+      in: query
+      required: false
+      description: Set to true  to ask the server to index file content asynchronously after upload is finished. So that the client doesn't have to wait until the file indexing is completed, which can take some time. The request returns a task_id to check file indexing progress.
+      schema:
+        type: string
+    file_name:
+      name: file_name
+      in: query
+      required: true
+      description: 'filename'
+      schema:
+        type: string
+
+    file_path:
+      name: file_path
+      in: query
+      required: true
+      description: 'The path to the file in the library'
+      schema:
+        type: string
 
     # Path parameters
     user:
@@ -273,6 +303,7 @@ components:
       name: repo_tag_id
       in: path
       required: true
+      description: The unique identifier of a tag
       schema:
         type: integer
 
@@ -299,6 +330,8 @@ components:
         type: string
         pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
     
+
+
     
   schemas:
     # request body
@@ -532,14 +565,38 @@ components:
       description: -1 for keep full history; 0 for do not keep history; positive number for keep a period of limit days.
       example:  8
 
+    upload_file:
+      type: object
+      properties:
+        file:
+          type: string
+          description: this field contains the contents to be uploaded.
+        parent_dir:
+          type: string
+          description: path in your Seafile repo that you want to upload local file to. This path must be the same as the 'p' parameter you specified when getting the upload link.
+        relative_path: 
+          type: string
+          description: sub-folder of "parent_dir", if this sub-folder does not exist, Seafile will create it recursively. When you upload a folder, you should set this parameter to the uploaded folder's name.
+        replace:
+          type: string
+          description: whether to overwrite file when it already exists. 1 for replace, 0 for not replace. If existing file is not replaced, the uploaded file will be renamed to the form "filename (1).txt".
 
+    file:
+      type: object
+      properties:
+        file:
+          type: string
+          description: this field contains the contents to be uploaded.
+        target_file:
+          type: string
+          description: The absolute path inside the library of the file being updated.
 paths:
   # Account
   /api2/account/info/:
     get:
       tags:
         - Account
-      summary: Get Account Info
+      summary: Get account info
       description: Get the detailed account information with the user's Account Token.
       security:
         - AccountTokenAuth: []
@@ -568,7 +625,7 @@ paths:
     get:
       tags:
         - Account
-      summary: Get Client Login URL
+      summary: Get client login url
       description: You can use this API to get a URL to login into the Web interface. The usage case is to provide the feature of 'Visit web site' in the clients.
       security:
         - AccountTokenAuth: []
@@ -587,7 +644,7 @@ paths:
     get:
       tags:
         - Activities
-      summary: Get File Activities
+      summary: Get file activities
       description: Get File Activities
       security:
         - AccountTokenAuth: []
@@ -621,7 +678,7 @@ paths:
     post:
       tags:
         - Avatars
-      summary: Upload/Update User Avatar
+      summary: Upload/Update user avatar
       description: Upload an image to make it your current avatar. After successful uploading/updating your avatar, the file will be renamed and converted to .png. The URL of your new avatar is returned in the response.
       security:
         - AccountTokenAuth: []
@@ -650,7 +707,7 @@ paths:
     get:
       tags:
         - Avatars      
-      summary: Get User Avatar
+      summary: Get user avatar
       security:
         - AccountTokenAuth: []
       parameters:
@@ -672,7 +729,7 @@ paths:
     post:
       tags:
         - Department Libraries
-      summary: Add Group Owned Library
+      summary: Add group owned library
       description: Add Group Owned Library
       security:
         - AccountTokenAuth: []
@@ -713,7 +770,7 @@ paths:
     put:
       tags:
         - Department Libraries
-      summary: Rename a Group Owned Library
+      summary: Rename a group owned library
       description: Rename a Group Owned Library
       security:
         - AccountTokenAuth: []
@@ -749,7 +806,7 @@ paths:
     delete:
       tags:
         - Department Libraries
-      summary: Delete Group Owned Library
+      summary: Delete group owned library
       description: Delete Group Owned Library
       security:
         - AccountTokenAuth: []
@@ -771,7 +828,7 @@ paths:
     get:
       tags:
         - Department Libraries
-      summary: Get Group Owned Library User Share Info
+      summary: Get group owned library user share info
       security:
         - AccountTokenAuth: []
       parameters:
@@ -795,7 +852,7 @@ paths:
     post:
       tags:
         - Department Libraries
-      summary: Share Group Owned Library to User
+      summary: Share group owned library to user
       security:
         - AccountTokenAuth: []
       parameters:
@@ -849,7 +906,7 @@ paths:
     put:
       tags:
         - Department Libraries
-      summary: Modify Group Owned Library User Share Permission
+      summary: Modify group owned library user share permission
       security:
         - AccountTokenAuth: []
       parameters:
@@ -882,7 +939,7 @@ paths:
     delete:
       tags:
         - Department Libraries
-      summary: Delete Group Owned Library User Share
+      summary: Delete group owned library user share
       security:
         - AccountTokenAuth: []
       parameters:
@@ -914,7 +971,7 @@ paths:
     get:
       tags:
         - Department Libraries
-      summary: Get Group Owned Library Group Share Info
+      summary: Get group owned library group share info
       security:
         - AccountTokenAuth: []
       parameters:
@@ -937,7 +994,7 @@ paths:
     post:
       tags:
         - Department Libraries
-      summary: Share Group Owned Library to Group
+      summary: Share group owned library to group
       security:
         - AccountTokenAuth: []
       parameters:
@@ -989,7 +1046,7 @@ paths:
     put:
       tags:
         - Department Libraries
-      summary: Modify Group Owned Library Group Share Permission
+      summary: Modify group owned library group share permission
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1022,7 +1079,7 @@ paths:
     delete:
       tags:
         - Department Libraries
-      summary: Delete Group Owned Library Group Share
+      summary: Delete group owned library group share
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1054,7 +1111,7 @@ paths:
     get:
       tags:
         - Devices
-      summary: List Devices
+      summary: List devices
       security:
         - AccountTokenAuth: []
       responses:
@@ -1081,7 +1138,7 @@ paths:
     delete:
       tags:
         - Devices
-      summary: Unlink Device
+      summary: Unlink device
       security:
         - AccountTokenAuth: []
       requestBody:
@@ -1114,7 +1171,7 @@ paths:
     get:
       tags:
         - Directories
-      summary: List Items in Directory
+      summary: List items in directory
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1141,7 +1198,7 @@ paths:
     post:
       tags:
         - Directories
-      summary: Create New or Rename Directory
+      summary: Create new or rename directory
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1167,7 +1224,7 @@ paths:
     delete:
       tags:
         - Directories
-      summary: Delete Directory
+      summary: Delete directory
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1187,7 +1244,7 @@ paths:
     get:
       tags:
         - Directories
-      summary: Get Directory Detail
+      summary: Get directory detail
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1210,7 +1267,7 @@ paths:
     put:
       tags:
         - Directories
-      summary: Revert Directory to a History Status
+      summary: Revert directory to a history status
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1240,7 +1297,7 @@ paths:
     get:
       tags:
         - Directories
-      summary: Download Directory
+      summary: Download directory
       description: Get Task Token
       security:
         - AccountTokenAuth: []
@@ -1264,7 +1321,7 @@ paths:
     post:
       tags:
         - Directories
-      summary: Download Directory
+      summary: Download directory
       description: Download Multiple Items, Get Task Token
       security:
         - AccountTokenAuth: []
@@ -1297,7 +1354,7 @@ paths:
     get:
       tags:
         - Directories
-      summary: Download Directory
+      summary: Download directory
       description: Query Task Progress
       security:
         - AccountTokenAuth: []
@@ -1535,7 +1592,7 @@ paths:
     get:
       tags:
         - File Tags
-      summary: List All Tags of a Library
+      summary: List all tags of a library
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1543,11 +1600,23 @@ paths:
       responses:
         '200':
           description: OK
-
+          content:
+            application/json:
+              example: {
+                  "repo_tags": [
+                      {
+                          "repo_tag_id": 429,
+                          "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
+                          "tag_name": "test",
+                          "tag_color": "#FBD44A",
+                          "files_count": 1
+                      }
+                              ]
+                      }
     post:
       tags:
         - File Tags
-      summary: Add a Tag to a Library
+      summary: Add a tag to a library
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1557,21 +1626,34 @@ paths:
           application/json:
             schema:
               type: object
-              # properties:
-              #   name:
-              #   color:
-              # required:
-              #   - name
-              #   - color
+              properties:
+                name:
+                  type: string
+                  example: test
+                color:
+                  type: string
+                  example:  "#FBD44A"
+              required:
+                - name
+                - color
       responses:
         '200':
           description: OK
-
+          content:
+            application/json:
+              example: {
+                    "repo_tag": {
+                    "repo_tag_id": 430,
+                    "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
+                    "tag_name": "t",
+                    "tag_color": "#FFFFFF"
+                            }
+                      }
   /api/v2.1/repos/{repo_id}/repo-tags/{repo_tag_id}/:
     put:
       tags:
         - File Tags
-      summary: Update a Tag of a Library
+      summary: Update a tag of a library
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1582,17 +1664,30 @@ paths:
           application/json:
             schema:
               type: object
-              # properties:
-              #   name:
-              #   color:
+              properties:
+                name:
+                  type: string
+                  example: t1
+                color:
+                  type: string
+                  example: '#000000'
       responses:
         '200':
           description: OK
-
+          content:
+            application/json:
+              example: {
+                "repo_tag": {
+                    "repo_tag_id": 430,
+                    "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
+                    "tag_name": "t1",
+                    "tag_color": "#000000"
+                            }
+                      }
     delete:
       tags:
         - File Tags
-      summary: Delete a Tag of a Library
+      summary: Delete a tag of a library
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1606,35 +1701,61 @@ paths:
     get:
       tags:
         - File Tags
-      summary: List All Tags of a File
+      summary: List all tags of a file
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/file_path'
+        - $ref: '#/components/parameters/file_path'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: {
+                  "file_tags": [
+                      {
+                          "tag_color": "#FFD43B",
+                          "tag_name": "new",
+                          "repo_tag_id": 1,
+                          "file_tag_id": 1
+                      },
+                      {
+                          "tag_color": "#FFA8A8",
+                          "tag_name": "deprecated",
+                          "repo_tag_id": 2,
+                          "file_tag_id": 4
+                      }
+                                ]
+                     }
 
     post:
       tags:
         - File Tags
-      summary: Add a Tag for a File
+      summary: Add a tag for a file
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/file_path'
-        # - $ref: '#/components/parameters/repo_tag_id'
+        - $ref: '#/components/parameters/file_path'
+        - $ref: '#/components/parameters/repo_tag_id'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: {
+                      "file_tag": {
+                          "file_tag_id": 957,
+                          "repo_tag_id": 429
+                                  }
+                        }
 
   /api/v2.1/repos/{repo_id}/file-tags/{file_tag_id}/:
     delete:
       tags:
         - File Tags
-      summary: Delete a Tag from a File
+      summary: Delete a tag from a file
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1643,12 +1764,14 @@ paths:
       responses:
         '200':
           description: OK
-
+          content:
+            application/json:
+              example: { "success": "true" }
   /api/v2.1/repos/{repo_id}/tagged-files/{repo_tag_id}/:
     get:
       tags:
         - File Tags
-      summary: List Tagged Files By Tag
+      summary: List tagged files by tag
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1657,92 +1780,184 @@ paths:
       responses:
         '200':
           description: OK
-
+          content:
+            application/json:
+              example: {
+                "tagged_files": [
+                    {
+                        "file_tag_id": 953,
+                        "parent_path": "/",
+                        "filename": "test",
+                        "size": 43,
+                        "mtime": 1709710694,
+                        "last_modified": "2024-03-06T15:38:14+08:00",
+                        "modifier_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                        "modifier_contact_email": "1942999482@qq.com",
+                        "modifier_name": "冲鸭丶"
+                    },
+                    {
+                        "file_tag_id": 957,
+                        "parent_path": "/",
+                        "filename": "test.md",
+                        "size": 0,
+                        "mtime": 1709695513,
+                        "last_modified": "2024-03-06T11:25:13+08:00",
+                        "modifier_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                        "modifier_contact_email": "1942999482@qq.com",
+                        "modifier_name": "冲鸭丶"
+                    }
+                ]
+                }
+          
   /api2/repos/{repo_id}/upload-link/:
     get:
       tags:
         - File Upload
-      summary: Upload File
-      description: Get Upload Link
+      summary: Get upload link
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/p'
+        - $ref: '#/components/parameters/p'
       responses:
         '200':
           description: OK
-
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "https://cloud.seafile.com/seafhttp/upload-api/5b7d49bc-3756-4995-9e00-e5faddb3455b"
+ 
   /seafhttp/upload-aj/{upload_token}?ret-json=1:
     post:
       tags:
         - File Upload
-      summary: Upload File
-      description: Upload File
+      summary: Upload file
+      description: Upload file
       security:
         - AccountTokenAuth: []
-      # requestBody:
-      #   content:
-      #     multipart/form-data:
-      #       schema:
-      #         $ref: '#/components/schemas/upload_file'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/upload_file'
       parameters:
         - $ref: '#/components/parameters/upload_token'
+        - $ref: '#/components/parameters/upload_ret-json'
+        - $ref: '#/components/parameters/upload_need_idx_progres'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              examples:
+                No ref-json:
+                  value: adc83b19e793491b1c6ea0fd8b46cd9f32e592fc
+                ref-json:
+                  value: [
+                    {
+                        "name": "test.txt",
+                        "id": "4ccd37916552e2943314027931edd0b45240be7c",
+                        "size": 2987
+                    }
+                   ]
+                Sample response with relative_path and ret-json:
+                  value: [
+                        {
+                            "name": "test.txt",
+                            "id": "4ccd37916552e2943314027931edd0b45240be7c",
+                            "size": 2987
+                        },
+                        {
+                            "name": "1.jpg",
+                            "id": "12e07dd00c124fa7ea3b645ff9fe183f73eab2a1",
+                            "size": 1699246
+                        }
+                    ]
+                Sample response with ?need_idx_progress=true:
+                  value: d319a3f4-40da-4d58-9d3f-07864061f633
+                Sample response with ?task_id:
+                  value: {
+                    "indexed": 1244,
+                    "total": 1244,
+                    "status": 0,
+                    "ret_json": "[{\"name\": \"seafile-license (1).txt\", \"id\": \"cb8d8eaa4e540d30550a26e399b1207ef798bc67\", \"size\": 1244}]"
+                    }
 
   /api/v2.1/repos/{repo_id}/file-uploaded-bytes/:
     get:
       tags:
         - File Upload
-      summary: Resumable Upload File
+      summary: Resumable upload file
       description: Check If Enable Resumable Upload, Get Bytes Already Uploaded
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/parent_dir'
-        # - $ref: '#/components/parameters/file_name'
+        - $ref: '#/components/parameters/parent_dir'
+        - $ref: '#/components/parameters/file_name'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                description:  'If the response has this header Accept-Ranges: bytes, means that Seafile server supports resumable upload file.'
+              example: |
+                      ....... 
+                      < Accept-Ranges: bytes 
+                      ........
+                      {
+                          "uploadedBytes": 0
+                      * Closing connection 0
+                      }
 
   /seafhttp/upload-api/{upload_token}/:
     post:
       tags:
         - File Upload
-      summary: Resumable Upload File
+      summary: Upload file in chunks
       description: Upload File in Chunks
       security:
         - AccountTokenAuth: []
-      # requestBody:
-      #   content:
-      #     multipart/form-data:
-      #       schema:
-      #         $ref: '#/components/schemas/upload_file'
-      #         $ref: '#/components/schemas/file_name'
-      #         $ref: '#/components/schemas/parent_dir'
+      
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/upload_file'
+              # $ref: '#/components/schemas/file_name'
+              # $ref: '#/components/schemas/parent_dir'
+          
       parameters:
         - $ref: '#/components/parameters/upload_token'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: {
+                    "success": true
+                       }
 
   /api2/repos/{repo_id}/update-link/:
     get:
       tags:
         - File Upload
-      summary: Update file
+      summary: Get update file
       description: Get Update Link
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/p'
+        - $ref: '#/components/parameters/p'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: "https://cloud.seafile.com/seafhttp/update-api/aa610889-04ce-4d25-979e-6cb528775038"
 
   /seafhttp/update-api/{upload_token}/:
     post:
@@ -1752,17 +1967,20 @@ paths:
       description: Update file
       security:
         - AccountTokenAuth: []
-      # requestBody:
-      #   content:
-      #     multipart/form-data:
-      #       schema:
-      #         $ref: '#/components/schemas/file'
-      #         $ref: '#/components/schemas/target_file'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/file'
+              # $ref: '#/components/schemas/target_file'
       parameters:
         - $ref: '#/components/parameters/upload_token'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: "adc83b19e793491b1c6ea0fd8b46cd9f32e592fc"
 
   /api2/repos/{repo_id}/file/?p={p}:
     get:
@@ -2987,7 +3205,7 @@ paths:
   /api/v2.1/share-links/:
     get:
       tags:
-        - Share Links
+        - Share links
       summary: List all Share Links
       security:
         - AccountTokenAuth: []
