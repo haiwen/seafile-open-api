@@ -2784,26 +2784,6 @@ paths:
                 "success": true
                       }
 
-  /api/v2.1/query-zip-progress/?token={token}:
-    get:
-      tags:
-        - Batch Operation with Multiple Files/Directories
-      summary: Query task progress
-      description: Query task progress
-      security: 
-        - AccountTokenAuth: []
-      parameters:
-         - $ref: '#/components/parameters/zip_token'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              example: {
-                "zipped":2,
-                "total":2
-                        }
-
   /api2/groups/:
     get:
       tags:
