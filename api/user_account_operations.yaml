@@ -2464,7 +2464,7 @@ paths:
                 example:
                   success
                   
-  /api2/repos/{repo_id}/file/detail/?p={p}:
+  /api2/repos/{repo_id}/file/detail/:
     get:
       tags:
         - Files
