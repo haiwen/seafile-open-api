@@ -204,6 +204,7 @@ components:
       description: Set to true  to ask the server to index file content asynchronously after upload is finished. So that the client doesn't have to wait until the file indexing is completed, which can take some time. The request returns a task_id to check file indexing progress.
       schema:
         type: string
+
     file_name:
       name: file_name
       in: query
@@ -218,6 +219,110 @@ components:
       required: true
       description: 'The path to the file in the library'
       schema:
+        type: string
+
+    comment_p:
+      name: p
+      in: query
+      required: true
+      description: 'The path to the file in the library'
+      schema: 
+        type: string
+
+    commit_id_in_query:
+      name: commit_id
+      in: query
+      required: false
+      description: commit id used for get more file history. If not passed, Seafile will use library's head commit id as its default value and return the latest history.
+      schema: 
+        type: string
+    
+    history_path:
+      name: path
+      in: query
+      required: true
+      description: file path
+      schema:
+        type: string
+  
+    commit_id_query:
+      name: commit_id
+      in: query
+      required: true
+      description: The unique identifier of a commit
+      schema:
+        type: string
+    q:
+      name: q
+      in: query
+      required: true
+      description: keyword for searching.
+      schema: 
+        type: string
+
+    search_repo:  
+      name: search_repo
+      in: query
+      required: false
+      description: all, mine, shared, group, public or a repo_id, (all for searching in all libraries, etc.), optional. For searching in shared libraries, you can also pass shared_from or not_shared_from parameter beside shared to filter shared libraries.
+      schema: 
+        type: string
+        required:
+          - "all"
+          - "mine"
+          - "shared"
+          - "group"
+          - "public"
+          - "repo_id"
+        default: all
+    
+    search_path:
+      name: search_path
+      in: query
+      required: false
+      description: path of specifiy library.(This option works only when search_repo is a single repo_id.)
+      schema: 
+        type: string
+    
+    search_ftypes:
+      name: search_ftypes
+      in: query
+      required: false
+      description: all or custom, (all for searching all file types, custom for only searching the specific file types you defined in ftype and input_fexts).
+      schema: 
+        type: string
+        default: all
+    
+    ftype:
+      name: ftype
+      in: query
+      required: false
+      description: must be in (Text, Document, Image, Video, Audio, PDF, Markdown).
+      schema:
+        type: string
+        
+    with_permission:
+      name: with_permission
+      in: query
+      required: false
+      description: true or false. Whether return permission info of the file or not, default is false.
+      schema:
+        type: boolean
+
+    task_id:
+      name: task_id
+      in: query
+      required: true
+      description: 'Asynchronous operation id' 
+      schema: 
+        type: string
+    
+    zip_token:
+      name: token
+      in: query
+      description: ""
+      required: true
+      schema: 
         type: string
 
     # Path parameters
@@ -262,7 +367,7 @@ components:
     
     p:
       name: p
-      in: path
+      in: query
       description: 'The path to the file in the library'
       required: true
       schema:
@@ -278,7 +383,7 @@ components:
     
     repo_id_query:
       name: repo_id
-      in: path
+      in: query
       description: 'The unique identifier of a library'
       required: true
       schema:
@@ -296,6 +401,7 @@ components:
       name: comment_id
       in: path
       required: true
+      description: The unique identifier of a comment
       schema:
         type: integer
 
@@ -424,6 +530,12 @@ components:
     src_dirent_name:
       type: string
       example: folder
+
+    src_dirents:
+      type: array
+      items:
+        type: string
+        example: ["1.md","2.md"]
 
     dst_repo_id:
       type: string
@@ -1426,10 +1538,53 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/file_path'
+        - $ref: '#/components/parameters/file_path'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: {
+                "comments": [
+                    {
+                        "comment": "word",
+                        "repo_id": "4674c2bb-3702-4dd0-b768-8952db27ac87",
+                        "item_name": "doc",
+                        "created_at": "2017-10-11T02:49:42+00:00",
+                        "parent_path": "/doc",
+                        "avatar_url": "https://cloud.seafile.com/media/avatars/default.png",
+                        "user_name": "admin",
+                        "id": 7,
+                        "user_email": "admin@admin.com",
+                        "user_contact_email": "admin@admin.com"
+                    },
+                    {
+                        "comment": "help",
+                        "repo_id": "4674c2bb-3702-4dd0-b768-8952db27ac87",
+                        "item_name": "doc",
+                        "created_at": "2017-10-11T02:49:44+00:00",
+                        "parent_path": "/doc",
+                        "avatar_url": "https://cloud.seafile.com/media/avatars/default.png",
+                        "user_name": "admin",
+                        "id": 8,
+                        "user_email": "admin@admin.com",
+                        "user_contact_email": "admin@admin.com"
+                    },
+                    {
+                        "comment": "test",
+                        "repo_id": "4674c2bb-3702-4dd0-b768-8952db27ac87",
+                        "item_name": "doc",
+                        "created_at": "2017-10-11T03:32:37+00:00",
+                        "parent_path": "/doc",
+                        "avatar_url": "https://cloud.seafile.com/media/avatars/default.png",
+                        "user_name": "admin",
+                        "id": 10,
+                        "user_email": "admin@admin.com",
+                        "user_contact_email": "admin@admin.com"
+                    }
+                ]
+                   } 
+
 
     post:
       tags:
@@ -1439,10 +1594,37 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/file_path'
+        - $ref: '#/components/parameters/comment_p'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+                  example: hello          
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: {
+                "id": 285,
+                "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
+                "parent_path": "/",
+                "item_name": "test",
+                "comment": "hello",
+                "created_at": "2024-03-07T10:09:12+08:00",
+                "updated_at": "2024-03-07T10:09:12+08:00",
+                "resolved": false,
+                "detail": "",
+                "replies": [],
+                "user_name": "冲鸭丶",
+                "user_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                "user_contact_email": "1942999482@qq.com",
+                "avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/80/1672a4ff48124e6ada03a4414518cf4a_CNvUDQE.png"
+                    }
 
   /api2/repos/{repo_id}/file/comments/{comment_id}/:
     get:
@@ -1457,6 +1639,24 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: {
+                  "id": 285,
+                  "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
+                  "parent_path": "/",
+                  "item_name": "test",
+                  "comment": "hello",
+                  "created_at": "2024-03-07T10:09:12+08:00",
+                  "updated_at": "2024-03-07T10:09:12+08:00",
+                  "resolved": false,
+                  "detail": "",
+                  "replies": [],
+                  "user_name": "冲鸭丶",
+                  "user_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                  "user_contact_email": "1942999482@qq.com",
+                  "avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/80/1672a4ff48124e6ada03a4414518cf4a_CNvUDQE.png"
+                      }
 
     put:
       tags:
@@ -1472,16 +1672,38 @@ paths:
           application/json:
             schema:
               type: object
-              # properties:
-              #   detail:
-              #   resolved:
-              # required:
-              #   - detail
-              #   - resolved
+              properties:
+                detail:
+                  type: string
+                  example: abc
+                resolved:
+                  type: string
+                  description: true or false must be a string
+                  example: "true"
+              required:
+                - detail
+                - resolved
       responses:
         '200':
           description: OK
-
+          content:
+            application/json:
+              example: {
+                "id": 285,
+                "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
+                "parent_path": "/",
+                "item_name": "test",
+                "comment": "hello",
+                "created_at": "2024-03-07T10:09:12+08:00",
+                "updated_at": "2024-03-07T10:09:12+08:00",
+                "resolved": false,
+                "detail": "abc",
+                "replies": [],
+                "user_name": "test",
+                "user_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                "user_contact_email": "1942999482@qq.com",
+                "avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/80/1672a4ff48124e6ada03a4414518cf4a_CNvUDQE.png"
+                      }
     delete:
       tags:
         - File Comments
@@ -1499,61 +1721,153 @@ paths:
     get:
       tags:
         - File Comments
-      summary: Get all comments for a file
+      summary: Get number of comments
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/file_path'
+        - $ref: '#/components/parameters/comment_p'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: { "test": 2 }
 
   /api/v2.1/repos/{repo_id}/file/history/:
     get:
       tags:
         - File History
-      summary: Get File History
+      summary: Get file history
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/file_path'
-        # - $ref: '#/components/parameters/commit_id'
+        - $ref: '#/components/parameters/history_path'
+        - $ref: '#/components/parameters/commit_id_in_query'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  next_start_commit:
+                    description: If value of next_start_commit is NOT false, it means that there are more file history, if you want to continue to get more file history, resend the request with commit_id parameter, and assign the value of next_start_commit in response to request's commit_id parameter.
+                  rev_renamed_old_path:
+                    description: If value of rev_renamed_old_path field in the last item of data in response is NOT null, it means that the last item is a file renamed/moved commit, if you want to get more file history before file was renamed/moved,  resend the request, and assign the value of rev_renamed_old_path in response to request's path parameter.
+              example: {
+                  "data": [
+                      {
+                          "creator_avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/32/1672a4ff48124e6ada03a4414518cf4a_CNvUDQE.png",
+                          "creator_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                          "creator_name": "冲鸭丶",
+                          "creator_contact_email": "1942999482@qq.com",
+                          "ctime": "2024-03-07T11:08:16+08:00",
+                          "description": "Modified \"1.docx\"",
+                          "commit_id": "3fce7037bd238aa619416b8f7e2d44f1102ad556",
+                          "size": 25022,
+                          "rev_file_id": "1067d1adbb93c196c4e83f47c672f2e8445d831c",
+                          "rev_renamed_old_path": null,
+                          "path": "/1.docx"
+                      },
+                      {
+                          "creator_avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/32/1672a4ff48124e6ada03a4414518cf4a_CNvUDQE.png",
+                          "creator_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                          "creator_name": "冲鸭丶",
+                          "creator_contact_email": "1942999482@qq.com",
+                          "ctime": "2024-03-07T11:07:41+08:00",
+                          "description": "Modified \"1.docx\"",
+                          "commit_id": "2a3772010975725d2106f6dec17cd4c6f02ea353",
+                          "size": 7839,
+                          "rev_file_id": "0f3530f88bb1e398773edabe3297b448798f3e2e",
+                          "rev_renamed_old_path": null,
+                          "path": "/1.docx"
+                      },
+                      {
+                          "creator_avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/32/1672a4ff48124e6ada03a4414518cf4a_CNvUDQE.png",
+                          "creator_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                          "creator_name": "冲鸭丶",
+                          "creator_contact_email": "1942999482@qq.com",
+                          "ctime": "2024-03-07T11:07:41+08:00",
+                          "description": "Added \"1.docx\"",
+                          "commit_id": "b5d0996980e9199184b92c74e858fa6cba9b6b02",
+                          "size": 0,
+                          "rev_file_id": "0000000000000000000000000000000000000000",
+                          "rev_renamed_old_path": null,
+                          "path": "/1.docx"
+                      }
+                  ],
+                  "next_start_commit": false
+                      }
 
   /api/v2.1/repos/{repo_id}/file/:
     post:
       tags:
         - File History
-      description: Create File/Restore File From History
+      summary: Create/Restore file from history
+      description: Create/Restore file from history
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/file_path'
-        # - $ref: '#/components/parameters/operation'
-        # - $ref: '#/components/parameters/commit_id'
+        - $ref: '#/components/parameters/p'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                operation:
+                  type: string
+                  example: revert
+                  required:
+                    - "revert"
+                    - "create"
+                commit_id:
+                  type: string
+                  example: 'b5d0996980e9199184b92c74e858fa6cba9b6b02'
       responses:
         '200':
           description: OK
-
+          content:
+            application/json:
+              examples:
+                revert:
+                  value: {
+                    "success": true
+                        }
+                create:
+                  value: {
+                      "type": "file",
+                      "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
+                      "parent_dir": "/",
+                      "obj_name": "3.txt",
+                      "obj_id": "0000000000000000000000000000000000000000",
+                      "size": 0,
+                      "mtime": "2024-03-07T11:36:35+08:00",
+                      "is_locked": false,
+                      "can_preview": true,
+                      "can_edit": true
+                         }
+                  
   /api2/repos/{repo_id}/file/revision/:
     get:
       tags:
         - File History
-      summary: Download File From a Revision
+      summary: Download file from a revision
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/file_path'
-        # - $ref: '#/components/parameters/commit_id'
+        - $ref: '#/components/parameters/p'
+        - $ref: '#/components/parameters/commit_id_query'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: "https://cloud.seafile.com/seafhttp/files/c7764c20-bcef-42fe-ab7c-e37a4f0bd246/1.docx"
 
   /api2/search/:
     get:
@@ -1562,18 +1876,78 @@ paths:
       summary: Search Files in Libraries
       security:
         - AccountTokenAuth: []
-      # parameters:
-        # - $ref: '#/components/parameters/q'
-        # - $ref: '#/components/parameters/page'
-        # - $ref: '#/components/parameters/per_page'
-        # - $ref: '#/components/parameters/search_repo'
-        # - $ref: '#/components/parameters/search_path'
-        # - $ref: '#/components/parameters/search_ftypes'
-        # - $ref: '#/components/parameters/ftype'
+      parameters:
+        - $ref: '#/components/parameters/q'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+        - $ref: '#/components/parameters/search_repo'
+        - $ref: '#/components/parameters/search_path'
+        - $ref: '#/components/parameters/search_ftypes'
+        - $ref: '#/components/parameters/ftype'
+        - $ref: '#/components/parameters/with_permission'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                input_fexts:
+                  type: string
+                  description: file extensions manually specific.
+                time_from:
+                  type: integer
+                  description: filter the result that the updated time greater than or equal to  this value. default unit is second.
+                time_to:
+                  type: integer
+                  description: filter the result that the updated time less than or equal to  this value. default unit is second.
+                size_from:
+                  type: string
+                  description: filter the result that the size greater than or equal to  this value. default unit is byte.
+                size_to: 
+                  type: string
+                  description: filter the result that the size less than or equal to this value. default unit is byte.
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: {
+                  "has_more": false,
+                  "total": 2,
+                  "results": [
+                      {
+                          "repo_owner_name": "admin",
+                          "repo_id": "2628a63b-cfad-41f5-a748-392ec9287686",
+                          "name": "3a",
+                          "repo_encrypted": False,
+                          "repo_owner_contact_email": "admin@admin.com",
+                          "repo_owner_email": "admin@admin.com",
+                          "last_modified": 1520836447,
+                          "content_highlight": "",
+                          "fullpath": "/testtest/3a",
+                          "repo_name": "dev",
+                          "is_dir": false,
+                          "size": 0
+                      },
+                      {
+                          "repo_owner_name": "admin",
+                          "repo_id": "2628a63b-cfad-41f5-a748-392ec9287686",
+                          "name": "1a",
+                          "repo_encrypted": False,
+                          "repo_owner_contact_email": "admin@admin.com",
+                          "repo_owner_email": "admin@admin.com",
+                          "last_modified": 1520836462,
+                          "content_highlight": "",
+                          "fullpath": "/testtest/1a",
+                          "repo_name": "dev",
+                          "is_dir": false,
+                          "size": 0
+                      }
+                  ]
+                  }
 
+                
   /api/v2.1/search-file/:
     get:
       tags:
@@ -1581,12 +1955,24 @@ paths:
       summary: Search Files by Name in Library
       security:
         - AccountTokenAuth: []
-      # parameters:
-        # - $ref: '#/components/parameters/repo_id'
-        # - $ref: '#/components/parameters/q'
+      parameters:
+        - $ref: '#/components/parameters/repo_id_query'
+        - $ref: '#/components/parameters/q'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: {
+                "data": [
+                    {
+                        "path": "/t2",
+                        "size": 0,
+                        "mtime": "2024-03-07T13:37:40+08:00",
+                        "type": "file"
+                    }
+                  ]
+                      }
 
   /api/v2.1/repos/{repo_id}/repo-tags/:
     get:
@@ -1737,8 +2123,18 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        - $ref: '#/components/parameters/file_path'
-        - $ref: '#/components/parameters/repo_tag_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file_path:
+                  type: string
+                  example: /
+                repo_tag_id:
+                  type: string
+                  example: '2'
       responses:
         '200':
           description: OK
@@ -1972,7 +2368,6 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/file'
-              # $ref: '#/components/schemas/target_file'
       parameters:
         - $ref: '#/components/parameters/upload_token'
       responses:
@@ -2000,7 +2395,7 @@ paths:
     post:
       tags:
         - Files
-      summary: Rename/Move/Copy file
+      summary: Create/Rename/Move/Copy file
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2142,170 +2537,195 @@ paths:
                 smart_link_token: "e5f748cf-be0b-4b9c-bcb5-63b6eccf791c"
                 name: "b"
 
-
   /api/v2.1/repos/sync-batch-copy-item/:
     post:
       tags:
         - Batch Operation with Multiple Files/Directories
-      summary: Synchronized Operations
+      summary: Batch copy items synchronously
       description: Batch Copy Items Synchronously
       security:
         - AccountTokenAuth: []
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           src_repo_id:
-      #             $ref: '#/components/schemas/src_repo_id'
-      #           src_parent_dir:
-      #             $ref: '#/components/schemas/src_parent_dir'
-      #           src_dirents:
-      #             $ref: '#/components/schemas/src_dirents'
-      #           dst_repo_id:
-      #             $ref: '#/components/schemas/dst_repo_id'
-      #           dst_parent_dir:
-      #             $ref: '#/components/schemas/dst_parent_dir'
-      #         required:
-      #           - src_repo_id
-      #           - src_parent_dir
-      #           - src_dirents
-      #           - dst_repo_id
-      #           - dst_parent_dir
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                src_repo_id:
+                  $ref: '#/components/schemas/src_repo_id'
+                src_parent_dir:
+                  $ref: '#/components/schemas/src_parent_dir'
+                src_dirents:
+                  $ref: '#/components/schemas/src_dirents'
+                dst_repo_id:
+                  $ref: '#/components/schemas/dst_repo_id'
+                dst_parent_dir:
+                  $ref: '#/components/schemas/dst_parent_dir'
+              required:
+                - src_repo_id
+                - src_parent_dir
+                - src_dirents
+                - dst_repo_id
+                - dst_parent_dir
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: {
+                "success": true
+                        }
 
   /api/v2.1/repos/sync-batch-move-item/:
     post:
       tags:
         - Batch Operation with Multiple Files/Directories
-      summary: Synchronized Operations
+      summary: Batch move items synchronously
       description: Batch Move Items Synchronously
       security:
         - AccountTokenAuth: []
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           src_repo_id:
-      #             $ref: '#/components/schemas/src_repo_id'
-      #           src_parent_dir:
-      #             $ref: '#/components/schemas/src_parent_dir'
-      #           src_dirents:
-      #             $ref: '#/components/schemas/src_dirents'
-      #           dst_repo_id:
-      #             $ref: '#/components/schemas/dst_repo_id'
-      #           dst_parent_dir:
-      #             $ref: '#/components/schemas/dst_parent_dir'
-      #         required:
-      #           - src_repo_id
-      #           - src_parent_dir
-      #           - src_dirents
-      #           - dst_repo_id
-      #           - dst_parent_dir
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                src_repo_id:
+                  $ref: '#/components/schemas/src_repo_id'
+                src_parent_dir:
+                  $ref: '#/components/schemas/src_parent_dir'
+                src_dirents:
+                  $ref: '#/components/schemas/src_dirents'
+                dst_repo_id:
+                  $ref: '#/components/schemas/dst_repo_id'
+                dst_parent_dir:
+                  $ref: '#/components/schemas/dst_parent_dir'
+              required:
+                - src_repo_id
+                - src_parent_dir
+                - src_dirents
+                - dst_repo_id
+                - dst_parent_dir
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: {
+                "success": true
+                        }
 
   /api/v2.1/repos/batch-delete-item/:
     delete:
       tags:
         - Batch Operation with Multiple Files/Directories
-      summary: Synchronized Operations
+      summary: Batch delete items
       description: Batch Delete Items
       security:
         - AccountTokenAuth: []
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           repo_id:
-      #             $ref: '#/components/schemas/src_repo_id'
-      #           parent_dir:
-      #             $ref: '#/components/schemas/src_parent_dir'
-      #           dirents:
-      #             $ref: '#/components/schemas/src_dirents'
-      #         required:
-      #           - repo_id
-      #           - parent_dir
-      #           - dirents
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                repo_id:
+                  $ref: '#/components/schemas/src_repo_id'
+                parent_dir:
+                  $ref: '#/components/schemas/src_parent_dir'
+                dirents:
+                  $ref: '#/components/schemas/src_dirents'
+              required:
+                - repo_id
+                - parent_dir
+                - dirents
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: {
+                "success": true,
+                "commit_id": "d3c4fe38ce453e289f0b6de139b3419822ff07c2"
+                        }
 
   /api/v2.1/repos/async-batch-copy-item/:
     post:
       tags:
         - Batch Operation with Multiple Files/Directories
-      summary: Asynchronized Operations
+      summary: Batch copy items asynchronously
       description: Batch Copy Items Asynchronously
       security:
         - AccountTokenAuth: []
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           src_repo_id:
-      #             $ref: '#/components/schemas/src_repo_id'
-      #           src_parent_dir:
-      #             $ref: '#/components/schemas/src_parent_dir'
-      #           src_dirents:
-      #             $ref: '#/components/schemas/src_dirents'
-      #           dst_repo_id:
-      #             $ref: '#/components/schemas/dst_repo_id'
-      #           dst_parent_dir:
-      #             $ref: '#/components/schemas/dst_parent_dir'
-      #         required:
-      #           - src_repo_id
-      #           - src_parent_dir
-      #           - src_dirents
-      #           - dst_repo_id
-      #           - dst_parent_dir
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                src_repo_id:
+                  $ref: '#/components/schemas/src_repo_id'
+                src_parent_dir:
+                  $ref: '#/components/schemas/src_parent_dir'
+                src_dirents:
+                  $ref: '#/components/schemas/src_dirents'
+                dst_repo_id:
+                  $ref: '#/components/schemas/dst_repo_id'
+                dst_parent_dir:
+                  $ref: '#/components/schemas/dst_parent_dir'
+              required:
+                - src_repo_id
+                - src_parent_dir
+                - src_dirents
+                - dst_repo_id
+                - dst_parent_dir
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: {
+                "task_id": "216533cd-96e8-40be-af83-ef7b0edbf5bb"
+                      }
 
   /api/v2.1/repos/async-batch-move-item/:
     post:
       tags:
         - Batch Operation with Multiple Files/Directories
-      summary: Asynchronized Operations
+      summary: Batch move items asynchronously
       description: Batch Move Items Asynchronously
       security:
         - AccountTokenAuth: []
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           src_repo_id:
-      #             $ref: '#/components/schemas/src_repo_id'
-      #           src_parent_dir:
-      #             $ref: '#/components/schemas/src_parent_dir'
-      #           src_dirents:
-      #             $ref: '#/components/schemas/src_dirents'
-      #           dst_repo_id:
-      #             $ref: '#/components/schemas/dst_repo_id'
-      #           dst_parent_dir:
-      #             $ref: '#/components/schemas/dst_parent_dir'
-      #         required:
-      #           - src_repo_id
-      #           - src_parent_dir
-      #           - src_dirents
-      #           - dst_repo_id
-      #           - dst_parent_dir
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                src_repo_id:
+                  $ref: '#/components/schemas/src_repo_id'
+                src_parent_dir:
+                  $ref: '#/components/schemas/src_parent_dir'
+                src_dirents:
+                  $ref: '#/components/schemas/src_dirents'
+                dst_repo_id:
+                  $ref: '#/components/schemas/dst_repo_id'
+                dst_parent_dir:
+                  $ref: '#/components/schemas/dst_parent_dir'
+              required:
+                - src_repo_id
+                - src_parent_dir
+                - src_dirents
+                - dst_repo_id
+                - dst_parent_dir
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: {
+                  "task_id": "d40df789-5e0b-4007-b590-203a04d6cb90"
+                      }
 
   /api/v2.1/query-copy-move-progress/:
     get:
@@ -2315,25 +2735,94 @@ paths:
       description: Query Async Operation Progress
       security:
         - AccountTokenAuth: []
-      # parameters:
-      #   - $ref: '#/components/parameters/task_id'
+      parameters:
+        - $ref: '#/components/parameters/task_id'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: {
+                "done": 1,
+                "total": 1,
+                "canceled": false,
+                "failed": false,
+                "successful": true
+                        }
 
   /api/v2.1/copy-move-task/:
     delete:
       tags:
         - Batch Operation with Multiple Files/Directories
-      summary: Asynchronized Operations
+      summary: Cancel async operation
       description: Cancel Async operation
       security:
         - AccountTokenAuth: []
-      # parameters:
-      #   - $ref: '#/components/parameters/task_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                task_id: 
+                  type: string
+                  example: d40df789-5e0b-4007-b590-203a04d6cb90
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              example: {
+                "success": true
+                      }
+
+  /api/v2.1/repos/{repo-id}/zip-task/:
+    post: 
+      tags:
+        - Batch Operation with Multiple Files/Directories
+      summary: Get Task Token
+      description: Get Task Token
+      security: 
+        - AccountTokenAuth: []
+      parameters:
+         - $ref: '#/components/parameters/repo_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                parent_dir:
+                  type: string
+                  example: /my_folder
+                dirents: 
+                  type: string
+                  example: pdfs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              example: {
+                "zip_token": "b2272645-35ee-44ce-8f68-07c022107015"
+                      }
+  /api/v2.1/query-zip-progress/?token={token}:
+    get:
+      tags:
+        - Batch Operation with Multiple Files/Directories
+      summary: Query task progress
+      description: Query task progress
+      security: 
+        - AccountTokenAuth: []
+      parameters:
+         - $ref: '#/components/parameters/zip_token'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              example: {
+                "zipped":2,
+                "total":2
+                        }
 
   /api2/groups/:
     get:
