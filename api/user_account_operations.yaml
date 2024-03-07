@@ -2784,35 +2784,6 @@ paths:
                 "success": true
                       }
 
-  /api/v2.1/repos/{repo-id}/zip-task/:
-    post: 
-      tags:
-        - Batch Operation with Multiple Files/Directories
-      summary: Get task token
-      description: Get Task Token
-      security: 
-        - AccountTokenAuth: []
-      parameters:
-         - $ref: '#/components/parameters/repo_id'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                parent_dir:
-                  type: string
-                  example: /my_folder
-                dirents: 
-                  type: string
-                  example: pdfs
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              example: {
-                "zip_token": "b2272645-35ee-44ce-8f68-07c022107015"
-                      }
   /api/v2.1/query-zip-progress/?token={token}:
     get:
       tags:
