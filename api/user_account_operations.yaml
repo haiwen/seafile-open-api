@@ -160,6 +160,7 @@ components:
     path_in_query:
       name: path
       in: query
+      description: path of file/folder.
       required: false
       schema:
         type: string
@@ -391,12 +392,20 @@ components:
     
     is_dir:
       name: is_dir
-      in: path
+      in: query
       description: 'true or false'
       required: true
       schema: 
         type: string
-      
+    
+    path_in_file:
+      name: path
+      in: query
+      required: true
+      description:  path of file/folder
+      schema: 
+        type: string
+
     comment_id:
       name: comment_id
       in: path
@@ -2507,7 +2516,7 @@ paths:
                   can_edit: true
 
 
-  /api/v2.1/smart-link/?repo_id={repo_id}&path={path}&is_dir={is_dir}:
+  /api/v2.1/smart-link/:
     get:
       tags:
         - Files
@@ -2516,7 +2525,7 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id_query'
-        - $ref: '#/components/parameters/path'
+        - $ref: '#/components/parameters/path_in_file'
         - $ref: '#/components/parameters/is_dir'
       responses:
         '200':
