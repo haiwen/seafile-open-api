@@ -1873,7 +1873,7 @@ paths:
     get:
       tags:
         - File Search
-      summary: Search Files in Libraries
+      summary: Search files in libraries
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1952,7 +1952,7 @@ paths:
     get:
       tags:
         - File Search
-      summary: Search Files by Name in Library
+      summary: Search files by name in library
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2377,7 +2377,7 @@ paths:
             application/json:
               example: "adc83b19e793491b1c6ea0fd8b46cd9f32e592fc"
 
-  /api2/repos/{repo_id}/file/?p={p}:
+  /api2/repos/{repo_id}/file/:
     get:
       tags:
         - Files
@@ -2731,7 +2731,7 @@ paths:
     get:
       tags:
         - Batch Operation with Multiple Files/Directories
-      summary: Asynchronized Operations
+      summary: Query async operation progress
       description: Query Async Operation Progress
       security:
         - AccountTokenAuth: []
@@ -2779,7 +2779,7 @@ paths:
     post: 
       tags:
         - Batch Operation with Multiple Files/Directories
-      summary: Get Task Token
+      summary: Get task token
       description: Get Task Token
       security: 
         - AccountTokenAuth: []
