@@ -319,7 +319,7 @@ paths:
       summary: List items in directory
       tags:
         - Via Repo Token
-      description: List al files and folders in a directory
+      description: List all files and folders in a directory
       security:
         - RepoTokenAuth: []
       parameters:

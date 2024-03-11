@@ -326,6 +326,15 @@ components:
       schema: 
         type: string
 
+    is_admin:
+      name: is_admin
+      in: query
+      description: "true or false, if only return admin members of group.  default false return all members"
+      required: false
+      schema: 
+        type: string
+        default: false
+
     # Path parameters
     user:
       name: user
@@ -346,6 +355,7 @@ components:
     group_id:
       name: group_id
       in: path
+      description: The unique identifier of a group
       required: true
       schema:
         type: integer
@@ -354,6 +364,7 @@ components:
       name: email
       in: path
       required: true
+      description: Member email
       schema:
         type: string
 
@@ -407,7 +418,7 @@ components:
         type: string
 
     comment_id:
-      name: comment_id
+      name: pk
       in: path
       required: true
       description: The unique identifier of a comment
@@ -445,11 +456,22 @@ components:
         type: string
         pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
     
-
+    pk:
+      name: pk
+      in: path
+      required: true
+      schema:
+        type: integer
 
     
   schemas:
     # request body
+    group_name: 
+      title: name
+      description: Group name
+      type: string
+      example: 'test'
+
     avatar:
       type: string
       description: >-
@@ -711,6 +733,36 @@ components:
         target_file:
           type: string
           description: The absolute path inside the library of the file being updated.
+    
+    name: 
+      type: string
+      title: name
+      description: New file name
+      example: new_group
+  
+    owner: 
+      type: string
+      title: owner
+      description: new owner of this group, should be an email.
+      example: new_owner@new_owner.com
+
+    email: 
+      type: string
+      title: email
+      description: Member email.
+      example: new_owner@new_owner.com
+
+    emails:
+      type: string
+      title: emails
+      example: new_owner@new_owner.com,new_owner2@new_owner.com
+
+    is_admin: 
+      type: string
+      title: is_admin
+      enum: ["true","false"]
+      example: "true"
+
 paths:
   # Account
   /api2/account/info/:
@@ -1547,52 +1599,60 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        - $ref: '#/components/parameters/file_path'
+        - $ref: '#/components/parameters/p'
       responses:
         '200':
           description: OK
           content:
             application/json:
-              example: {
-                "comments": [
-                    {
-                        "comment": "word",
-                        "repo_id": "4674c2bb-3702-4dd0-b768-8952db27ac87",
-                        "item_name": "doc",
-                        "created_at": "2017-10-11T02:49:42+00:00",
-                        "parent_path": "/doc",
-                        "avatar_url": "https://cloud.seafile.com/media/avatars/default.png",
-                        "user_name": "admin",
-                        "id": 7,
-                        "user_email": "admin@admin.com",
-                        "user_contact_email": "admin@admin.com"
-                    },
-                    {
-                        "comment": "help",
-                        "repo_id": "4674c2bb-3702-4dd0-b768-8952db27ac87",
-                        "item_name": "doc",
-                        "created_at": "2017-10-11T02:49:44+00:00",
-                        "parent_path": "/doc",
-                        "avatar_url": "https://cloud.seafile.com/media/avatars/default.png",
-                        "user_name": "admin",
-                        "id": 8,
-                        "user_email": "admin@admin.com",
-                        "user_contact_email": "admin@admin.com"
-                    },
-                    {
-                        "comment": "test",
-                        "repo_id": "4674c2bb-3702-4dd0-b768-8952db27ac87",
-                        "item_name": "doc",
-                        "created_at": "2017-10-11T03:32:37+00:00",
-                        "parent_path": "/doc",
-                        "avatar_url": "https://cloud.seafile.com/media/avatars/default.png",
-                        "user_name": "admin",
-                        "id": 10,
-                        "user_email": "admin@admin.com",
-                        "user_contact_email": "admin@admin.com"
-                    }
-                ]
-                   } 
+              schema:
+                type: object
+                description: 'File all comment information' 
+                properties:
+                  comments: 
+                    type: array
+                    items:
+                      type: object
+                example: {
+                  "comments": [
+                      {
+                          "comment": "word",
+                          "repo_id": "4674c2bb-3702-4dd0-b768-8952db27ac87",
+                          "item_name": "doc",
+                          "created_at": "2017-10-11T02:49:42+00:00",
+                          "parent_path": "/doc",
+                          "avatar_url": "https://cloud.seafile.com/media/avatars/default.png",
+                          "user_name": "admin",
+                          "id": 7,
+                          "user_email": "admin@admin.com",
+                          "user_contact_email": "admin@admin.com"
+                      },
+                      {
+                          "comment": "help",
+                          "repo_id": "4674c2bb-3702-4dd0-b768-8952db27ac87",
+                          "item_name": "doc",
+                          "created_at": "2017-10-11T02:49:44+00:00",
+                          "parent_path": "/doc",
+                          "avatar_url": "https://cloud.seafile.com/media/avatars/default.png",
+                          "user_name": "admin",
+                          "id": 8,
+                          "user_email": "admin@admin.com",
+                          "user_contact_email": "admin@admin.com"
+                      },
+                      {
+                          "comment": "test",
+                          "repo_id": "4674c2bb-3702-4dd0-b768-8952db27ac87",
+                          "item_name": "doc",
+                          "created_at": "2017-10-11T03:32:37+00:00",
+                          "parent_path": "/doc",
+                          "avatar_url": "https://cloud.seafile.com/media/avatars/default.png",
+                          "user_name": "admin",
+                          "id": 10,
+                          "user_email": "admin@admin.com",
+                          "user_contact_email": "admin@admin.com"
+                      }
+                  ]
+                    } 
 
 
     post:
@@ -1605,6 +1665,7 @@ paths:
         - $ref: '#/components/parameters/repo_id'
         - $ref: '#/components/parameters/comment_p'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -1618,24 +1679,56 @@ paths:
           description: OK
           content:
             application/json:
-              example: {
-                "id": 285,
-                "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
-                "parent_path": "/",
-                "item_name": "test",
-                "comment": "hello",
-                "created_at": "2024-03-07T10:09:12+08:00",
-                "updated_at": "2024-03-07T10:09:12+08:00",
-                "resolved": false,
-                "detail": "",
-                "replies": [],
-                "user_name": "冲鸭丶",
-                "user_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                "user_contact_email": "1942999482@qq.com",
-                "avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/80/1672a4ff48124e6ada03a4414518cf4a_CNvUDQE.png"
-                    }
+              schema: 
+                type: object
+                description: Basic information about the review
+                properties:
+                  id: 
+                    type: integer
+                  repo_id: 
+                    type: string
+                  parent_path: 
+                    type: string
+                  item_name: 
+                    type: string
+                  comment: 
+                    type: string
+                  created_at: 
+                    type: string
+                  updated_at: 
+                    type: string
+                  resolved: 
+                    type: boolean
+                  detail: 
+                    type: string
+                  replies: 
+                    type: array
+                  user_name: 
+                    type: string
+                  user_email:
+                    type: string
+                  user_contact_email: 
+                    type: string
+                  avatar_url: 
+                    type: string
+                example: {
+                  "id": 285,
+                  "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
+                  "parent_path": "/",
+                  "item_name": "test",
+                  "comment": "hello",
+                  "created_at": "2024-03-07T10:09:12+08:00",
+                  "updated_at": "2024-03-07T10:09:12+08:00",
+                  "resolved": false,
+                  "detail": "",
+                  "replies": [],
+                  "user_name": "冲鸭丶",
+                  "user_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                  "user_contact_email": "1942999482@qq.com",
+                  "avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/80/1672a4ff48124e6ada03a4414518cf4a_CNvUDQE.png"
+                      }
 
-  /api2/repos/{repo_id}/file/comments/{comment_id}/:
+  /api2/repos/{repo_id}/file/comments/{pk}/:
     get:
       tags:
         - File Comments
@@ -1650,6 +1743,38 @@ paths:
           description: OK
           content:
             application/json:
+              schema: 
+                type: object
+                description: Basic information about the review
+                properties:
+                  id: 
+                    type: integer
+                  repo_id: 
+                    type: string
+                  parent_path: 
+                    type: string
+                  item_name: 
+                    type: string
+                  comment: 
+                    type: string
+                  created_at: 
+                    type: string
+                  updated_at: 
+                    type: string
+                  resolved: 
+                    type: boolean
+                  detail: 
+                    type: string
+                  replies: 
+                    type: array
+                  user_name: 
+                    type: string
+                  user_email:
+                    type: string
+                  user_contact_email: 
+                    type: string
+                  avatar_url: 
+                    type: string
               example: {
                   "id": 285,
                   "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
@@ -1677,6 +1802,7 @@ paths:
         - $ref: '#/components/parameters/repo_id'
         - $ref: '#/components/parameters/comment_id'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -1697,6 +1823,38 @@ paths:
           description: OK
           content:
             application/json:
+              schema: 
+                type: object
+                description: Basic information about the review
+                properties:
+                  id: 
+                    type: integer
+                  repo_id: 
+                    type: string
+                  parent_path: 
+                    type: string
+                  item_name: 
+                    type: string
+                  comment: 
+                    type: string
+                  created_at: 
+                    type: string
+                  updated_at: 
+                    type: string
+                  resolved: 
+                    type: boolean
+                  detail: 
+                    type: string
+                  replies: 
+                    type: array
+                  user_name: 
+                    type: string
+                  user_email:
+                    type: string
+                  user_contact_email: 
+                    type: string
+                  avatar_url: 
+                    type: string
               example: {
                 "id": 285,
                 "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
@@ -1741,7 +1899,12 @@ paths:
           description: OK
           content:
             application/json:
-              example: { "test": 2 }
+              schema: 
+                type: object
+                properties:
+                  test: 
+                    type: string
+                example: { "test": 2 }
 
   /api/v2.1/repos/{repo_id}/file/history/:
     get:
@@ -1761,55 +1924,59 @@ paths:
             application/json:
               schema:
                 type: object
+                description: All operational data of the file
                 properties:
-                  next_start_commit:
-                    description: If value of next_start_commit is NOT false, it means that there are more file history, if you want to continue to get more file history, resend the request with commit_id parameter, and assign the value of next_start_commit in response to request's commit_id parameter.
-                  rev_renamed_old_path:
-                    description: If value of rev_renamed_old_path field in the last item of data in response is NOT null, it means that the last item is a file renamed/moved commit, if you want to get more file history before file was renamed/moved,  resend the request, and assign the value of rev_renamed_old_path in response to request's path parameter.
-              example: {
-                  "data": [
-                      {
-                          "creator_avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/32/1672a4ff48124e6ada03a4414518cf4a_CNvUDQE.png",
-                          "creator_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                          "creator_name": "冲鸭丶",
-                          "creator_contact_email": "1942999482@qq.com",
-                          "ctime": "2024-03-07T11:08:16+08:00",
-                          "description": "Modified \"1.docx\"",
-                          "commit_id": "3fce7037bd238aa619416b8f7e2d44f1102ad556",
-                          "size": 25022,
-                          "rev_file_id": "1067d1adbb93c196c4e83f47c672f2e8445d831c",
-                          "rev_renamed_old_path": null,
-                          "path": "/1.docx"
-                      },
-                      {
-                          "creator_avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/32/1672a4ff48124e6ada03a4414518cf4a_CNvUDQE.png",
-                          "creator_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                          "creator_name": "冲鸭丶",
-                          "creator_contact_email": "1942999482@qq.com",
-                          "ctime": "2024-03-07T11:07:41+08:00",
-                          "description": "Modified \"1.docx\"",
-                          "commit_id": "2a3772010975725d2106f6dec17cd4c6f02ea353",
-                          "size": 7839,
-                          "rev_file_id": "0f3530f88bb1e398773edabe3297b448798f3e2e",
-                          "rev_renamed_old_path": null,
-                          "path": "/1.docx"
-                      },
-                      {
-                          "creator_avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/32/1672a4ff48124e6ada03a4414518cf4a_CNvUDQE.png",
-                          "creator_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                          "creator_name": "冲鸭丶",
-                          "creator_contact_email": "1942999482@qq.com",
-                          "ctime": "2024-03-07T11:07:41+08:00",
-                          "description": "Added \"1.docx\"",
-                          "commit_id": "b5d0996980e9199184b92c74e858fa6cba9b6b02",
-                          "size": 0,
-                          "rev_file_id": "0000000000000000000000000000000000000000",
-                          "rev_renamed_old_path": null,
-                          "path": "/1.docx"
-                      }
-                  ],
-                  "next_start_commit": false
-                      }
+                  data: 
+                    type: array
+                    description: |
+                      If value of next_start_commit is NOT false, it means that there are more file history, if you want to continue to get more file history, resend the request with commit_id parameter, and assign the value of next_start_commit in response to request's commit_id parameter.
+                      If value of rev_renamed_old_path field in the last item of data in response is NOT null, it means that the last item is a file renamed/moved commit, if you want to get more file history before file was renamed/moved,  resend the request, and assign the value of rev_renamed_old_path in response to request's path parameter.
+                    items: 
+                      type: object
+                example: {
+                    "data": [
+                        {
+                            "creator_avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/32/1672a4ff48124e6ada03a4414518cf4a_CNvUDQE.png",
+                            "creator_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                            "creator_name": "冲鸭丶",
+                            "creator_contact_email": "1942999482@qq.com",
+                            "ctime": "2024-03-07T11:08:16+08:00",
+                            "description": "Modified \"1.docx\"",
+                            "commit_id": "3fce7037bd238aa619416b8f7e2d44f1102ad556",
+                            "size": 25022,
+                            "rev_file_id": "1067d1adbb93c196c4e83f47c672f2e8445d831c",
+                            "rev_renamed_old_path": null,
+                            "path": "/1.docx"
+                        },
+                        {
+                            "creator_avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/32/1672a4ff48124e6ada03a4414518cf4a_CNvUDQE.png",
+                            "creator_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                            "creator_name": "冲鸭丶",
+                            "creator_contact_email": "1942999482@qq.com",
+                            "ctime": "2024-03-07T11:07:41+08:00",
+                            "description": "Modified \"1.docx\"",
+                            "commit_id": "2a3772010975725d2106f6dec17cd4c6f02ea353",
+                            "size": 7839,
+                            "rev_file_id": "0f3530f88bb1e398773edabe3297b448798f3e2e",
+                            "rev_renamed_old_path": null,
+                            "path": "/1.docx"
+                        },
+                        {
+                            "creator_avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/32/1672a4ff48124e6ada03a4414518cf4a_CNvUDQE.png",
+                            "creator_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                            "creator_name": "冲鸭丶",
+                            "creator_contact_email": "1942999482@qq.com",
+                            "ctime": "2024-03-07T11:07:41+08:00",
+                            "description": "Added \"1.docx\"",
+                            "commit_id": "b5d0996980e9199184b92c74e858fa6cba9b6b02",
+                            "size": 0,
+                            "rev_file_id": "0000000000000000000000000000000000000000",
+                            "rev_renamed_old_path": null,
+                            "path": "/1.docx"
+                        }
+                    ],
+                    "next_start_commit": false
+                        }
 
   /api/v2.1/repos/{repo_id}/file/:
     post:
@@ -1823,16 +1990,17 @@ paths:
         - $ref: '#/components/parameters/repo_id'
         - $ref: '#/components/parameters/p'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
               properties:
                 operation:
                   type: string
-                  example: revert
-                  required:
+                  enum:
                     - "revert"
                     - "create"
+                  example: revert
                 commit_id:
                   type: string
                   example: 'b5d0996980e9199184b92c74e858fa6cba9b6b02'
@@ -1841,6 +2009,12 @@ paths:
           description: OK
           content:
             application/json:
+              schema:
+                type: object
+                description: Basic file information
+                properties:
+                  success: 
+                    type: boolean
               examples:
                 revert:
                   value: {
@@ -1858,8 +2032,64 @@ paths:
                       "is_locked": false,
                       "can_preview": true,
                       "can_edit": true
-                         }
-                  
+                        }
+    put:
+      tags:
+        - Files
+      summary: Lock/Unlock file
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/p'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                operation:
+                  $ref: '#/components/schemas/file_lock_operation'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type: 
+                    type: string
+                  repo_id: 
+                    type: string
+                  parent_dir: 
+                    type: string
+                  obj_name:
+                    type: string
+                  obj_id: 
+                    type: string
+                  size: 
+                    type: integer
+                  mtime:
+                    type: string
+                  is_locked:
+                    type: boolean
+                  can_preview:
+                    type: boolean
+                  can_edit:
+                    type: boolean
+                example:
+                  type: "file"
+                  repo_id: "eaa2b714-7993-4abc-93ce-56286d45d3de"
+                  parent_dir: "/内层"
+                  obj_name: "b"
+                  obj_id: "0000000000000000000000000000000000000000"
+                  size: 0
+                  mtime: "2024-03-04T15:44:56+08:00"
+                  is_locked: true
+                  can_preview: false
+                  can_edit: false   
+
   /api2/repos/{repo_id}/file/revision/:
     get:
       tags:
@@ -1876,7 +2106,10 @@ paths:
           description: OK
           content:
             application/json:
-              example: "https://cloud.seafile.com/seafhttp/files/c7764c20-bcef-42fe-ab7c-e37a4f0bd246/1.docx"
+              schema: 
+                type: string
+                description: Download file link
+                example: "https://cloud.seafile.com/seafhttp/files/c7764c20-bcef-42fe-ab7c-e37a4f0bd246/1.docx"
 
   /api2/search/:
     get:
@@ -1921,42 +2154,53 @@ paths:
           description: OK
           content:
             application/json:
-              example: {
-                  "has_more": false,
-                  "total": 2,
-                  "results": [
-                      {
-                          "repo_owner_name": "admin",
-                          "repo_id": "2628a63b-cfad-41f5-a748-392ec9287686",
-                          "name": "3a",
-                          "repo_encrypted": False,
-                          "repo_owner_contact_email": "admin@admin.com",
-                          "repo_owner_email": "admin@admin.com",
-                          "last_modified": 1520836447,
-                          "content_highlight": "",
-                          "fullpath": "/testtest/3a",
-                          "repo_name": "dev",
-                          "is_dir": false,
-                          "size": 0
-                      },
-                      {
-                          "repo_owner_name": "admin",
-                          "repo_id": "2628a63b-cfad-41f5-a748-392ec9287686",
-                          "name": "1a",
-                          "repo_encrypted": False,
-                          "repo_owner_contact_email": "admin@admin.com",
-                          "repo_owner_email": "admin@admin.com",
-                          "last_modified": 1520836462,
-                          "content_highlight": "",
-                          "fullpath": "/testtest/1a",
-                          "repo_name": "dev",
-                          "is_dir": false,
-                          "size": 0
-                      }
-                  ]
-                  }
+              schema:
+                type: object
+                description: The queried file information
+                properties:
+                  total:
+                    type: integer
+                  has_more:
+                    type: boolean
+                  results: 
+                    type: array
+                    items: 
+                      type: object
+                example: {
+                    "has_more": false,
+                    "total": 2,
+                    "results": [
+                        {
+                            "repo_owner_name": "admin",
+                            "repo_id": "2628a63b-cfad-41f5-a748-392ec9287686",
+                            "name": "3a",
+                            "repo_encrypted": False,
+                            "repo_owner_contact_email": "admin@admin.com",
+                            "repo_owner_email": "admin@admin.com",
+                            "last_modified": 1520836447,
+                            "content_highlight": "",
+                            "fullpath": "/testtest/3a",
+                            "repo_name": "dev",
+                            "is_dir": false,
+                            "size": 0
+                        },
+                        {
+                            "repo_owner_name": "admin",
+                            "repo_id": "2628a63b-cfad-41f5-a748-392ec9287686",
+                            "name": "1a",
+                            "repo_encrypted": False,
+                            "repo_owner_contact_email": "admin@admin.com",
+                            "repo_owner_email": "admin@admin.com",
+                            "last_modified": 1520836462,
+                            "content_highlight": "",
+                            "fullpath": "/testtest/1a",
+                            "repo_name": "dev",
+                            "is_dir": false,
+                            "size": 0
+                        }
+                    ]
+                    }
 
-                
   /api/v2.1/search-file/:
     get:
       tags:
@@ -1972,16 +2216,24 @@ paths:
           description: OK
           content:
             application/json:
-              example: {
-                "data": [
-                    {
-                        "path": "/t2",
-                        "size": 0,
-                        "mtime": "2024-03-07T13:37:40+08:00",
-                        "type": "file"
-                    }
-                  ]
+              schema: 
+                type: object
+                description: The queried file information
+                properties:
+                  data: 
+                    type: array
+                    items:
+                      type: object
+                example: {
+                  "data": [
+                      {
+                          "path": "/t2",
+                          "size": 0,
+                          "mtime": "2024-03-07T13:37:40+08:00",
+                          "type": "file"
                       }
+                    ]
+                        }
 
   /api/v2.1/repos/{repo_id}/repo-tags/:
     get:
@@ -1997,17 +2249,25 @@ paths:
           description: OK
           content:
             application/json:
-              example: {
-                  "repo_tags": [
-                      {
-                          "repo_tag_id": 429,
-                          "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
-                          "tag_name": "test",
-                          "tag_color": "#FBD44A",
-                          "files_count": 1
-                      }
-                              ]
-                      }
+              schema: 
+                type: object
+                description: Basic information about all labels in the library
+                properties:
+                  repo_tags: 
+                    type: array
+                    items:
+                      type: object
+                example: {
+                    "repo_tags": [
+                        {
+                            "repo_tag_id": 429,
+                            "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
+                            "tag_name": "test",
+                            "tag_color": "#FBD44A",
+                            "files_count": 1
+                        }
+                                ]
+                        }
     post:
       tags:
         - File Tags
@@ -2036,14 +2296,21 @@ paths:
           description: OK
           content:
             application/json:
-              example: {
-                    "repo_tag": {
-                    "repo_tag_id": 430,
-                    "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
-                    "tag_name": "t",
-                    "tag_color": "#FFFFFF"
-                            }
-                      }
+              schema: 
+                type: object
+                description: Label information
+                properties:
+                  repo_tag: 
+                    type: object
+                example: {
+                      "repo_tag": {
+                      "repo_tag_id": 430,
+                      "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
+                      "tag_name": "t",
+                      "tag_color": "#FFFFFF"
+                              }
+                        }
+
   /api/v2.1/repos/{repo_id}/repo-tags/{repo_tag_id}/:
     put:
       tags:
@@ -2071,14 +2338,20 @@ paths:
           description: OK
           content:
             application/json:
-              example: {
-                "repo_tag": {
-                    "repo_tag_id": 430,
-                    "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
-                    "tag_name": "t1",
-                    "tag_color": "#000000"
-                            }
-                      }
+              schema: 
+                type: object
+                description: Label information
+                properties:
+                  repo_tag: 
+                    type: object
+                example: {
+                  "repo_tag": {
+                      "repo_tag_id": 430,
+                      "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
+                      "tag_name": "t1",
+                      "tag_color": "#000000"
+                              }
+                        }
     delete:
       tags:
         - File Tags
@@ -2107,22 +2380,39 @@ paths:
           description: OK
           content:
             application/json:
-              example: {
-                  "file_tags": [
-                      {
-                          "tag_color": "#FFD43B",
-                          "tag_name": "new",
-                          "repo_tag_id": 1,
-                          "file_tag_id": 1
-                      },
-                      {
-                          "tag_color": "#FFA8A8",
-                          "tag_name": "deprecated",
-                          "repo_tag_id": 2,
-                          "file_tag_id": 4
+              schema:
+                type: object
+                description: All label information of the file
+                properties:
+                  file_tags: 
+                    type: array
+                    items: 
+                      type: object
+                      properties:
+                        tag_color: 
+                          type: string
+                        tag_name: 
+                          type: string
+                        repo_tag_id: 
+                          type: integer
+                        file_tag_id:
+                          type: integer
+                example: {
+                    "file_tags": [
+                        {
+                            "tag_color": "#FFD43B",
+                            "tag_name": "new",
+                            "repo_tag_id": 1,
+                            "file_tag_id": 1
+                        },
+                        {
+                            "tag_color": "#FFA8A8",
+                            "tag_name": "deprecated",
+                            "repo_tag_id": 2,
+                            "file_tag_id": 4
+                        }
+                                  ]
                       }
-                                ]
-                     }
 
     post:
       tags:
@@ -2133,6 +2423,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/repo_id'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -2149,12 +2440,23 @@ paths:
           description: OK
           content:
             application/json:
-              example: {
-                      "file_tag": {
-                          "file_tag_id": 957,
-                          "repo_tag_id": 429
-                                  }
-                        }
+              schema: 
+                type: object
+                description: File label information
+                properties:
+                  file_tag: 
+                    type: object
+                    properties:
+                      file_tag_id:
+                        type: integer
+                      repo_tag_id: 
+                        type: integer
+                example: {
+                        "file_tag": {
+                            "file_tag_id": 957,
+                            "repo_tag_id": 429
+                                    }
+                          }
 
   /api/v2.1/repos/{repo_id}/file-tags/{file_tag_id}/:
     delete:
@@ -2171,12 +2473,18 @@ paths:
           description: OK
           content:
             application/json:
-              example: { "success": "true" }
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: string
+                example: { "success": "true" }
+              
   /api/v2.1/repos/{repo_id}/tagged-files/{repo_tag_id}/:
     get:
       tags:
         - File Tags
-      summary: List tagged files by tag
+      summary: List tagged files by tag id
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2187,32 +2495,59 @@ paths:
           description: OK
           content:
             application/json:
-              example: {
-                "tagged_files": [
-                    {
-                        "file_tag_id": 953,
-                        "parent_path": "/",
-                        "filename": "test",
-                        "size": 43,
-                        "mtime": 1709710694,
-                        "last_modified": "2024-03-06T15:38:14+08:00",
-                        "modifier_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                        "modifier_contact_email": "1942999482@qq.com",
-                        "modifier_name": "冲鸭丶"
-                    },
-                    {
-                        "file_tag_id": 957,
-                        "parent_path": "/",
-                        "filename": "test.md",
-                        "size": 0,
-                        "mtime": 1709695513,
-                        "last_modified": "2024-03-06T11:25:13+08:00",
-                        "modifier_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                        "modifier_contact_email": "1942999482@qq.com",
-                        "modifier_name": "冲鸭丶"
-                    }
-                ]
-                }
+              schema:
+                type: object
+                description: Tag file information
+                properties:
+                  tagged_files: 
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        file_tag_id: 
+                          type: integer
+                        parent_path:
+                          type: string
+                        filename: 
+                          type: string
+                        size: 
+                          type: integer
+                        mtime:
+                          type: string
+                        last_modified: 
+                          type: string
+                        modifier_email: 
+                          type: string
+                        modifier_contact_email: 
+                          type: string
+                        modifier_name: 
+                          type: string
+                      example: {
+                        "tagged_files": [
+                            {
+                                "file_tag_id": 953,
+                                "parent_path": "/",
+                                "filename": "test",
+                                "size": 43,
+                                "mtime": 1709710694,
+                                "last_modified": "2024-03-06T15:38:14+08:00",
+                                "modifier_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                                "modifier_contact_email": "1942999482@qq.com",
+                                "modifier_name": "冲鸭丶"
+                            },
+                            {
+                                "file_tag_id": 957,
+                                "parent_path": "/",
+                                "filename": "test.md",
+                                "size": 0,
+                                "mtime": 1709695513,
+                                "last_modified": "2024-03-06T11:25:13+08:00",
+                                "modifier_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                                "modifier_contact_email": "1942999482@qq.com",
+                                "modifier_name": "冲鸭丶"
+                            }
+                        ]
+                        }
           
   /api2/repos/{repo_id}/upload-link/:
     get:
@@ -2231,6 +2566,7 @@ paths:
             application/json:
               schema:
                 type: string
+                description: Folder download address
                 example: "https://cloud.seafile.com/seafhttp/upload-api/5b7d49bc-3756-4995-9e00-e5faddb3455b"
  
   /seafhttp/upload-aj/{upload_token}?ret-json=1:
@@ -2242,6 +2578,7 @@ paths:
       security:
         - AccountTokenAuth: []
       requestBody:
+        required: true
         content:
           multipart/form-data:
             schema:
@@ -2255,6 +2592,10 @@ paths:
           description: OK
           content:
             application/json:
+              schema: 
+                type: array
+                items: 
+                  type: object  
               examples:
                 No ref-json:
                   value: adc83b19e793491b1c6ea0fd8b46cd9f32e592fc
@@ -2265,7 +2606,7 @@ paths:
                         "id": "4ccd37916552e2943314027931edd0b45240be7c",
                         "size": 2987
                     }
-                   ]
+                  ]
                 Sample response with relative_path and ret-json:
                   value: [
                         {
@@ -2307,16 +2648,19 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                type: object
                 description:  'If the response has this header Accept-Ranges: bytes, means that Seafile server supports resumable upload file.'
-              example: |
-                      ....... 
-                      < Accept-Ranges: bytes 
-                      ........
-                      {
-                          "uploadedBytes": 0
-                      * Closing connection 0
-                      }
+                properties:
+                  uploadedBytes: 
+                    type: integer
+                example: |
+                        ....... 
+                        < Accept-Ranges: bytes 
+                        .......
+                        {
+                            "uploadedBytes": 0
+                        * Closing connection 0
+                        }
 
   /seafhttp/upload-api/{upload_token}/:
     post:
@@ -2325,16 +2669,15 @@ paths:
       summary: Upload file in chunks
       description: Upload File in Chunks
       security:
-        - AccountTokenAuth: []
-      
+        - AccountTokenAuth: [] 
       requestBody:
+        required: true
         content:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/upload_file'
               # $ref: '#/components/schemas/file_name'
               # $ref: '#/components/schemas/parent_dir'
-          
       parameters:
         - $ref: '#/components/parameters/upload_token'
       responses:
@@ -2342,8 +2685,13 @@ paths:
           description: OK
           content:
             application/json:
-              example: {
-                    "success": true
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: string
+                example: {
+                      "success": true
                        }
 
   /api2/repos/{repo_id}/update-link/:
@@ -2362,7 +2710,9 @@ paths:
           description: OK
           content:
             application/json:
-              example: "https://cloud.seafile.com/seafhttp/update-api/aa610889-04ce-4d25-979e-6cb528775038"
+              schema: 
+                type: string
+                example: "https://cloud.seafile.com/seafhttp/update-api/aa610889-04ce-4d25-979e-6cb528775038"
 
   /seafhttp/update-api/{upload_token}/:
     post:
@@ -2384,7 +2734,10 @@ paths:
           description: OK
           content:
             application/json:
-              example: "adc83b19e793491b1c6ea0fd8b46cd9f32e592fc"
+              schema: 
+                type: string
+                description: The id of the updated file
+                example: "adc83b19e793491b1c6ea0fd8b46cd9f32e592fc"
 
   /api2/repos/{repo_id}/file/:
     get:
@@ -2400,6 +2753,11 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: string
+                example: "https://cloud.seafile.com/seafhttp/files/48a7b633-25a4-4c8d-a10e-37dcfa34c65d/111"
           
     post:
       tags:
@@ -2411,6 +2769,7 @@ paths:
         - $ref: '#/components/parameters/repo_id'
         - $ref: '#/components/parameters/p'
       requestBody:
+        required: true
         content:
           multipart/form-data:
             schema:
@@ -2418,42 +2777,12 @@ paths:
       responses:
         '200':
           description: OK
-
-    put:
-      tags:
-        - Files
-      summary: Lock/Unlock file
-      security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
-        - $ref: '#/components/parameters/p'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                operation:
-                  $ref: '#/components/schemas/file_lock_operation'
-      responses:
-        '200':
-          description: OK
           content:
             application/json:
-              schema:
-                type: object
-                example:
-                  type: "file"
-                  repo_id: "eaa2b714-7993-4abc-93ce-56286d45d3de"
-                  parent_dir: "/内层"
-                  obj_name: "b"
-                  obj_id: "0000000000000000000000000000000000000000"
-                  size: 0
-                  mtime: "2024-03-04T15:44:56+08:00"
-                  is_locked: true
-                  can_preview: false
-                  can_edit: false
+              schema: 
+                type: string
+                example: "https://cloud.seafile.com/seafhttp/files/a003fc0f-104d-4b28-bd34-5de80d3ad93f/111"
+
     delete:
       tags:
         - Files
@@ -2470,8 +2799,7 @@ paths:
             application/json:
               schema:
                 type: string
-                example:
-                  success
+                example: success
                   
   /api2/repos/{repo_id}/file/detail/:
     get:
@@ -2490,6 +2818,7 @@ paths:
             application/json:
               schema:
                 type: object
+                description: File details
                 properties:
                   type:
                     type: string
@@ -2499,7 +2828,24 @@ paths:
                     type: string
                   permission: 
                     type: string
-                  
+                  mtime:
+                    type: string
+                  last_modified:
+                    type: string
+                  last_modifier_email:
+                    type: string
+                  last_modifier_name:
+                    type: string
+                  last_modifier_contact_email:
+                    type: string
+                  size: 
+                    type: integer
+                  starred:
+                    type: boolean
+                  comment_total:
+                    type: integer
+                  can_edit:
+                    type: boolean
                 example:
                   type: 'file'
                   id: '000000000000'
@@ -2514,7 +2860,6 @@ paths:
                   starred: false
                   comment_total: 0
                   can_edit: true
-
 
   /api/v2.1/smart-link/:
     get:
@@ -2534,6 +2879,7 @@ paths:
             application/json:
               schema:
                 type: object
+                description: File link information
                 properties:
                   smart_link:
                     type: string
@@ -2551,7 +2897,6 @@ paths:
       tags:
         - Batch Operation with Multiple Files/Directories
       summary: Batch copy items synchronously
-      description: Batch Copy Items Synchronously
       security:
         - AccountTokenAuth: []
       requestBody:
@@ -2581,6 +2926,11 @@ paths:
           description: OK
           content:
             application/json:
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
               example: {
                 "success": true
                         }
@@ -2620,6 +2970,11 @@ paths:
           description: OK
           content:
             application/json:
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
               example: {
                 "success": true
                         }
@@ -2633,6 +2988,7 @@ paths:
       security:
         - AccountTokenAuth: []
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -2653,6 +3009,13 @@ paths:
           description: OK
           content:
             application/json:
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                  commit_id: 
+                    type: string
               example: {
                 "success": true,
                 "commit_id": "d3c4fe38ce453e289f0b6de139b3419822ff07c2"
@@ -2693,8 +3056,14 @@ paths:
           description: OK
           content:
             application/json:
-              example: {
-                "task_id": "216533cd-96e8-40be-af83-ef7b0edbf5bb"
+              schema: 
+                type: object
+                description: Returned task id
+                properties:
+                  task_id: 
+                    type: string
+                example: {
+                  "task_id": "216533cd-96e8-40be-af83-ef7b0edbf5bb"
                       }
 
   /api/v2.1/repos/async-batch-move-item/:
@@ -2732,9 +3101,15 @@ paths:
           description: OK
           content:
             application/json:
-              example: {
-                  "task_id": "d40df789-5e0b-4007-b590-203a04d6cb90"
-                      }
+              schema: 
+                type: object
+                description: Returned task id
+                properties:
+                  task_id: 
+                    type: string
+                example: {
+                    "task_id": "d40df789-5e0b-4007-b590-203a04d6cb90"
+                        }
 
   /api/v2.1/query-copy-move-progress/:
     get:
@@ -2751,13 +3126,27 @@ paths:
           description: OK
           content:
             application/json:
-              example: {
-                "done": 1,
-                "total": 1,
-                "canceled": false,
-                "failed": false,
-                "successful": true
-                        }
+              schema: 
+                type: object
+                description: Progress information
+                properties:
+                  done:
+                    type: integer
+                  total: 
+                    type: integer
+                  canceled: 
+                    type: boolean
+                  failed:
+                    type: boolean
+                  successful: 
+                    type: boolean
+                example: {
+                  "done": 1,
+                  "total": 1,
+                  "canceled": false,
+                  "failed": false,
+                  "successful": true
+                          }
 
   /api/v2.1/copy-move-task/:
     delete:
@@ -2780,45 +3169,122 @@ paths:
           description: OK
           content:
             application/json:
-              example: {
-                "success": true
-                      }
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                example: {
+                  "success": true
+                        }
 
   /api2/groups/:
     get:
       tags:
         - Groups
-      summary: List Groups
+      summary: List groups
       security:
         - AccountTokenAuth: []
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: Information about all created groups
+                properties:
+                  replynum: 
+                    type: integer
+                  groups: 
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: 
+                          type: integer
+                        name: 
+                          type: string
+                        creator: 
+                          type: string
+                        ctime: 
+                          type: string
+                        msgnum: 
+                          type: integer
+                example: {
+                  "groups": [
+                      {
+                          "id": 3432,
+                          "name": "test",
+                          "creator": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                          "ctime": 1709619935388074,
+                          "msgnum": 0
+                      }
+                  ],
+                  "replynum": 0
+                }
 
   /api/v2.1/groups/:
     post:
       tags:
         - Groups
-      summary: Add a Group
+      summary: Add a group
       security:
         - AccountTokenAuth: []
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           name:
-      #             $ref: '#/components/schemas/group_name'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  $ref: '#/components/schemas/group_name'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: Group information
+                properties:
+                  id: 
+                    type: integer
+                  parent_group_id: 
+                    type: integer
+                  name: 
+                    type: string
+                  owner: 
+                    type: string
+                  created_at:
+                    type: string
+                  avatar_url: 
+                    type: string
+                  admins: 
+                    type: array
+                    items:
+                      type: string
+                  group_quota_usage:
+                    type: integer
+                example: {
+                    "id": 3479,
+                    "parent_group_id": 0,
+                    "name": "group",
+                    "owner": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                    "created_at": "2024-03-11T15:41:55+08:00",
+                    "avatar_url": "https://cloud.seafile.com/media/avatars/groups/default.png",
+                    "admins": [
+                        "77a423e4804a4d7ca1ec78a150d71229@auth.local"
+                    ],
+                    "group_quota_usage": 0
+                }
+
 
   /api/v2.1/groups/{group_id}/:
     get:
       tags:
         - Groups
-      summary: Get Info of a Group
+      summary: Get info of a group
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2827,30 +3293,102 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: Group information
+                properties:
+                  id: 
+                    type: integer
+                  parent_group_id: 
+                    type: integer
+                  name: 
+                    type: string
+                  owner: 
+                    type: string
+                  created_at:
+                    type: string
+                  avatar_url: 
+                    type: string
+                  admins: 
+                    type: array
+                    items:
+                      type: string
+                  group_quota_usage:
+                    type: integer
+                example: {
+                    "id": 3479,
+                    "parent_group_id": 0,
+                    "name": "group",
+                    "owner": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                    "created_at": "2024-03-11T15:41:55+08:00",
+                    "avatar_url": "https://cloud.seafile.com/media/avatars/groups/default.png",
+                    "admins": [
+                        "77a423e4804a4d7ca1ec78a150d71229@auth.local"
+                    ],
+                    "group_quota_usage": 0
+                }
 
     put:
       tags:
         - Groups
-      summary: Rename/Transfer a Group
+      summary: Rename/Transfer a group
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/group_id'
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         oneOf:
-      #           - $ref: '#/components/schemas/name'
-      #           - $ref: '#/components/schemas/owner'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/name'
+                - $ref: '#/components/schemas/owner'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: Group information
+                properties:
+                  id: 
+                    type: integer
+                  parent_group_id: 
+                    type: integer
+                  name: 
+                    type: string
+                  owner: 
+                    type: string
+                  created_at:
+                    type: string
+                  avatar_url: 
+                    type: string
+                  admins: 
+                    type: array
+                    items:
+                      type: string
+                  group_quota_usage:
+                    type: integer
+                example: {
+                  "id": 3479,
+                  "parent_group_id": 0,
+                  "name": "new_group",
+                  "owner": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                  "created_at": "2024-03-11T15:41:55+08:00",
+                  "avatar_url": "https://cloud.seafile.com/media/avatars/groups/default.png",
+                  "admins": [
+                      "77a423e4804a4d7ca1ec78a150d71229@auth.local"
+                  ],
+                  "group_quota_usage": 0
+                 }
 
     delete:
       tags:
         - Groups
-      summary: Delete a Group
+      summary: Delete a group
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2870,63 +3408,204 @@ paths:
     get:
       tags:
         - Groups
-      summary: List All Group Members
+      summary: List all group members
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/group_id'
         - $ref: '#/components/parameters/avatar_size'
-        # - $ref: '#/components/parameters/is_admin'
+        - $ref: '#/components/parameters/is_admin'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: array
+                description: Group information
+                items: 
+                  type: object
+                  properties:
+                    group_id: 
+                      type: integer
+                    name: 
+                      type: string
+                    email: 
+                      type: string
+                    contact_email:
+                      type: string
+                    login_id:
+                      type: string
+                    avatar_url: 
+                      type: string
+                    is_admin:
+                      type: boolean
+                    role: 
+                      type: string
+                example: [
+                      {
+                          "group_id": 3479,
+                          "name": "xiaowu2",
+                          "email": "xiaowu2@qq.com",
+                          "contact_email": "xiaowu2@qq.com",
+                          "login_id": "",
+                          "avatar_url": "https://cloud.seafile.com/media/avatars/default.png",
+                          "is_admin": true,
+                          "role": "Owner"
+                      },
+                      {
+                          "group_id": 3479,
+                          "name": "冲鸭丶",
+                          "email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                          "contact_email": "1942999482@qq.com",
+                          "login_id": "",
+                          "avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/80/1672a4ff48124e6ada03a4414518cf4a_38OYAUD.png",
+                          "is_admin": false,
+                          "role": "Member"
+                      }
+                  ]
 
     post:
       tags:
         - Groups
-      summary: Add a Group Member
+      summary: Add a group member
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/group_id'
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           email:
-      #             $ref: '#/components/schemas/email'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  $ref: '#/components/schemas/email'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: Group information
+                properties:
+                  group_id: 
+                      type: integer
+                  name: 
+                    type: string
+                  email: 
+                    type: string
+                  contact_email:
+                    type: string
+                  login_id:
+                    type: string
+                  avatar_url: 
+                    type: string
+                  is_admin:
+                    type: boolean
+                  role: 
+                    type: string
+                example: {
+                    "group_id": 3483,
+                    "name": "&",
+                    "email": "62e7d27c7d4f42d8afcc35e2002b812c@auth.local",
+                    "contact_email": "xiaowu2@qq.com",
+                    "login_id": "",
+                    "avatar_url": "https://cloud.seafile.com/media/avatars/e/6/f489f6bea362e91740fd7a3a111800/resized/80/1672a4ff48124e6ada03a4414518cf4a_t5KAlDm.png",
+                    "is_admin": false,
+                    "role": "Member"
+                     }
 
   /api/v2.1/groups/{group_id}/members/bulk/:
     post:
       tags:
         - Groups
-      summary: Bulk Add Group Members
+      summary: Bulk add group members
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/group_id'
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           emails:
-      #             $ref: '#/components/schemas/emails'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                emails:
+                  $ref: '#/components/schemas/emails'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  failed: 
+                    type: array
+                    items: 
+                      type: object
+                      properties:
+                        error_msg:
+                          type: string
+                        email: 
+                          type: string
+                  success: 
+                    type: array
+                    items: 
+                      type: object
+                      properties:
+                        login_id:
+                          type: string
+                        name: 
+                          type: string
+                        avatar_url: 
+                          type: string
+                        is_admin: 
+                          type: string
+                        contact_email:
+                          type: string
+                        email: 
+                          type: string
+                example: 
+                      failed: [
+                          {
+                              "error_msg": "Invalid email",
+                              "email": "new-member-3@email.com"
+                          },
+                          {
+                              "error_msg": "Is already group member",
+                              "email": "new-member-4@email.com"
+                          }]
+                      success: [
+                          {
+                              "login_id": "",
+                              "name": "new-member-1",
+                              "avatar_url": "https://cloud.seafile.com/media/avatars/default.png",
+                              "is_admin": false,
+                              "contact_email": "new-member-1@email.com",
+                              "email": "new-member-1@email.com"
+                          },
+                          {
+                              "login_id": "",
+                              "name": "new-member-2",
+                              "avatar_url": "https://cloud.seafile.com/media/avatars/default.png",
+                              "is_admin": false,
+                              "contact_email": "new-member-2@email.com",
+                              "email": "new-member-2@email.com"
+                          }
+                      ]
+                         
+
 
   /api/v2.1/groups/{group_id}/members/{email}/:
     get:
       tags:
         - Groups
-      summary: Get Info of a Group Member
+      summary: Get info of a group member
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2936,27 +3615,90 @@ paths:
       responses:
         '200':
           description: OK
-
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: Member information
+                properties:
+                  group_id: 
+                      type: integer
+                  name: 
+                    type: string
+                  email: 
+                    type: string
+                  contact_email:
+                    type: string
+                  login_id:
+                    type: string
+                  avatar_url: 
+                    type: string
+                  is_admin:
+                    type: boolean
+                  role: 
+                    type: string
+                example: {
+                  "group_id": 3483,
+                  "name": "&",
+                  "email": "62e7d27c7d4f42d8afcc35e2002b812c@auth.local",
+                  "contact_email": "xiaowu2@qq.com",
+                  "login_id": "",
+                  "avatar_url": "https://cloud.seafile.com/media/avatars/e/6/f489f6bea362e91740fd7a3a111800/resized/80/1672a4ff48124e6ada03a4414518cf4a_t5KAlDm.png",
+                  "is_admin": false,
+                  "role": "Member"
+                     }
     put:
       tags:
         - Groups
-      summary: Set/Unset a Group Admin
+      summary: Set/Unset a group admin
       security:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/group_id'
         - $ref: '#/components/parameters/email'
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           is_admin:
-      #             $ref: '#/components/schemas/is_admin'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_admin:
+                  $ref: '#/components/schemas/is_admin'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  group_id: 
+                      type: integer
+                  name: 
+                    type: string
+                  email: 
+                    type: string
+                  contact_email:
+                    type: string
+                  login_id:
+                    type: string
+                  avatar_url: 
+                    type: string
+                  is_admin:
+                    type: boolean
+                  role: 
+                    type: string
+                example: {
+                  "group_id": 3483,
+                  "name": "&",
+                  "email": "62e7d27c7d4f42d8afcc35e2002b812c@auth.local",
+                  "contact_email": "xiaowu2@qq.com",
+                  "login_id": "",
+                  "avatar_url": "https://cloud.seafile.com/media/avatars/e/6/f489f6bea362e91740fd7a3a111800/resized/80/1672a4ff48124e6ada03a4414518cf4a_t5KAlDm.png",
+                  "is_admin": false,
+                  "role": "Member"
+                    }
 
     delete:
       tags:
