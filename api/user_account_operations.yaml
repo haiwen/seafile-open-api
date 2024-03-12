@@ -268,6 +268,13 @@ components:
       description: all, mine, shared, group, public or a repo_id, (all for searching in all libraries, etc.), optional. For searching in shared libraries, you can also pass shared_from or not_shared_from parameter beside shared to filter shared libraries.
       schema: 
         type: string
+        enum:
+          - "all"
+          - "mine"
+          - "shared"
+          - "group"
+          - "public"
+          - "repo_id"
         required:
           - "all"
           - "mine"
@@ -556,6 +563,7 @@ components:
 
     src_parent_dir:
       type: string
+      description: File path
       example: '/src'
 
     src_dirent_name:
@@ -763,6 +771,133 @@ components:
       enum: ["true","false"]
       example: "true"
 
+    # Response body
+    FileRevert: 
+      type: object
+      properties:
+        success: 
+          type: boolean
+
+    FileCreate:
+      type: object
+      description: Basic file information
+      properties:
+        type:
+          type: string
+        repo_id:
+          type: string
+        parent_dir: 
+          type: string
+        obj_name: 
+          type: string
+        obj_id: 
+          type: string
+        size: 
+          type: integer
+        mtime: 
+          type: string
+        is_locked: 
+          type: boolean
+        can_preview: 
+          type: boolean
+        can_edit: 
+          type: boolean
+
+    file_upload_noret: 
+      type: string
+      description: Returns the file identifier
+
+    file_upload_ret: 
+      type: array
+      items:
+        type: object
+        description: File information
+        properties:
+          name: 
+            type: string
+          id: 
+            type: string
+          size: 
+            type: integer
+    
+    file_upload_task_id: 
+      type: object
+      description: File index progress information
+      properties:
+        indexed: 
+          type: integer
+        total: 
+          type: integer
+        status: 
+          type: integer
+        ret_json: 
+          type: string
+
+    create: 
+      type: object
+      description: File information
+      properties:
+        is_locked: 
+          type: boolean
+        mtime:
+          type: string
+        obj_id: 
+          type: string
+        obj_name: 
+          type: string
+        parent_dir: 
+          type: string
+        repo_id: 
+          type: string
+        size: 
+          type: integer
+        type: 
+          type: string
+      example: {
+          'is_locked': False,
+          'mtime': '2024-03-12T14:57:42+08:00',
+          'obj_id': u'44bdca6005429390d1ecc6943b05c821bd30917a',
+          'obj_name': u'test.xlsx',
+          'parent_dir': u'/',
+          'repo_id': u'7460f7ac-a0ff-4585-8906-bb5a57d2e118',
+          'size': 7631,
+          'type': 'file'
+      }
+    
+    rename: 
+      type: string
+      example: "success"
+
+    move: 
+      type: object
+      properties:
+        repo_id: 
+          type: string
+        parent_dir: 
+          type: string
+        obj_name: 
+          type: string
+      example: {
+          "repo_id": "affc837f-7fdd-4e91-b88a-32caf99897f2",
+          "parent_dir": "/123",
+          "obj_name": "foo.c"
+      }
+    copy: 
+      type: object
+      properties:
+        repo_id: 
+          type: string
+        parent_dir: 
+          type: string
+        obj_name: 
+          type: string
+      example: {
+          "repo_id": "affc837f-7fdd-4e91-b88a-32caf99897f2",
+          "parent_dir": "/123",
+          "obj_name": "foo.c"
+      }
+
+
 paths:
   # Account
   /api2/account/info/:
@@ -780,6 +915,32 @@ paths:
             application/json:
               schema:
                 type: object
+                description: Account information
+                properties:
+                  login_id: 
+                    type: string
+                  is_staff: 
+                    type: boolean
+                  name: 
+                    type: string
+                  email_notification_interval: 
+                    type: integer
+                  institution: 
+                    type: string
+                  department: 
+                    type: string
+                  avatar_url: 
+                    type: string
+                  contact_email: 
+                    type: string
+                  space_usage: 
+                    type: string
+                  usage: 
+                    type: string
+                  total: 
+                    type: string
+                  email: 
+                    type: string
               example:
                 login_id: ''
                 is_staff: false
@@ -795,11 +956,11 @@ paths:
                 email: 'foo@foo.com'
 
   /api2/client-login/:
-    get:
+    post:
       tags:
         - Account
-      summary: Get client login url
-      description: You can use this API to get a URL to login into the Web interface. The usage case is to provide the feature of 'Visit web site' in the clients.
+      summary: Get user token
+      description: You can use this API to get a token.
       security:
         - AccountTokenAuth: []
       responses:
@@ -808,12 +969,14 @@ paths:
           content:
             application/json:
               schema:
-                type: string
-              example:
-                'https://cloud.seafile.com/client-login/?token=000f1f83d612836c65fed087fb9c4ca40852d0f9'
-
+                type: object
+                properties:
+                  token: 
+                    type: string
+              example: {"token": "e462c3662e99418fb3ee1aa30478b2ed"}
+                
   # Activities
-  /apiv2.1/activities/:
+  /api/v2.1/activities/:
     get:
       tags:
         - Activities
@@ -832,6 +995,37 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      type: object
+                      description: File activitie info
+                      properties:
+                        op_type: 
+                          type: string
+                        repo_id: 
+                          type: string
+                        repo_name: 
+                          type: string
+                        obj_type: 
+                          type: string
+                        commit_id: 
+                          type: string
+                        path: 
+                          type: string
+                        name: 
+                          type: string
+                        author_email: 
+                          type: string
+                        author_name: 
+                          type: string
+                        author_contact_email: 
+                          type: string
+                        avatar_url: 
+                          type: string
+                        time: 
+                          type: string
               example:
                 events:
                   - commit_id: 56ad4dfa70f79d2c7a8a6e032acda65d824e7946
@@ -872,6 +1066,10 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  avatar_url: 
+                    type: string
+                    description: Avatar link
               example:
                 avatar_url: >-
                   https://cloud.seafile.com/media/avatars/2/4/fa66e6b3a50e2707997ec5eed3eda0/resized/64/a92f89f3e23c7fe9cc708454cdd010df_Y7zJE8v.png
@@ -893,6 +1091,14 @@ paths:
             application/json:
               schema:
                 type: object
+                description: Avatar info
+                properties:
+                  url: 
+                    type: string
+                  is_default:
+                    type: boolean
+                  mtime:
+                    type: integer
               example:
                 url: http://127.0.0.1:8000/media/avatars/default.png
                 is_default: true
@@ -1613,6 +1819,27 @@ paths:
                     type: array
                     items:
                       type: object
+                      properties:
+                        comment: 
+                          type: string
+                        repo_id: 
+                          type: string
+                        item_name:
+                          type: string
+                        created_at:
+                          type: string
+                        parent_path:
+                          type: string
+                        avatar_url:
+                          type: string
+                        user_name:
+                          type: string
+                        id: 
+                          type: integer
+                        user_email:
+                          type: string
+                        user_contact_email:
+                          type: string
                 example: {
                   "comments": [
                       {
@@ -1901,6 +2128,7 @@ paths:
             application/json:
               schema: 
                 type: object
+                description: Return number of comments
                 properties:
                   test: 
                     type: string
@@ -1933,6 +2161,30 @@ paths:
                       If value of rev_renamed_old_path field in the last item of data in response is NOT null, it means that the last item is a file renamed/moved commit, if you want to get more file history before file was renamed/moved,  resend the request, and assign the value of rev_renamed_old_path in response to request's path parameter.
                     items: 
                       type: object
+                      description: Returns all operation information about the file
+                      properties:
+                        creator_avatar_url: 
+                          type: string
+                        creator_email: 
+                          type: string
+                        creator_name: 
+                          type: string
+                        creator_contact_email: 
+                          type: string
+                        ctime: 
+                          type: string
+                        description: 
+                          type: string
+                        commit_id: 
+                          type: string
+                        size: 
+                          type: integer
+                        rev_renamed_old_path: 
+                          type: string
+                        rev_file_id: 
+                          type: string
+                        path: 
+                          type: string
                 example: {
                     "data": [
                         {
@@ -2010,11 +2262,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                description: Basic file information
-                properties:
-                  success: 
-                    type: boolean
+                allOf:
+                  - $ref: '#/components/schemas/FileRevert'
+                  - $ref: '#/components/schemas/FileCreate'
               examples:
                 revert:
                   value: {
@@ -2057,6 +2307,7 @@ paths:
             application/json:
               schema:
                 type: object
+                description: Return file information
                 properties:
                   type: 
                     type: string
@@ -2166,6 +2417,32 @@ paths:
                     type: array
                     items: 
                       type: object
+                      description: File information that meets the conditions
+                      properties:
+                        repo_owner_name: 
+                          type: string
+                        repo_id: 
+                          type: string
+                        name: 
+                          type: string
+                        repo_encrypted: 
+                          type: boolean
+                        repo_owner_contact_email: 
+                          type: string
+                        repo_owner_email: 
+                          type: string
+                        last_modified:
+                          type: number
+                        content_highlight: 
+                          type: string
+                        fullpath: 
+                          type: string
+                        repo_name: 
+                          type: string
+                        is_dir: 
+                          type: boolean
+                        size: 
+                          type: integer        
                 example: {
                     "has_more": false,
                     "total": 2,
@@ -2224,6 +2501,15 @@ paths:
                     type: array
                     items:
                       type: object
+                      properties:
+                        path: 
+                          type: string
+                        size: 
+                          type: integer
+                        mtime:
+                          type: string
+                        type: 
+                          type: string
                 example: {
                   "data": [
                       {
@@ -2251,12 +2537,24 @@ paths:
             application/json:
               schema: 
                 type: object
-                description: Basic information about all labels in the library
+                description: Information about all labels in the library
                 properties:
                   repo_tags: 
                     type: array
                     items:
                       type: object
+                      description: Label information
+                      properties:
+                        repo_tag_id:
+                          type: integer
+                        repo_id: 
+                          type: string
+                        tag_name: 
+                          type: string
+                        tag_color:
+                          type: string
+                        file_count:
+                          type: integer
                 example: {
                     "repo_tags": [
                         {
@@ -2302,6 +2600,15 @@ paths:
                 properties:
                   repo_tag: 
                     type: object
+                    properties:
+                      repo_tag_id:
+                        type: integer
+                      repo_id: 
+                        type: string
+                      tag_name: 
+                        type: string
+                      tag_color:
+                        type: string
                 example: {
                       "repo_tag": {
                       "repo_tag_id": 430,
@@ -2344,6 +2651,15 @@ paths:
                 properties:
                   repo_tag: 
                     type: object
+                    properties:
+                      repo_tag_id:
+                        type: integer
+                      repo_id: 
+                        type: string
+                      tag_name: 
+                        type: string
+                      tag_color:
+                        type: string
                 example: {
                   "repo_tag": {
                       "repo_tag_id": 430,
@@ -2364,6 +2680,16 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: string
+                example: {
+                    "success": "true"
+                        }
 
   /api/v2.1/repos/{repo_id}/file-tags/:
     get:
@@ -2388,6 +2714,7 @@ paths:
                     type: array
                     items: 
                       type: object
+                      description: Label information
                       properties:
                         tag_color: 
                           type: string
@@ -2522,32 +2849,32 @@ paths:
                           type: string
                         modifier_name: 
                           type: string
-                      example: {
-                        "tagged_files": [
-                            {
-                                "file_tag_id": 953,
-                                "parent_path": "/",
-                                "filename": "test",
-                                "size": 43,
-                                "mtime": 1709710694,
-                                "last_modified": "2024-03-06T15:38:14+08:00",
-                                "modifier_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                                "modifier_contact_email": "1942999482@qq.com",
-                                "modifier_name": "冲鸭丶"
-                            },
-                            {
-                                "file_tag_id": 957,
-                                "parent_path": "/",
-                                "filename": "test.md",
-                                "size": 0,
-                                "mtime": 1709695513,
-                                "last_modified": "2024-03-06T11:25:13+08:00",
-                                "modifier_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                                "modifier_contact_email": "1942999482@qq.com",
-                                "modifier_name": "冲鸭丶"
-                            }
-                        ]
-                        }
+                example: {
+                  "tagged_files": [
+                      {
+                          "file_tag_id": 953,
+                          "parent_path": "/",
+                          "filename": "test",
+                          "size": 43,
+                          "mtime": 1709710694,
+                          "last_modified": "2024-03-06T15:38:14+08:00",
+                          "modifier_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                          "modifier_contact_email": "1942999482@qq.com",
+                          "modifier_name": "冲鸭丶"
+                      },
+                      {
+                          "file_tag_id": 957,
+                          "parent_path": "/",
+                          "filename": "test.md",
+                          "size": 0,
+                          "mtime": 1709695513,
+                          "last_modified": "2024-03-06T11:25:13+08:00",
+                          "modifier_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                          "modifier_contact_email": "1942999482@qq.com",
+                          "modifier_name": "冲鸭丶"
+                      }
+                  ]
+                  }
           
   /api2/repos/{repo_id}/upload-link/:
     get:
@@ -2566,7 +2893,7 @@ paths:
             application/json:
               schema:
                 type: string
-                description: Folder download address
+                description: The download address of the folder
                 example: "https://cloud.seafile.com/seafhttp/upload-api/5b7d49bc-3756-4995-9e00-e5faddb3455b"
  
   /seafhttp/upload-aj/{upload_token}?ret-json=1:
@@ -2593,13 +2920,14 @@ paths:
           content:
             application/json:
               schema: 
-                type: array
-                items: 
-                  type: object  
+                allOf:
+                  - $ref: '#/components/schemas/file_upload_noret'
+                  - $ref: '#/components/schemas/file_upload_ret'
+                  - $ref: '#/components/schemas/file_upload_task_id'
               examples:
-                No ref-json:
+                No ret-json:
                   value: adc83b19e793491b1c6ea0fd8b46cd9f32e592fc
-                ref-json:
+                ret-json:
                   value: [
                     {
                         "name": "test.txt",
@@ -2653,6 +2981,7 @@ paths:
                 properties:
                   uploadedBytes: 
                     type: integer
+                    description: uploaded bytes
                 example: |
                         ....... 
                         < Accept-Ranges: bytes 
@@ -2690,6 +3019,7 @@ paths:
                 properties:
                   success: 
                     type: string
+                    description: File upload result
                 example: {
                       "success": true
                        }
@@ -2712,6 +3042,7 @@ paths:
             application/json:
               schema: 
                 type: string
+                description: Update link
                 example: "https://cloud.seafile.com/seafhttp/update-api/aa610889-04ce-4d25-979e-6cb528775038"
 
   /seafhttp/update-api/{upload_token}/:
@@ -2757,6 +3088,7 @@ paths:
             application/json:
               schema: 
                 type: string
+                description: Return a link
                 example: "https://cloud.seafile.com/seafhttp/files/48a7b633-25a4-4c8d-a10e-37dcfa34c65d/111"
           
     post:
@@ -2780,9 +3112,12 @@ paths:
           content:
             application/json:
               schema: 
-                type: string
-                example: "https://cloud.seafile.com/seafhttp/files/a003fc0f-104d-4b28-bd34-5de80d3ad93f/111"
-
+                allOf:
+                  - $ref: '#/components/schemas/create'
+                  - $ref: '#/components/schemas/rename'
+                  - $ref: '#/components/schemas/move'
+                  - $ref: '#/components/schemas/copy'
+  
     delete:
       tags:
         - Files
@@ -2799,6 +3134,7 @@ paths:
             application/json:
               schema:
                 type: string
+                description: Response code is 200, and a string "success" is returned.
                 example: success
                   
   /api2/repos/{repo_id}/file/detail/:
@@ -2931,6 +3267,7 @@ paths:
                 properties:
                   success: 
                     type: boolean
+                    description: Success state
               example: {
                 "success": true
                         }
@@ -2975,6 +3312,7 @@ paths:
                 properties:
                   success: 
                     type: boolean
+                    description: Success state
               example: {
                 "success": true
                         }
@@ -3016,6 +3354,8 @@ paths:
                     type: boolean
                   commit_id: 
                     type: string
+                    description: The unique identifier of a commit
+
               example: {
                 "success": true,
                 "commit_id": "d3c4fe38ce453e289f0b6de139b3419822ff07c2"
@@ -3174,6 +3514,7 @@ paths:
                 properties:
                   success: 
                     type: boolean
+                    description: Success state
                 example: {
                   "success": true
                         }
@@ -3200,6 +3541,7 @@ paths:
                     type: array
                     items:
                       type: object
+                      description: Group information
                       properties:
                         id: 
                           type: integer
@@ -3232,6 +3574,7 @@ paths:
       security:
         - AccountTokenAuth: []
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -3403,6 +3746,7 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    description: Returns a 'success' string
 
   /api/v2.1/groups/{group_id}/members/:
     get:
@@ -3548,6 +3892,7 @@ paths:
                     type: array
                     items: 
                       type: object
+                      description: Error message
                       properties:
                         error_msg:
                           type: string
@@ -3557,6 +3902,7 @@ paths:
                     type: array
                     items: 
                       type: object
+                      description: Memeber information
                       properties:
                         login_id:
                           type: string
@@ -3672,6 +4018,7 @@ paths:
             application/json:
               schema: 
                 type: object
+                description: Member information
                 properties:
                   group_id: 
                       type: integer
@@ -3716,6 +4063,7 @@ paths:
             application/json:
               schema:
                 type: object
+                description: Success state
                 properties:
                   success:
                     type: boolean
@@ -3821,7 +4169,7 @@ paths:
     get:
       tags:
         - Libraries
-      summary: Default library
+      summary: Get default library
       description: Get Default Library
       security:
         - AccountTokenAuth: []
@@ -3830,14 +4178,22 @@ paths:
           description: OK
           content:
             application/json:
+              schema: 
+                type: object
+                description: Library information
+                properties:
+                  exists: 
+                    type: boolean
+                  repo_id: 
+                    type: string
               example:
-                exists: true,
+                exists: true
                 repo_id: "eaa2b714-7993-4abc-93ce-56286d45d3de"
 
     post:
       tags:
         - Libraries
-      summary: Default library
+      summary: Create default library
       description: Create Default Library
       security:
         - AccountTokenAuth: []
@@ -3846,6 +4202,14 @@ paths:
           description: OK
           content:
             application/json:
+              schema: 
+                type: object
+                description: Library information
+                properties:
+                  exists: 
+                    type: boolean
+                  repo_id: 
+                    type: string
               example:
                 exists: true,
                 repo_id: "eaa2b714-7993-4abc-93ce-56286d45d3de"
@@ -3870,15 +4234,52 @@ paths:
                 type: array
                 items:
                   properties:
-                    "type":
+                    type:
                       type: string
                       description: |
                         The `type` field in the response indicates the type of library:
                         - `repo`: Libraries owned by the user.
                         - `srepo`: Libraries shared with the user.
                         - `grepo`: Group libraries or libraries shared with all users.
-
-                  example: [
+                    id: 
+                      type: string
+                    owner: 
+                      type: string
+                    onwer_name: 
+                      type: string
+                    owner_contact_email: 
+                      type: string
+                    name: 
+                      type: string
+                    mtime: 
+                      type: number
+                    modifier_contact_email:
+                      type: string
+                    modifier_email:
+                      type: string
+                    modifier_name:
+                      type: string
+                    mtime_relative: 
+                      type: string
+                    size: 
+                      type: integer
+                    size_formatted: 
+                      type: string
+                    encrypted: 
+                      type: boolean
+                    permission: 
+                      type: string
+                    virtual: 
+                      type: boolean
+                    root: 
+                      type: string
+                    head_commit_id:
+                      type: string
+                    version:
+                      type: integer
+                    salt: 
+                      type: string
+                example: [
                       {
                           "type": "repo",
                           "id": "d5620899-1e9b-4a8c-b9af-b00a26324407",
@@ -3926,29 +4327,73 @@ paths:
           description: OK
           content:
             application/json:
-              example:
-                {
-                "relay_id": "44e8f253849ad910dc142247227c8ece8ec0f971",
-                "relay_addr": "127.0.0.1",
-                "relay_port": "80",
-                "email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                "token": "89661286502d98af109f30bb54b63a4b587e5e60",
-                "repo_id": "6d833ca8-392e-4dbf-8f4f-af4895fff121",
-                "repo_name": "test",
-                "repo_desc": "",
-                "repo_size": 0,
-                "repo_size_formatted": "0 bytes",
-                "mtime": 1709609851,
-                "mtime_relative": "<time datetime=\"2024-03-05T11:37:31\" is=\"relative-time\" title=\"Tue, 05 Mar 2024 11:37:31 +0800\" >Just now</time>",
-                "encrypted": 1,
-                "enc_version": 2,
-                "salt": "",
-                "magic": "bc184948365cf90d211b53a82d5cc0c1921eb757788527e0be09c4d7ca22d0cf",
-                "random_key": "0fb038875aa44237db4a7567facf02397fbe2cc890ddcf244af97632510dcab042500a15848bdc326ff3289f48d18afe",
-                "repo_version": 1,
-                "head_commit_id": "4875e1352495c8248349b47619718597e7b3a6ab",
-                "permission": "rw"
-              }
+              schema: 
+                type: object
+                description: Library information
+                properties:
+                  relay_id: 
+                    type: string
+                  relay_addr: 
+                    type: string
+                  relay_port: 
+                    type: string
+                  email: 
+                    type: string
+                  token: 
+                    type: string
+                  repo_id: 
+                    type: string
+                  repo_name: 
+                    type: string
+                  repo_desc: 
+                    type: string
+                  repo_size: 
+                    type: integer
+                  repo_size_formatted: 
+                    type: string
+                  mtime: 
+                    type: string
+                  mtime_relative: 
+                    type: string
+                  encrypted: 
+                    type: integer
+                  enc_version: 
+                    type: integer
+                  salt: 
+                    type: string
+                  magic: 
+                    type: string
+                  random_key: 
+                    type: string
+                  repo_version: 
+                    type: integer
+                  head_commit_id: 
+                    type: string
+                  permission: 
+                    type: string   
+                example:
+                  {
+                  "relay_id": "44e8f253849ad910dc142247227c8ece8ec0f971",
+                  "relay_addr": "127.0.0.1",
+                  "relay_port": "80",
+                  "email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                  "token": "89661286502d98af109f30bb54b63a4b587e5e60",
+                  "repo_id": "6d833ca8-392e-4dbf-8f4f-af4895fff121",
+                  "repo_name": "test",
+                  "repo_desc": "",
+                  "repo_size": 0,
+                  "repo_size_formatted": "0 bytes",
+                  "mtime": 1709609851,
+                  "mtime_relative": "<time datetime=\"2024-03-05T11:37:31\" is=\"relative-time\" title=\"Tue, 05 Mar 2024 11:37:31 +0800\" >Just now</time>",
+                  "encrypted": 1,
+                  "enc_version": 2,
+                  "salt": "",
+                  "magic": "bc184948365cf90d211b53a82d5cc0c1921eb757788527e0be09c4d7ca22d0cf",
+                  "random_key": "0fb038875aa44237db4a7567facf02397fbe2cc890ddcf244af97632510dcab042500a15848bdc326ff3289f48d18afe",
+                  "repo_version": 1,
+                  "head_commit_id": "4875e1352495c8248349b47619718597e7b3a6ab",
+                  "permission": "rw"
+                }
 
   /api2/repos/{repo_id}/:
     get:
@@ -3964,6 +4409,46 @@ paths:
           description: OK
           content:
             application/json:
+              schema: 
+                type: object
+                description: Library info
+                properties:
+                  type: 
+                    type: string
+                  id: 
+                    type: string
+                  owner: 
+                    type: string
+                  name: 
+                    type: string
+                  mtime: 
+                    type: string
+                  size: 
+                    type: string
+                  encrypted: 
+                    type: string
+                  root: 
+                    type: string
+                  permission: 
+                    type: string
+                  modifier_email: 
+                    type: string
+                  modifier_contact_email: 
+                    type: string
+                  modifier_name: 
+                    type: string
+                  file_count: 
+                    type: string
+                  head_commit_id: 
+                    type: string
+                  enc_version: 
+                    type: string
+                  salt: 
+                    type: string
+                  magic: 
+                    type: string
+                  random_key: 
+                    type: string
               examples:
                 For normal library:
                   value:
@@ -4022,6 +4507,12 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: string
+                description: Returns a 'success' string
+                example: success
 
     delete:
       tags:
@@ -4034,6 +4525,12 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: string
+                description: Returns a 'success' string
+                example: success
 
   /api2/repos/{repo_id}/owner/:
     get:
@@ -4049,6 +4546,12 @@ paths:
           description: OK
           content:
             application/json:
+              schema: 
+                type: object
+                properties:
+                  owner: 
+                    type: string
+                    description: email
               example:
                 {"owner": "77a423e4804a4d7ca1ec78a150d71229@auth.local"}
 
@@ -4071,6 +4574,14 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
 
   /api/v2.1/repos/{repo_id}/history/:
     get:
@@ -4088,52 +4599,67 @@ paths:
           description: OK
           content:
             application/json:
-              example:
-                {
-                "commits": [
-                    {
-                        "id": "5853e0638e31555fc606b28b57ff653b44703c19",
-                        "creator_name": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                        "creator": "0000000000000000000000000000000000000000",
-                        "desc": "Changed library name or description",
-                        "ctime": 1709616042,
-                        "parent_id": "d6955bc6cdd7856dc5fcce9485f5d337e132aaa5",
-                        "second_parent_id": null,
-                        "repo_id": "a55a7292-0f75-4803-8914-0279e3e701b0",
-                        "root_id": "0000000000000000000000000000000000000000",
-                        "version": 1,
-                        "new_merge": false,
-                        "conflict": false,
-                        "rev_file_id": null,
-                        "rev_file_size": 0,
-                        "rev_renamed_old_path": null,
-                        "device_name": null,
-                        "client_version": null,
-                        "next_start_commit": null
-                    },
-                    {
-                        "id": "d6955bc6cdd7856dc5fcce9485f5d337e132aaa5",
-                        "creator_name": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                        "creator": "0000000000000000000000000000000000000000",
-                        "desc": "Changed library name or description",
-                        "ctime": 1709616025,
-                        "parent_id": "a6143d7b0c91bb08a4a3264e61bb4689a9d4e88a",
-                        "second_parent_id": null,
-                        "repo_id": "a55a7292-0f75-4803-8914-0279e3e701b0",
-                        "root_id": "0000000000000000000000000000000000000000",
-                        "version": 1,
-                        "new_merge": false,
-                        "conflict": false,
-                        "rev_file_id": null,
-                        "rev_file_size": 0,
-                        "rev_renamed_old_path": null,
-                        "device_name": null,
-                        "client_version": null,
-                        "next_start_commit": null
-                    },
-                ],
-                "page_next": false
-                }
+              schema: 
+                type: object
+                properties:
+                  data: 
+                    type: array
+                    description: Returns all historical operations
+                    items: 
+                      type: object
+                      description: Operational info
+                      properties:
+                        email: 
+                          type: string
+                        name: 
+                          type: string
+                        contact_email: 
+                          type: string
+                        time: 
+                          type: string
+                        commit_id: 
+                          type: string
+                        description: 
+                          type: string
+                        client_version: 
+                          type: string
+                        device_name: 
+                          type: string
+                        second_parent_id: 
+                          type: string
+                        tags: 
+                          type: string
+                  more: 
+                    type: boolean
+
+                example:  {
+                  "data": [
+                      {
+                          "email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                          "name": "冲鸭丶",
+                          "contact_email": "1942999482@qq.com",
+                          "time": "2024-03-11T15:05:37+08:00",
+                          "commit_id": "f8d665f9338ab8ec25ee064f2f3fcadad4c6c0b5",
+                          "description": "Deleted \"222\"",
+                          "client_version": null,
+                          "device_name": null,
+                          "second_parent_id": null,
+                          "tags": []
+                      },
+                      {
+                          "email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                          "name": "冲鸭丶",
+                          "contact_email": "1942999482@qq.com",
+                          "time": "2024-03-11T14:41:36+08:00",
+                          "commit_id": "8def9edbc1e78b1c4b4a41796a76a54f2b36da59",
+                          "description": "Deleted \"111\"",
+                          "client_version": null,
+                          "device_name": null,
+                          "second_parent_id": null,
+                          "tags": []
+                      }],
+                         "more": false
+                         }
 
   /api2/repos/{repo_id}/history-limit/:
     get:
@@ -4149,8 +4675,14 @@ paths:
           description: OK
           content:
             application/json:
-              example:
-                {"keep_days": 60}
+              schema: 
+                type: object
+                properties:
+                  keep_days:
+                    type: integer
+                    description: Storage time
+                example:
+                  {"keep_days": 60}
 
     put:
       tags:
@@ -4171,6 +4703,17 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  keep_days:
+                    type: integer
+                    description: Storage time
+                example:
+                  {"keep_days": 8}
+
 
   /api/v2.1/repos/{repo_id}/trash/:
     get:
@@ -4189,23 +4732,53 @@ paths:
           description: OK
           content:
             application/json:
-              example: 
-                {
-                  "data": [
-                        {
-                            "parent_dir": "/",
-                            "obj_name": "1.pptx",
-                            "deleted_time": "2024-03-05T15:11:29+08:00",
-                            "scan_stat": null,
-                            "commit_id": "9ddc5bb951a91e1f761d37f74620231ce5c8604c",
-                            "is_dir": false,
-                            "size": 34707,
-                            "obj_id": "36ad147552afe49ad0cf60754d0ed4e61efe35d1"
-                        }
-                    ],
-                    "more": false,
-                    "scan_stat": null
-                    }
+              schema: 
+                type: object
+                properties:
+                  data: 
+                    type: array
+                    description: All files in the recycle bin.
+                    items: 
+                      type: object
+                      description: File info
+                      properties:
+                        parent_dir: 
+                          type: string
+                        obj_name: 
+                          type: string
+                        deleted_time: 
+                          type: string
+                        scan_stat: 
+                          type: string
+                        commit_id: 
+                          type: string
+                        is_dir: 
+                          type: boolean
+                        size: 
+                          type: integer
+                        obj_id: 
+                          type: string
+                  more: 
+                    type: boolean
+                  scan_stat: 
+                    type: object
+                example: 
+                  {
+                    "data": [
+                          {
+                              "parent_dir": "/",
+                              "obj_name": "1.pptx",
+                              "deleted_time": "2024-03-05T15:11:29+08:00",
+                              "scan_stat": null,
+                              "commit_id": "9ddc5bb951a91e1f761d37f74620231ce5c8604c",
+                              "is_dir": false,
+                              "size": 34707,
+                              "obj_id": "36ad147552afe49ad0cf60754d0ed4e61efe35d1"
+                          }
+                      ],
+                      "more": false,
+                      "scan_stat": null
+                      }
 
     delete:
       tags:
@@ -4225,6 +4798,7 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    description: Success state
 
   /api/v2.1/repos/{repo_id}/commits/{commit_id}/:
     get:
@@ -4241,63 +4815,94 @@ paths:
           description: OK
           content:
             application/json:
-              example: {
-                "commit_info": {
-                    "description": "Added or modified \"1.md\" and 2 more files.\nDeleted \"default.jpeg\".\nRenamed \"123.umind\" and 1 more files.\nAdded \"789\" and 1 more directories.\nRemoved directory \"456\".\n",
-                    "creator_name": "lian-name",
-                    "creator_email": "lian@lian.com",
-                    "device_name": "lian mac pro work",
-                    "time": "2024-03-4T10:17:03+08:00",
-                    "creator_contact_email": "lian@lian.com"
-                },
-                "commit_diffs": [
-                    {
-                        "op_type": "renamed",
-                        "path": "/123/123.umind",
-                        "new_path": "/123/123.umind copy"
-                    },
-                    {
-                        "op_type": "renamed",
-                        "path": "/d0efd88ejw1f6vqsjmjh9j20c846i4i6.jpg",
-                        "new_path": "/123.jpg"
-                    },
-                    {
-                        "op_type": "modified",
-                        "path": "/123/1.md",
-                        "new_path": ""
-                    },
-                    {
-                        "op_type": "deldir",
-                        "path": "/123/456",
-                        "new_path": ""
-                    },
-                    {
-                        "op_type": "newdir",
-                        "path": "/123/789",
-                        "new_path": ""
-                    },
-                    {
-                        "op_type": "newdir",
-                        "path": "/abd",
-                        "new_path": ""
-                    },
-                    {
-                        "op_type": "removed",
-                        "path": "/default.jpeg",
-                        "new_path": ""
-                    },
-                    {
-                        "op_type": "new",
-                        "path": "/departments copy.md",
-                        "new_path": ""
-                    },
-                    {
-                        "op_type": "modified",
-                        "path": "/info.md",
-                        "new_path": ""
-                    }
-                ]
-              }
+              schema: 
+                type: object
+                properties:
+                  commit_info: 
+                    type: object
+                    description: Commit info
+                    properties:
+                      description: 
+                        type: string
+                      creator_name: 
+                        type: string
+                      creator_email: 
+                        type: string
+                      device_name: 
+                        type: string
+                      time: 
+                        type: string
+                      creator_contact_email: 
+                        type: string
+                  commit_diffs: 
+                    type: array
+                    items:
+                      type: object
+                      description: Commit diffs
+                      properties:
+                        op_type: 
+                          type: string
+                        path: 
+                          type: string
+                        new_path: 
+                          type: string
+                example: {
+                  "commit_info": {
+                      "description": "Added or modified \"1.md\" and 2 more files.\nDeleted \"default.jpeg\".\nRenamed \"123.umind\" and 1 more files.\nAdded \"789\" and 1 more directories.\nRemoved directory \"456\".\n",
+                      "creator_name": "lian-name",
+                      "creator_email": "lian@lian.com",
+                      "device_name": "lian mac pro work",
+                      "time": "2024-03-4T10:17:03+08:00",
+                      "creator_contact_email": "lian@lian.com"
+                  },
+                  "commit_diffs": [
+                      {
+                          "op_type": "renamed",
+                          "path": "/123/123.umind",
+                          "new_path": "/123/123.umind copy"
+                      },
+                      {
+                          "op_type": "renamed",
+                          "path": "/d0efd88ejw1f6vqsjmjh9j20c846i4i6.jpg",
+                          "new_path": "/123.jpg"
+                      },
+                      {
+                          "op_type": "modified",
+                          "path": "/123/1.md",
+                          "new_path": ""
+                      },
+                      {
+                          "op_type": "deldir",
+                          "path": "/123/456",
+                          "new_path": ""
+                      },
+                      {
+                          "op_type": "newdir",
+                          "path": "/123/789",
+                          "new_path": ""
+                      },
+                      {
+                          "op_type": "newdir",
+                          "path": "/abd",
+                          "new_path": ""
+                      },
+                      {
+                          "op_type": "removed",
+                          "path": "/default.jpeg",
+                          "new_path": ""
+                      },
+                      {
+                          "op_type": "new",
+                          "path": "/departments copy.md",
+                          "new_path": ""
+                      },
+                      {
+                          "op_type": "modified",
+                          "path": "/info.md",
+                          "new_path": ""
+                      }
+                  ]
+                }
 
   /api2/repos/public/:
     post:
