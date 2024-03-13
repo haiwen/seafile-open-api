@@ -57,6 +57,22 @@ components:
       required: false
       schema:
         type: string
+    
+    detail_dir_path: 
+      name: path
+      in: query
+      description: Path to the dir
+      required: true
+      schema: 
+        type: string
+
+    dir_p: 
+      name: p
+      in: query
+      description: 'Path to the dir'
+      required: false
+      schema: 
+        type: string
 
     directory_path:
       name: p
@@ -495,6 +511,7 @@ components:
 
     permission:
       type: string
+      description: "'r' or 'rw'"
       example: r
 
     password:
@@ -516,6 +533,7 @@ components:
 
     group_id_list:
       type: array
+      description: The unique identifier of a group
       items:
         type: integer
       example: [1, 2]
@@ -555,10 +573,12 @@ components:
 
     commit_id:
       type: string
+      description: Unique identification of the operation
       example: b1a33768517f65ac7d618ff078dd27855374c7e0
 
     src_repo_id:
       type: string
+      description: The unique identifier of a library
       pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
 
     src_parent_dir:
@@ -568,6 +588,7 @@ components:
 
     src_dirent_name:
       type: string
+      description: Directory name
       example: folder
 
     src_dirents:
@@ -578,10 +599,12 @@ components:
 
     dst_repo_id:
       type: string
+      description: The unique identifier of a library
       pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
 
     dst_parent_dir:
       type: string
+      description: File path
       example: '/dst'
 
     create_directory:
@@ -770,6 +793,7 @@ components:
       title: is_admin
       enum: ["true","false"]
       example: "true"
+    
 
     # Response body
     FileRevert: 
@@ -1120,7 +1144,7 @@ paths:
             schema:
               type: object
               properties:
-                repo_name:
+                name:
                   $ref: '#/components/schemas/repo_name'
                 permission:
                   $ref: '#/components/schemas/permission'
@@ -1136,14 +1160,34 @@ paths:
             application/json:
               schema:
                 type: object
-              example:
-                repo_id: 9bc59af9-265e-4110-a0e2-619450a5cb35
-                permission: r
-                encrypted: false
-                owner_email: 53@seafile_group
-                mtime: 2018-04-23T17:25:37+08:00
-                repo_name: group-owned-repo-4
-                size: 0
+                description: Department library info
+                properties:
+                  id: 
+                    type: string
+                  name: 
+                    type: string
+                  mtime: 
+                    type: string
+                  size: 
+                    type: integer
+                  encrypted: 
+                    type: boolean
+                  owner: 
+                    type: string
+                  group_name: 
+                    type: string
+                  permission: 
+                    type: string
+                example: {
+                  "id": "4150d508-9014-413d-b1d5-3f0cc9d28e64",
+                  "name": "test",
+                  "mtime": "2024-03-13T11:27:58+08:00",
+                  "size": 0,
+                  "encrypted": false,
+                  "owner": "2251@seafile_group",
+                  "group_name": "公司AAA",
+                  "permission": "rw"
+                      }
 
   /api/v2.1/groups/{group_id}/group-owned-libraries/{repo_id}/:
     put:
@@ -1173,15 +1217,33 @@ paths:
             application/json:
               schema:
                 type: object
-              example:
-                id: 9bc59af9-265e-4110-a0e2-619450a5cb35
-                name: test
-                mtime: 2018-04-23T17:25:37+08:00
-                size: 0
-                encrypted: false
-                owner: 3@seafile_group
-                group_name: test-group
+                description: Library info
+                properties:
+                  id: 
+                    type: string
+                  name: 
+                    type: string
+                  mtime: 
+                    type: string
+                  size: 
+                    type: integer
+                  encrypted: 
+                    type: boolean
+                  owner: 
+                    type: string
+                  group_name: 
+                    type: string
+              example: {
+                  "id": "3711f753-0577-4080-9723-064acc726aff",
+                  "name": "test1",
+                  "mtime": "2024-03-13T11:32:22+08:00",
+                  "size": 0,
+                  "encrypted": false,
+                  "owner": "2251@seafile_group",
+                  "group_name": "公司AAA"
+                }
 
+  /api/v2.1/groups/{group_id}/libraries/{repo_id}/:
     delete:
       tags:
         - Department Libraries
@@ -1202,6 +1264,7 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    description: Success state
 
   /api/v2.1/group-owned-libraries/{repo_id}/user-share/:
     get:
@@ -1222,6 +1285,14 @@ paths:
                 type: array
                 items:
                   type: object
+                  description: User info
+                  properties:
+                    permission: 
+                      type: string
+                    user_name: 
+                      type: string
+                    user_email:
+                      type: string
                   example:
                     permission: rw
                     user_name: '1'
@@ -1238,7 +1309,7 @@ paths:
         - $ref: '#/components/parameters/repo_id'
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
               type: object
               properties:
@@ -1262,10 +1333,26 @@ paths:
                     type: array
                     items:
                       type: object
+                      description: Error message
+                      properties:
+                        email: 
+                          type: string
+                        error_msg:
+                          type: string
                   success:
                     type: array
                     items:
                       type: object
+                      description: User info
+                      properties:
+                        permission: 
+                          type: string
+                        user_name: 
+                          type: string
+                        user_email:
+                          type: string
+                        user_contact_email:
+                          type: string
               example:
                 failed: [
                   {
@@ -1314,6 +1401,7 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    description: Success state
 
     delete:
       tags:
@@ -1345,6 +1433,7 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    description: Success state
 
   /api/v2.1/group-owned-libraries/{repo_id}/group-share/:
     get:
@@ -1365,6 +1454,7 @@ paths:
                 type: array
                 items:
                   type: object
+                  description: Group info
                   example:
                     permission: r
                     group_id: 1
@@ -1380,7 +1470,7 @@ paths:
         - $ref: '#/components/parameters/repo_id'
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
               type: object
               properties:
@@ -1404,10 +1494,22 @@ paths:
                     type: array
                     items:
                       type: object
+                      description: Error message
+                      properties:
+                        error_msg:
+                          type: string
                   success:
                     type: array
                     items:
                       type: object
+                      description: Group info
+                      properties:
+                        permission: 
+                          type: string
+                        group_id: 
+                          type: integer
+                        group_name:
+                          type: string
               example:
                 failed: [
                   {
@@ -1454,6 +1556,7 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    description: Success state
 
     delete:
       tags:
@@ -1485,6 +1588,7 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    description: Success state
 
   /api2/devices/:
     get:
@@ -1502,17 +1606,44 @@ paths:
                 type: array
                 items:
                   type: object
-                  example:
-                    last_accessed: 2016-03-15T10:28:48+08:00
-                    is_desktop_client: true
-                    device_name: laptop
-                    platform_version: ''
-                    platform: linux
-                    user: test@example.com
-                    key: 99abe1a7cc7d614db0bfa19db81e42ef675abe4f
-                    client_version: 5.0.0
-                    last_login_ip: 192.168.1.16
-                    device_id: be10980211752515053bf9036a13139375de0cc8
+                  description: Device login information
+                  properties:
+                    key: 
+                      type: string
+                    user: 
+                      type: string
+                    platform: 
+                      type: string
+                    device_id: 
+                      type: string
+                    device_name: 
+                      type: string
+                    client_version: 
+                      type: string
+                    platform_version: 
+                      type: string
+                    last_accessed: 
+                      type: string
+                    last_login_ip: 
+                      type: string
+                    wiped_at: 
+                      type: string
+                    is_desktop_client: 
+                      type: boolean
+                example: [
+                  {
+                  "key": "c7c0b12ce800c8e1cb548992519f85ee5b553b7f",
+                  "user": "admin@seafile.com",
+                  "platform": "android",
+                  "device_id": "0cedaf9cfb8cc6d9",
+                  "device_name": "VOG-AL00",
+                  "client_version": "2.3.2",
+                  "platform_version": "10",
+                  "last_accessed": "2023-07-06T10:23:16+08:00",
+                  "last_login_ip": "61.177.181.50",
+                  "wiped_at": null,
+                  "is_desktop_client": false
+                  },]
 
     delete:
       tags:
@@ -1545,6 +1676,7 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    description: Success state
 
   /api2/repos/{repo_id}/dir/:
     get:
@@ -1555,7 +1687,7 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        - $ref: '#/components/parameters/dir_path'
+        - $ref: '#/components/parameters/dir_p'
         - $ref: '#/components/parameters/object_id'
         - $ref: '#/components/parameters/type'
         - $ref: '#/components/parameters/recursive'
@@ -1566,13 +1698,62 @@ paths:
             application/json:
               schema:
                 type: array
+                description: File and folder infor
                 items:
                   type: object
-                  example:
-                    id: '0000000000000000000000000000000000000000'
-                    type: file
-                    name: test.txt
-                    size: 0
+                  properties:
+                    modifier_email: 
+                      type: string
+                    size: 
+                      type: integer
+                    is_locked: 
+                      type: boolean
+                    lock_owner: 
+                      type: string
+                    lock_time: 
+                      type: integer
+                    locked_by_me: 
+                      type: string
+                    type: 
+                      type: string
+                    name: 
+                      type: string
+                    id: 
+                      type: string
+                    mtime: 
+                      type: number
+                    permission: 
+                      type: string
+                    modifier_contact_email: 
+                      type: string
+                    modifier_name: 
+                      type: string
+                    starred: 
+                      type: boolean
+                example: [
+                  {
+                      "type": "dir",
+                      "name": "1",
+                      "id": "9dd8d4c5edbbe0fe23ef53459f4450dfd482e930",
+                      "mtime": 1710230658,
+                      "permission": "rw"
+                  },
+                  {
+                      "modifier_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                      "size": 6940,
+                      "is_locked": false,
+                      "lock_owner": null,
+                      "lock_time": 0,
+                      "locked_by_me": false,
+                      "type": "file",
+                      "name": "1 (1).docx",
+                      "id": "cfee33f6cd94ebe03a1d0409d81ab45a73ee9da8",
+                      "mtime": 1709782109,
+                      "permission": "rw",
+                      "modifier_contact_email": "194282@qq.com",
+                      "modifier_name": "冲鸭丶",
+                      "starred": false
+                  }]
 
     post:
       tags:
@@ -1585,7 +1766,7 @@ paths:
         - $ref: '#/components/parameters/directory_path'
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
               oneOf:
                 - $ref: '#/components/schemas/create_directory'
@@ -1597,8 +1778,10 @@ paths:
             application/json:
               schema:
                 type: string
+                description: Returns a 'success' string
                 example:
                   'success'
+
 
     delete:
       tags:
@@ -1616,6 +1799,7 @@ paths:
             application/json:
               schema:
                 type: string
+                description: Returns a 'success' string
                 example:
                  'success'
 
@@ -1628,7 +1812,7 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        - $ref: '#/components/parameters/dir_path'
+        - $ref: '#/components/parameters/detail_dir_path'
       responses:
         '200':
           description: OK
@@ -1636,11 +1820,25 @@ paths:
             application/json:
               schema:
                 type: object
-                example:
-                  repo_id: d4f596ed-09ea-4ac6-8d59-12acbd089097
-                  name: Develop
-                  mtime: 2018-01-05T17:45:41+08:00
-                  path: /Develop/
+                description: Directory details
+                properties:
+                  repo_id: 
+                    type: string
+                  path: 
+                    type: string
+                  name: 
+                    type: string
+                  mtime: 
+                    type: string
+                  permission: 
+                    type: string
+                example: {
+                    "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
+                    "path": "/list/",
+                    "name": "list",
+                    "mtime": "2024-03-13T14:15:42+08:00",
+                    "permission": "rw"
+                   }
 
   /api2/repos/{repo_id}/dir/revert/:
     put:
@@ -1657,10 +1855,13 @@ paths:
             schema:
               type: object
               properties:
-                p:
+                path:
                   $ref: '#/components/schemas/dir_path'
                 commit_id:
                   $ref: '#/components/schemas/commit_id'
+              required:
+                - path
+                - commit_id
       responses:
         '200':
           description: OK
@@ -1671,12 +1872,13 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    description: Success state
 
   /api/v2.1/repos/{repo_id}/zip-task/:
     get:
       tags:
         - Directories
-      summary: Download directory
+      summary: Get task directory token
       description: Get Task Token
       security:
         - AccountTokenAuth: []
@@ -1694,18 +1896,19 @@ paths:
                 properties:
                   zip_token:
                     type: string
+                    description: Task token
                 example:
                   zip_token: b2272645-35ee-44ce-8f68-07c022107015
 
-    post:
-      tags:
-        - Directories
-      summary: Download directory
-      description: Download Multiple Items, Get Task Token
-      security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
+    # post:
+    #   tags:
+    #     - Directories
+    #   summary: Get multiple directories Token
+    #   description: Download Multiple Items, Get Task Token
+    #   security:
+    #     - AccountTokenAuth: []
+    #   parameters:
+    #     - $ref: '#/components/parameters/repo_id'
       # requestBody:
       #   content:
       #     application/json:
@@ -1716,24 +1919,24 @@ paths:
       #             $ref: '#/components/schemas/parent_dir'
       #           dirents:
       #             $ref: '#/components/schemas/dirents'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  zip_token:
-                    type: string
-                example:
-                  zip_token: b2272645-35ee-44ce-8f68-07c022107015
+      # responses:
+      #   '200':
+      #     description: OK
+      #     content:
+      #       application/json:
+      #         schema:
+      #           type: object
+      #           properties:
+      #             zip_token:
+      #               type: string
+      #           example:
+      #             zip_token: b2272645-35ee-44ce-8f68-07c022107015
 
   /api/v2.1/query-zip-progress/:
     get:
       tags:
         - Directories
-      summary: Download directory
+      summary: Query task progress
       description: Query Task Progress
       security:
         - AccountTokenAuth: []
@@ -1746,14 +1949,26 @@ paths:
             application/json:
               schema:
                 type: object
+                description: Progress info
                 properties:
-                  zipped:
+                  zzipped: 
                     type: integer
-                  total:
+                    description: If zipped is equal to total, means task finished.
+                  total: 
                     type: integer
-                example:
-                  zipped: 2
-                  total: 2
+                  failed: 
+                    type: integer
+                  failed_reason: 
+                    type: string
+                  canceled: 
+                    type: integer
+                example: {
+                  "zipped": 0,
+                  "total": 0,
+                  "failed": 0,
+                  "failed_reason": "",
+                  "canceled": 0
+                  }
 
   /api/v2.1/move-folder-merge/:
     post:
@@ -1794,6 +2009,7 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    description: Success state
 
   # TODO: Supplementary parameters, requestBody, responses, etc.
   /api2/repos/{repo_id}/file/comments/:
@@ -2919,11 +3135,16 @@ paths:
           description: OK
           content:
             application/json:
-              schema: 
-                allOf:
-                  - $ref: '#/components/schemas/file_upload_noret'
-                  - $ref: '#/components/schemas/file_upload_ret'
-                  - $ref: '#/components/schemas/file_upload_task_id'
+              schema:
+                type: object
+                properties:
+                  file_upload_noret:
+                     $ref: '#/components/schemas/file_upload_noret'
+                  file_upload_ret:  
+                     $ref: '#/components/schemas/file_upload_ret'
+                  file_upload_task_id:  
+                     $ref: '#/components/schemas/file_upload_task_id'
+
               examples:
                 No ret-json:
                   value: adc83b19e793491b1c6ea0fd8b46cd9f32e592fc
@@ -3112,11 +3333,16 @@ paths:
           content:
             application/json:
               schema: 
-                allOf:
-                  - $ref: '#/components/schemas/create'
-                  - $ref: '#/components/schemas/rename'
-                  - $ref: '#/components/schemas/move'
-                  - $ref: '#/components/schemas/copy'
+                type: object
+                properties:
+                  Create:
+                    $ref: '#/components/schemas/create'
+                  Rename:
+                    $ref: '#/components/schemas/rename'
+                  Move:
+                    $ref: '#/components/schemas/move'
+                  Copy:
+                    $ref: '#/components/schemas/copy'
   
     delete:
       tags:
