@@ -6,9 +6,11 @@ isReference: true
 slug: authentication
 ---
 
-All API calls must be authenticated with a valid Seafile API token and all requests require an authorization header that looks like this, where different tokens can be used.  In the Seafile API, authentication can be done using Account-Token and Repo-Token.
+All API calls must be authenticated with a valid Seafile API token and all requests require an authorization header that looks like this:
 
 `Authorization: Bearer {{Account-Token, Repo-Token}}`
+
+In the Seafile API, authentication can be done using Account-Token and Repo-Token.
 
 > For versions less than 11.0,  'Bearer' should be replaced with 'Token'. 
 >
