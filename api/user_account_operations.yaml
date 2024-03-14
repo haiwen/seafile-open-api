@@ -1121,7 +1121,7 @@ paths:
       tags:
         - Activities
       summary: Get file activities
-      description: Get File Activities
+      description: Obtain user operation information
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1219,6 +1219,7 @@ paths:
       tags:
         - Avatars      
       summary: Get user avatar
+      description: You can get the avatar link through this API
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1249,7 +1250,7 @@ paths:
       tags:
         - Department Libraries
       summary: Add group owned library
-      description: Add Group Owned Library
+      description: Create a library based on the unique identifier of the group
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1310,7 +1311,7 @@ paths:
       tags:
         - Department Libraries
       summary: Rename a group owned library
-      description: Rename a Group Owned Library
+      description: Modify the library name within the group
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1364,7 +1365,7 @@ paths:
       tags:
         - Department Libraries
       summary: Delete group owned library
-      description: Delete Group Owned Library
+      description: Delete group owned library
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1387,6 +1388,7 @@ paths:
       tags:
         - Department Libraries
       summary: Get group owned library user share info
+      description: Get group owned library user share info
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1419,6 +1421,7 @@ paths:
       tags:
         - Department Libraries
       summary: Share group owned library to user
+      description: Share group owned library to user
       security:
         - AccountTokenAuth: []
       parameters:
