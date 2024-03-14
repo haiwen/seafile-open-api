@@ -5482,7 +5482,7 @@ paths:
 
 
   # /api2/shared-repos/{repo_id}/:
-  /api/v2.1/shared-repos/{repo-id}/:
+  /api/v2.1/shared-repos/{repo_id}/:
     put:
       tags:
         - Shared with All Libraries
