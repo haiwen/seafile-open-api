@@ -5880,7 +5880,7 @@ paths:
                   
               ]
 
-  /api/v2.1/share-links/?repo_id={rpeo_id}&path={path}:
+  /api/v2.1/share-links/?repo_id={repo_id}&path={path}:
     get:
       tags:
         - Share links
