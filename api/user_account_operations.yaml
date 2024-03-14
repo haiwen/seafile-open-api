@@ -5783,7 +5783,7 @@ paths:
       security:
         - AccountTokenAuth: []
       parameters:
-        - $ref: '#/components/parameters/repo_id_query'
+        - $ref: '#/components/parameters/repo_id'
       responses:
         '200':
           description: OK
