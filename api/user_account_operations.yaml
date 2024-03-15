@@ -53,7 +53,7 @@ components:
     dir_path:
       name: path
       in: query
-      description: 'Path to the dir'
+      description: 'Path of the dir'
       required: false
       schema:
         type: string
@@ -154,6 +154,11 @@ components:
           - shared
           - group
           - org
+        description: |- 
+          - mine, get my owned libraries.
+          - shared, get libraries shared to me.
+          - group, get group libraries.
+          - org, get shared-with-all libraires.
         default: mine
 
     nameContains:
@@ -322,7 +327,16 @@ components:
       name: ftype
       in: query
       required: false
-      description: must be in (Text, Document, Image, Video, Audio, PDF, Markdown).
+      description: |-
+        must be in (Text, Document, Image, Video, Audio, PDF, Markdown).
+        - TEXT: ('ac', 'am', 'bat', 'c', 'cc', 'cmake', 'cpp', 'cs', 'css', 'diff', 'el', 'h', 'html', 'htm', 'java', 'js', 'json', 'less', 'make', 'org', 'php', 'pl', 'properties', 'py', 'rb', 'scala', 'script', 'sh', 'sql', 'txt', 'text', 'tex', 'vi', 'vim', 'xhtml', 'xml', 'log', 'csv', 'groovy', 'rst', 'patch', 'go'),
+        - DOCUMENT: ('doc', 'docx', 'ppt', 'pptx', 'odt', 'fodt', 'odp', 'fodp'),
+        - IMAGE: ('gif', 'jpeg', 'jpg', 'png', 'ico', 'bmp', 'tif', 'tiff', 'eps'),
+        - VIDEO: ('mp4', 'ogv', 'webm', 'mov'),
+        - AUDIO: ('mp3', 'oga', 'ogg'),
+        - PDF: ('pdf',),
+        - MARKDOWN: ('markdown', 'md'),
+
       schema:
         type: string
         
@@ -576,6 +590,7 @@ components:
 
     username_list:
       type: array
+      description: User email
       items:
         type: string
       example: [1@1.com, 2@2.com]
@@ -592,7 +607,7 @@ components:
       example: [1, 2]
 
     dir_path:
-      description: 'Path to the dir'
+      description: 'Path of the dir'
       type: string
       example: '/'
 
@@ -1365,7 +1380,7 @@ paths:
       tags:
         - Department Libraries
       summary: Delete group owned library
-      description: Delete group owned library
+      description: You can delete a specified library within a group by using the unique identifier of the group and library
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1388,7 +1403,7 @@ paths:
       tags:
         - Department Libraries
       summary: Get group owned library user share info
-      description: Get group owned library user share info
+      description: You can use this API to request that library users owned by your group share list information
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1421,7 +1436,7 @@ paths:
       tags:
         - Department Libraries
       summary: Share group owned library to user
-      description: Share group owned library to user
+      description: Share a library owned by a group to a specific user.Return successful and failed user information
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1492,6 +1507,7 @@ paths:
       tags:
         - Department Libraries
       summary: Modify group owned library user share permission
+      description: Modify group owned library user share permission
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1526,6 +1542,7 @@ paths:
       tags:
         - Department Libraries
       summary: Delete group owned library user share
+      description: Stop sharing a library to a user.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1559,6 +1576,7 @@ paths:
       tags:
         - Department Libraries
       summary: Get group owned library group share info
+      description: Lists all groups that are shared with a particular library
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1574,6 +1592,13 @@ paths:
                 items:
                   type: object
                   description: Group info
+                  properties:
+                    permission: 
+                      type: string
+                    group_id: 
+                      type: integer
+                    group_name: 
+                      type: string
                   example:
                     permission: r
                     group_id: 1
@@ -1583,6 +1608,7 @@ paths:
       tags:
         - Department Libraries
       summary: Share group owned library to group
+      description: Return group information or failure reason
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1647,6 +1673,7 @@ paths:
       tags:
         - Department Libraries
       summary: Modify group owned library group share permission
+      description: Modify group owned library group share permission
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1681,6 +1708,7 @@ paths:
       tags:
         - Department Libraries
       summary: Delete group owned library group share
+      description: Stop sharing a library to a group.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1714,6 +1742,7 @@ paths:
       tags:
         - Devices
       summary: List devices
+      description: List all login device information
       security:
         - AccountTokenAuth: []
       responses:
@@ -1768,6 +1797,7 @@ paths:
       tags:
         - Devices
       summary: Unlink device
+      description: Deleting device Information
       security:
         - AccountTokenAuth: []
       requestBody:
@@ -1802,6 +1832,7 @@ paths:
       tags:
         - Directories
       summary: List items in directory
+      description: Lists all the items information in the directory
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1878,6 +1909,9 @@ paths:
       tags:
         - Directories
       summary: Create new or rename directory
+      description: |- 
+        - Create: Newly created directory will be renamed if the name is duplicated.
+        - Rename: If the new name is the same of the old name no operation will be done.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1906,6 +1940,7 @@ paths:
       tags:
         - Directories
       summary: Delete directory
+      description: You can use this api to delete a specified directory in the library
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1927,6 +1962,7 @@ paths:
       tags:
         - Directories
       summary: Get directory detail
+      description: Get detailed information about the directory
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1964,6 +2000,7 @@ paths:
       tags:
         - Directories
       summary: Revert directory to a history status
+      description: The commit_id is obtained by obtaining the file history, which can be used to restore to the historical status.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1998,7 +2035,7 @@ paths:
       tags:
         - Directories
       summary: Get task directory token
-      description: Get Task Token
+      description: The token returned using the API request can be used to check the progress of the task.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2056,7 +2093,7 @@ paths:
       tags:
         - Directories
       summary: Query task progress
-      description: Query Task Progress
+      description: You can obtain the task progress information
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2070,7 +2107,7 @@ paths:
                 type: object
                 description: Progress info
                 properties:
-                  zzipped: 
+                  zipped: 
                     type: integer
                     description: If zipped is equal to total, means task finished.
                   total: 
@@ -2094,6 +2131,7 @@ paths:
       tags:
         - Directories
       summary: Move directory with items merged
+      description: You can merge a directory in one library into a directory in another.
       security:
         - AccountTokenAuth: []
       requestBody:
@@ -2136,6 +2174,7 @@ paths:
       tags:
         - File Comments
       summary: List file comments
+      description: Lists all comment information for the file, including information about the user who commented
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2221,6 +2260,7 @@ paths:
       tags:
         - File Comments
       summary: Submit a file comment
+      description: Add a comment to the file
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2295,6 +2335,7 @@ paths:
       tags:
         - File Comments
       summary: Get a file comment
+      description: This API allows you to get specific comment information
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2358,6 +2399,7 @@ paths:
       tags:
         - File Comments
       summary: Update a file comment
+      description: You can modify your content through this API
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2437,6 +2479,7 @@ paths:
       tags:
         - File Comments
       summary: Delete a file comment
+      description: Delete a specified file comment
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2451,6 +2494,9 @@ paths:
       tags:
         - File Comments
       summary: Get number of comments
+      description: |-
+        - If the parameter p represents a folder, this api will return comment count of all files in this folder. 
+        - If the parameter p represents a file, only return comment count of this file.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2474,6 +2520,7 @@ paths:
       tags:
         - File History
       summary: Get file history
+      description: Obtain historical operation information about a file.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2491,9 +2538,9 @@ paths:
                 properties:
                   data: 
                     type: array
-                    description: |
-                      If value of next_start_commit is NOT false, it means that there are more file history, if you want to continue to get more file history, resend the request with commit_id parameter, and assign the value of next_start_commit in response to request's commit_id parameter.
-                      If value of rev_renamed_old_path field in the last item of data in response is NOT null, it means that the last item is a file renamed/moved commit, if you want to get more file history before file was renamed/moved,  resend the request, and assign the value of rev_renamed_old_path in response to request's path parameter.
+                    description: |-
+                      - If value of next_start_commit is NOT false, it means that there are more file history, if you want to continue to get more file history, resend the request with commit_id parameter, and assign the value of next_start_commit in response to request's commit_id parameter.
+                      - If value of rev_renamed_old_path field in the last item of data in response is NOT null, it means that the last item is a file renamed/moved commit, if you want to get more file history before file was renamed/moved,  resend the request, and assign the value of rev_renamed_old_path in response to request's path parameter.
                     items: 
                       type: object
                       description: Returns all operation information about the file
@@ -2520,6 +2567,8 @@ paths:
                           type: string
                         path: 
                           type: string
+                  next_start_commit: 
+                    type: boolean
                 example: {
                     "data": [
                         {
@@ -2570,7 +2619,7 @@ paths:
       tags:
         - File History
       summary: Create/Restore file from history
-      description: Create/Restore file from history
+      description: You can create or recover files by using the commit id.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2622,6 +2671,7 @@ paths:
       tags:
         - Files
       summary: Lock/Unlock file
+      description: You can lock or unlock a file through this api. Locked files cannot be edited.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2681,6 +2731,7 @@ paths:
       tags:
         - File History
       summary: Download file from a revision
+      description: Download file from a revision
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2702,6 +2753,8 @@ paths:
       tags:
         - File Search
       summary: Search files in libraries
+      description: By providing an exact match or a vague match to the name, you can find files that match the search criteria.
+
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2818,6 +2871,7 @@ paths:
       tags:
         - File Search
       summary: Search files by name in library
+      description: Search files by name in library
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2861,6 +2915,7 @@ paths:
       tags:
         - File Tags
       summary: List all tags of a library
+      description: Lists all the label information in the library
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2905,6 +2960,7 @@ paths:
       tags:
         - File Tags
       summary: Add a tag to a library
+      description: Use this request to add a new tag to the library.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2917,9 +2973,11 @@ paths:
               properties:
                 name:
                   type: string
+                  description: tag name
                   example: test
                 color:
                   type: string
+                  description: tag color
                   example:  "#FBD44A"
               required:
                 - name
@@ -2958,6 +3016,7 @@ paths:
       tags:
         - File Tags
       summary: Update a tag of a library
+      description: Update the parameters of an existing label.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3007,6 +3066,7 @@ paths:
       tags:
         - File Tags
       summary: Delete a tag of a library
+      description: Delete existing tags from the library
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3031,6 +3091,7 @@ paths:
       tags:
         - File Tags
       summary: List all tags of a file
+      description: Gets all tag information on the file.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3080,6 +3141,7 @@ paths:
       tags:
         - File Tags
       summary: Add a tag for a file
+      description: Tag a file with an existing tag in the library.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3093,9 +3155,11 @@ paths:
               properties:
                 file_path:
                   type: string
+                  description: file path
                   example: /
                 repo_tag_id:
                   type: string
+                  description: The tag id owned by the library
                   example: '2'
       responses:
         '200':
@@ -3125,6 +3189,7 @@ paths:
       tags:
         - File Tags
       summary: Delete a tag from a file
+      description: Delete the existing tags in the file.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3147,6 +3212,7 @@ paths:
       tags:
         - File Tags
       summary: List tagged files by tag id
+      description: List tagged files by tag id
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3216,6 +3282,7 @@ paths:
       tags:
         - File Upload
       summary: Get upload link
+      description: With the API,you can generate an upload link.  These information are needed to upload a file/folder to a library.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3236,7 +3303,7 @@ paths:
       tags:
         - File Upload
       summary: Upload file
-      description: Upload file
+      description: After getting the upload link, POST to this link for uploading files.
       security:
         - AccountTokenAuth: []
       requestBody:
@@ -3336,7 +3403,16 @@ paths:
       tags:
         - File Upload
       summary: Upload file in chunks
-      description: Upload File in Chunks
+      description: |-
+        - Usually a large file is uploaded in many "chunks" with resumable upload. The chunk size can be chosen by the client app. The chunks are then uploaded one by one. After the last chunk is uploaded, the server will index the entire file and save it.
+        - After getting the upload link and uploadedBytes, POST to this link for uploading the chunks.
+        ### Request parameters
+        The request parameters are the same as uploading a file. But two extra headers must be added in the request.
+        - Content-Range: specifies the range of bytes that are being uploaded. Refer to https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Range for more details.
+        - Content-Disposition: attachment; filename=\"filename.txt\" . When using resumable upload, the name of the file is no longer retrieved from the "file" field of the form. It's instead retrieved from a header.
+        ### *Note: unlike uploading an entire file, resumable upload can only support uploading a single file in each request.*
+
+
       security:
         - AccountTokenAuth: [] 
       requestBody:
@@ -3368,8 +3444,8 @@ paths:
     get:
       tags:
         - File Upload
-      summary: Get update file
-      description: Get Update Link
+      summary: Get update link
+      description: With the API,you can generate an update link.  These information are needed to update a file/folder to a library.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3390,7 +3466,7 @@ paths:
       tags:
         - File Upload
       summary: Update file
-      description: Update file
+      description: After getting the update link, POST to this link for updating files.
       security:
         - AccountTokenAuth: []
       requestBody:
@@ -3415,6 +3491,7 @@ paths:
       tags:
         - Files
       summary: Download file
+      description: Return a download link for this file
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3435,6 +3512,7 @@ paths:
       tags:
         - Files
       summary: Create/Rename/Move/Copy file
+      description: With this request, you can create/rename/move/copy a file.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3467,6 +3545,7 @@ paths:
       tags:
         - Files
       summary: Delete file
+      description: With this request, you can delete the specified file
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3487,6 +3566,7 @@ paths:
       tags:
         - Files
       summary: Get file detail
+      description: The API can get the details of a file.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3547,6 +3627,7 @@ paths:
       tags:
         - Files
       summary: Get smart link for a file
+      description: Returns link information for a file or folder.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3581,6 +3662,7 @@ paths:
       security:
         - AccountTokenAuth: []
       requestBody:
+        description: Content type of parameter must be application/json and passed through POST request's body.
         content:
           application/json:
             schema:
@@ -3626,6 +3708,7 @@ paths:
       security:
         - AccountTokenAuth: []
       requestBody:
+        description: Content type of parameter must be application/json and passed through POST request's body.
         content:
           application/json:
             schema:
@@ -3667,11 +3750,12 @@ paths:
       tags:
         - Files/Directories Batch Operation
       summary: Batch delete items
-      description: Batch Delete Items
+      description: With this request, you can delete files in bulk
       security:
         - AccountTokenAuth: []
       requestBody:
         required: true
+        description: Content type of parameter must be application/json and passed through DELETE request's body.
         content:
           application/json:
             schema:
@@ -3715,6 +3799,7 @@ paths:
       security:
         - AccountTokenAuth: []
       requestBody:
+        description: Content type of parameter must be application/json and passed through POST request's body.
         content:
           application/json:
             schema:
@@ -3760,6 +3845,7 @@ paths:
       security:
         - AccountTokenAuth: []
       requestBody:
+        description: Content type of parameter must be application/json and passed through POST request's body.
         content:
           application/json:
             schema:
@@ -3801,7 +3887,7 @@ paths:
       tags:
         - Files/Directories Batch Operation
       summary: Query async operation progress
-      description: Query Async Operation Progress
+      description: You can query the progress of an asynchronous operation task by using the asynchronous operation id.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3838,7 +3924,7 @@ paths:
       tags:
         - Files/Directories Batch Operation
       summary: Cancel async operation
-      description: Cancel Async operation
+      description: This request can cancel the asynchronous operation task.
       security:
         - AccountTokenAuth: []
       requestBody:
@@ -3869,6 +3955,7 @@ paths:
       tags:
         - Groups
       summary: List groups
+      description: List all your groups
       security:
         - AccountTokenAuth: []
       responses:
@@ -3916,6 +4003,7 @@ paths:
       tags:
         - Groups
       summary: Add a group
+      description: Create a new group for you.
       security:
         - AccountTokenAuth: []
       requestBody:
@@ -3973,6 +4061,7 @@ paths:
       tags:
         - Groups
       summary: Get info of a group
+      description: Get the specific information of one group by its ID.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -4022,6 +4111,7 @@ paths:
       tags:
         - Groups
       summary: Rename/Transfer a group
+      description: With this request, you can rename or transfer a group.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -4077,6 +4167,7 @@ paths:
       tags:
         - Groups
       summary: Delete a group
+      description: Delete a group with its ID.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -4098,6 +4189,7 @@ paths:
       tags:
         - Groups
       summary: List all group members
+      description: Lists all member information in the group.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -4135,8 +4227,8 @@ paths:
                       {
                           "group_id": 3479,
                           "name": "xiaowu2",
-                          "email": "xiaowu2@qq.com",
-                          "contact_email": "xiaowu2@qq.com",
+                          "email": "Seahub@example.com",
+                          "contact_email": "Seahub@example.com",
                           "login_id": "",
                           "avatar_url": "https://cloud.seafile.com/media/avatars/default.png",
                           "is_admin": true,
@@ -4158,6 +4250,7 @@ paths:
       tags:
         - Groups
       summary: Add a group member
+      description: Add member to the specified group.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -4212,6 +4305,7 @@ paths:
       tags:
         - Groups
       summary: Bulk add group members
+      description: Add members in bulk for a specified group.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -4297,6 +4391,7 @@ paths:
       tags:
         - Groups
       summary: Get info of a group member
+      description: You can obtain information about the members of a specified group by specifying an email address
       security:
         - AccountTokenAuth: []
       parameters:
@@ -4342,6 +4437,7 @@ paths:
       tags:
         - Groups
       summary: Set/Unset a group admin
+      description: To set or unset a member as an administrator in a specified group.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -4385,7 +4481,7 @@ paths:
                   "group_id": 3483,
                   "name": "&",
                   "email": "62e7d27c7d4f42d8afcc35e2002b812c@auth.local",
-                  "contact_email": "xiaowu2@qq.com",
+                  "contact_email": "Seahub@example.com",
                   "login_id": "",
                   "avatar_url": "https://cloud.seafile.com/media/avatars/e/6/f489f6bea362e91740fd7a3a111800/resized/80/1672a4ff48124e6ada03a4414518cf4a_t5KAlDm.png",
                   "is_admin": false,
@@ -4396,6 +4492,7 @@ paths:
       tags:
         - Groups
       summary: Leave group or group owner/admin delete a group member
+      description: Leave group or group owner/admin delete a group member.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -4418,6 +4515,7 @@ paths:
       tags:
         - Invitations
       summary: List invitations
+      description: With this request,you can get information about all the invitations you have initiated.
       security:
         - AccountTokenAuth: []
       responses:
@@ -4452,7 +4550,7 @@ paths:
                         "id": 32,
                         "token": "776df132d6f34a88952d60f644705c96",
                         "inviter": "9b4393c623c74243b0ad43709701687d@auth.local",
-                        "accepter": "11158479Seafile@example.com",
+                        "accepter": "Seafile@example.com",
                         "type": "guest",
                         "invite_time": "2024-03-14T13:31:18+08:00",
                         "accept_time": "",
@@ -4464,6 +4562,7 @@ paths:
       tags:
         - Invitations
       summary: Add invitation
+      description: You can invite the user by using his email address.
       security:
         - AccountTokenAuth: []
       requestBody:
@@ -4520,6 +4619,7 @@ paths:
       tags:
         - Invitations
       summary: Batch add invitations
+      description: You can pass in multiple email addresses to invite users in batches.
       security:
         - AccountTokenAuth: []
       requestBody:
@@ -4596,6 +4696,7 @@ paths:
       tags:
         - Invitations
       summary: Get invitation
+      description: You can use the token to get specific invitation information.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -4641,6 +4742,7 @@ paths:
       tags:
         - Invitations
       summary: Delete invitation
+      description: Cancel the invitation message that has been sent.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -4676,7 +4778,7 @@ paths:
       tags:
         - Libraries
       summary: Get default library
-      description: Get Default Library
+      description: With this request, you can get the default library ID
       security:
         - AccountTokenAuth: []
       responses:
@@ -4700,7 +4802,7 @@ paths:
       tags:
         - Libraries
       summary: Create default library
-      description: Create Default Library
+      description: If a default library exists, the library ID is obtained, and if not, a default library is created.
       security:
         - AccountTokenAuth: []
       responses:
@@ -4726,6 +4828,9 @@ paths:
       tags:
         - Libraries
       summary: List libraries/Search library by name
+      description: |- 
+        You can list all the library information that meets the conditions by type, or you can combine the name to query the specific library information.
+        *Note: If no type parameter contained in the url, this api will return all libraries user can access.*
       security:
         - AccountTokenAuth: []
       parameters:
@@ -4816,18 +4921,23 @@ paths:
       summary: Create (Encrypted) library
       security:
         - AccountTokenAuth: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  $ref: '#/components/schemas/repo_name'
-                passwd:
-                  $ref: '#/components/schemas/library_passwd'
-                storage_id:
-                  $ref: '#/components/schemas/storage_id'
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schemas:
+      #         Create:
+      #           type: object
+      #           properties:
+      #             name:
+      #               $ref: '#/components/schemas/repo_name'
+      #             passwd:
+      #               $ref: '#/components/schemas/library_passwd'
+      #             storage_id:
+      #               $ref: '#/components/schemas/storage_id'
+      #         Create Encrypted: 
+      #           type: object
+      #           properties:
+
       responses:
         '200':
           description: OK
@@ -5549,6 +5659,7 @@ paths:
       tags:
         - Server Info
       summary: Get server information
+      description: Use this anonymous call to retrieve the current Seafile server version information. 
       responses:
         '200':
           description: OK
