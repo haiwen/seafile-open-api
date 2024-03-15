@@ -111,6 +111,7 @@ components:
       name: invitation_token
       in: path
       required: true
+      description: Invitation token
       schema:
         type: string
       example: b2272645-35ee-44ce-8f68-07c022107015
@@ -234,7 +235,7 @@ components:
       name: file_path
       in: query
       required: true
-      description: 'The path to the file in the library'
+      description: 'The path of the file in the library'
       schema:
         type: string
 
@@ -242,7 +243,7 @@ components:
       name: p
       in: query
       required: true
-      description: 'The path to the file in the library'
+      description: 'The path of the file in the library'
       schema: 
         type: string
 
@@ -357,8 +358,44 @@ components:
       schema: 
         type: string
         default: false
+    
+    share_type: 
+      name: share_type
+      in: query
+      description: must be public
+      required: true
+      schema: 
+        type: string
+        enum:
+          - public
+        example: public
 
+    share_path:
+      name: path
+      in: query
+      description: sub folder path
+      required: false
+      schema: 
+        type: string
+        example: /test
+        default: /
+
+    password: 
+      name: password
+      in: query
+      description: if link is encrypted
+      required: false
+      schema: 
+        type: string
     # Path parameters
+
+    folder_link_token: 
+      name: token
+      in: path
+      required: true
+      description: Folder share link token
+      schema:
+        type: string
     user:
       name: user
       in: path
@@ -403,7 +440,7 @@ components:
     p:
       name: p
       in: query
-      description: 'The path to the file in the library'
+      description: 'The path of the file in the library'
       required: true
       schema:
         type: string
@@ -486,7 +523,22 @@ components:
       schema:
         type: integer
 
-    
+    share_token:
+      name: token
+      in: path
+      required: true
+      schema: 
+        type: string
+
+    upload_link_token: 
+      name: token
+      in: path
+      description: upload link token
+      required: true
+      schema: 
+        type: string
+
+
   schemas:
     # request body
     group_name: 
@@ -516,6 +568,7 @@ components:
 
     password:
       type: string
+
 
     username:
       type: string
@@ -794,7 +847,70 @@ components:
       enum: ["true","false"]
       example: "true"
     
+    share_type: 
+      type: string
+      description: must be public
+      enum:
+        - public
+      example: public
+    
+    type: 
+      type: string
+      description: User type
+      example: guest
+    
+    accepter: 
+      type: string
+      description: User email address
+      example: example@example.com
 
+    batch_accepter: 
+      type: string
+      description: 'You can add multiple accepter' 
+      example: example@example.com
+    
+    repo_id:
+      type: string
+      description: The unique identifier of a library
+
+    path: 
+      type: string
+      description: file/folder path
+      example: "/folder"
+    
+    expire_days: 
+      type: string
+      description: Set expiration time
+    
+    share_link_permission: 
+      type: object
+      description: Operation permission
+      properties:
+        can_edit: 
+          type: boolean
+          enum:
+            - false
+            - true
+        can_download: 
+          type: boolean
+          enum:
+            - true
+            - false
+        can_upload:
+          type: boolean
+          enum:
+            - true
+            - false
+
+    token: 
+      type: string 
+      description: Link token
+      example: a8ea01ae4aad44bbb316
+
+    extra_msg: 
+      type: string
+      description: Extra message
+      
     # Response body
     FileRevert: 
       type: object
@@ -903,7 +1019,7 @@ components:
           type: string
       example: {
           "repo_id": "affc837f-7fdd-4e91-b88a-32caf99897f2",
-          "parent_dir": "/123",
+          "parent_dir": "/example-folder",
           "obj_name": "foo.c"
       }
     copy: 
@@ -917,7 +1033,7 @@ components:
           type: string
       example: {
           "repo_id": "affc837f-7fdd-4e91-b88a-32caf99897f2",
-          "parent_dir": "/123",
+          "parent_dir": "/example-folder",
           "obj_name": "foo.c"
       }
 
@@ -1005,7 +1121,7 @@ paths:
       tags:
         - Activities
       summary: Get file activities
-      description: Get File Activities
+      description: Obtain user operation information
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1103,6 +1219,7 @@ paths:
       tags:
         - Avatars      
       summary: Get user avatar
+      description: You can get the avatar link through this API
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1133,7 +1250,7 @@ paths:
       tags:
         - Department Libraries
       summary: Add group owned library
-      description: Add Group Owned Library
+      description: Create a library based on the unique identifier of the group
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1194,7 +1311,7 @@ paths:
       tags:
         - Department Libraries
       summary: Rename a group owned library
-      description: Rename a Group Owned Library
+      description: Modify the library name within the group
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1248,7 +1365,7 @@ paths:
       tags:
         - Department Libraries
       summary: Delete group owned library
-      description: Delete Group Owned Library
+      description: Delete group owned library
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1271,6 +1388,7 @@ paths:
       tags:
         - Department Libraries
       summary: Get group owned library user share info
+      description: Get group owned library user share info
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1303,6 +1421,7 @@ paths:
       tags:
         - Department Libraries
       summary: Share group owned library to user
+      description: Share group owned library to user
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1733,7 +1852,7 @@ paths:
                 example: [
                   {
                       "type": "dir",
-                      "name": "1",
+                      "name": "folder",
                       "id": "9dd8d4c5edbbe0fe23ef53459f4450dfd482e930",
                       "mtime": 1710230658,
                       "permission": "rw"
@@ -1746,12 +1865,12 @@ paths:
                       "lock_time": 0,
                       "locked_by_me": false,
                       "type": "file",
-                      "name": "1 (1).docx",
+                      "name": "default.docx",
                       "id": "cfee33f6cd94ebe03a1d0409d81ab45a73ee9da8",
                       "mtime": 1709782109,
                       "permission": "rw",
-                      "modifier_contact_email": "194282@qq.com",
-                      "modifier_name": "冲鸭丶",
+                      "modifier_contact_email": "daniel@example.com",
+                      "modifier_name": "Seafile",
                       "starred": false
                   }]
 
@@ -2165,9 +2284,9 @@ paths:
                   "resolved": false,
                   "detail": "",
                   "replies": [],
-                  "user_name": "冲鸭丶",
+                  "user_name": "Seafile",
                   "user_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                  "user_contact_email": "1942999482@qq.com",
+                  "user_contact_email": "daniel@example.com",
                   "avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/80/1672a4ff48124e6ada03a4414518cf4a_CNvUDQE.png"
                       }
 
@@ -2229,9 +2348,9 @@ paths:
                   "resolved": false,
                   "detail": "",
                   "replies": [],
-                  "user_name": "冲鸭丶",
+                  "user_name": "Seafile",
                   "user_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                  "user_contact_email": "1942999482@qq.com",
+                  "user_contact_email": "daniel@example.com",
                   "avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/80/1672a4ff48124e6ada03a4414518cf4a_CNvUDQE.png"
                       }
 
@@ -2311,7 +2430,7 @@ paths:
                 "replies": [],
                 "user_name": "test",
                 "user_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                "user_contact_email": "1942999482@qq.com",
+                "user_contact_email": "daniel@example.com",
                 "avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/80/1672a4ff48124e6ada03a4414518cf4a_CNvUDQE.png"
                       }
     delete:
@@ -2406,8 +2525,8 @@ paths:
                         {
                             "creator_avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/32/1672a4ff48124e6ada03a4414518cf4a_CNvUDQE.png",
                             "creator_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                            "creator_name": "冲鸭丶",
-                            "creator_contact_email": "1942999482@qq.com",
+                            "creator_name": "Seafile",
+                            "creator_contact_email": "daniel@example.com",
                             "ctime": "2024-03-07T11:08:16+08:00",
                             "description": "Modified \"1.docx\"",
                             "commit_id": "3fce7037bd238aa619416b8f7e2d44f1102ad556",
@@ -2419,8 +2538,8 @@ paths:
                         {
                             "creator_avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/32/1672a4ff48124e6ada03a4414518cf4a_CNvUDQE.png",
                             "creator_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                            "creator_name": "冲鸭丶",
-                            "creator_contact_email": "1942999482@qq.com",
+                            "creator_name": "Seafile",
+                            "creator_contact_email": "daniel@example.com",
                             "ctime": "2024-03-07T11:07:41+08:00",
                             "description": "Modified \"1.docx\"",
                             "commit_id": "2a3772010975725d2106f6dec17cd4c6f02ea353",
@@ -2432,8 +2551,8 @@ paths:
                         {
                             "creator_avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/32/1672a4ff48124e6ada03a4414518cf4a_CNvUDQE.png",
                             "creator_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                            "creator_name": "冲鸭丶",
-                            "creator_contact_email": "1942999482@qq.com",
+                            "creator_name": "Seafile",
+                            "creator_contact_email": "daniel@example.com",
                             "ctime": "2024-03-07T11:07:41+08:00",
                             "description": "Added \"1.docx\"",
                             "commit_id": "b5d0996980e9199184b92c74e858fa6cba9b6b02",
@@ -2491,7 +2610,7 @@ paths:
                       "type": "file",
                       "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
                       "parent_dir": "/",
-                      "obj_name": "3.txt",
+                      "obj_name": "test.txt",
                       "obj_id": "0000000000000000000000000000000000000000",
                       "size": 0,
                       "mtime": "2024-03-07T11:36:35+08:00",
@@ -2548,7 +2667,7 @@ paths:
                 example:
                   type: "file"
                   repo_id: "eaa2b714-7993-4abc-93ce-56286d45d3de"
-                  parent_dir: "/内层"
+                  parent_dir: "/folder"
                   obj_name: "b"
                   obj_id: "0000000000000000000000000000000000000000"
                   size: 0
@@ -2729,7 +2848,7 @@ paths:
                 example: {
                   "data": [
                       {
-                          "path": "/t2",
+                          "path": "/file",
                           "size": 0,
                           "mtime": "2024-03-07T13:37:40+08:00",
                           "type": "file"
@@ -3075,8 +3194,8 @@ paths:
                           "mtime": 1709710694,
                           "last_modified": "2024-03-06T15:38:14+08:00",
                           "modifier_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                          "modifier_contact_email": "1942999482@qq.com",
-                          "modifier_name": "冲鸭丶"
+                          "modifier_contact_email": "daniel@example.com",
+                          "modifier_name": "Seafile"
                       },
                       {
                           "file_tag_id": 957,
@@ -3086,8 +3205,8 @@ paths:
                           "mtime": 1709695513,
                           "last_modified": "2024-03-06T11:25:13+08:00",
                           "modifier_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                          "modifier_contact_email": "1942999482@qq.com",
-                          "modifier_name": "冲鸭丶"
+                          "modifier_contact_email": "daniel@example.com",
+                          "modifier_name": "Seafile"
                       }
                   ]
                   }
@@ -3309,8 +3428,8 @@ paths:
             application/json:
               schema: 
                 type: string
-                description: Return a link
-                example: "https://cloud.seafile.com/seafhttp/files/48a7b633-25a4-4c8d-a10e-37dcfa34c65d/111"
+                description: Return a download link for this file
+                example: "https://cloud.seafile.com/seafhttp/files/48a7b633-25a4-4c8d-a10e-37dcfa34c65d/example.pdf"
           
     post:
       tags:
@@ -3416,8 +3535,8 @@ paths:
                   mtime: 1709530197
                   last_modified: "2024-03-04T13:29:57+08:00"
                   last_modifier_email: "77a423e4804a4d7ca1ec78a150d71229@auth.local"
-                  last_modifier_name: "xiaowu"
-                  last_modifier_contact_email: "1942999482@qq.com"
+                  last_modifier_name: "Seafile"
+                  last_modifier_contact_email: "daniel@example.com"
                   size: 7839
                   starred: false
                   comment_total: 0
@@ -3457,7 +3576,7 @@ paths:
   /api/v2.1/repos/sync-batch-copy-item/:
     post:
       tags:
-        - Batch Operation with Multiple Files/Directories
+        - Files/Directories Batch Operation
       summary: Batch copy items synchronously
       security:
         - AccountTokenAuth: []
@@ -3501,7 +3620,7 @@ paths:
   /api/v2.1/repos/sync-batch-move-item/:
     post:
       tags:
-        - Batch Operation with Multiple Files/Directories
+        - Files/Directories Batch Operation
       summary: Batch move items synchronously
       description: Batch Move Items Synchronously
       security:
@@ -3546,7 +3665,7 @@ paths:
   /api/v2.1/repos/batch-delete-item/:
     delete:
       tags:
-        - Batch Operation with Multiple Files/Directories
+        - Files/Directories Batch Operation
       summary: Batch delete items
       description: Batch Delete Items
       security:
@@ -3590,7 +3709,7 @@ paths:
   /api/v2.1/repos/async-batch-copy-item/:
     post:
       tags:
-        - Batch Operation with Multiple Files/Directories
+        - Files/Directories Batch Operation
       summary: Batch copy items asynchronously
       description: Batch Copy Items Asynchronously
       security:
@@ -3635,7 +3754,7 @@ paths:
   /api/v2.1/repos/async-batch-move-item/:
     post:
       tags:
-        - Batch Operation with Multiple Files/Directories
+        - Files/Directories Batch Operation
       summary: Batch move items asynchronously
       description: Batch Move Items Asynchronously
       security:
@@ -3680,7 +3799,7 @@ paths:
   /api/v2.1/query-copy-move-progress/:
     get:
       tags:
-        - Batch Operation with Multiple Files/Directories
+        - Files/Directories Batch Operation
       summary: Query async operation progress
       description: Query Async Operation Progress
       security:
@@ -3717,7 +3836,7 @@ paths:
   /api/v2.1/copy-move-task/:
     delete:
       tags:
-        - Batch Operation with Multiple Files/Directories
+        - Files/Directories Batch Operation
       summary: Cancel async operation
       description: Cancel Async operation
       security:
@@ -4025,9 +4144,9 @@ paths:
                       },
                       {
                           "group_id": 3479,
-                          "name": "冲鸭丶",
+                          "name": "Seafile",
                           "email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                          "contact_email": "1942999482@qq.com",
+                          "contact_email": "daniel@example.com",
                           "login_id": "",
                           "avatar_url": "https://cloud.seafile.com/media/avatars/c/3/c06dc05c08708dd7bd3538c0a18bd0/resized/80/1672a4ff48124e6ada03a4414518cf4a_38OYAUD.png",
                           "is_admin": false,
@@ -4081,7 +4200,7 @@ paths:
                     "group_id": 3483,
                     "name": "&",
                     "email": "62e7d27c7d4f42d8afcc35e2002b812c@auth.local",
-                    "contact_email": "xiaowu2@qq.com",
+                    "contact_email": "daniel@example.com",
                     "login_id": "",
                     "avatar_url": "https://cloud.seafile.com/media/avatars/e/6/f489f6bea362e91740fd7a3a111800/resized/80/1672a4ff48124e6ada03a4414518cf4a_t5KAlDm.png",
                     "is_admin": false,
@@ -4213,7 +4332,7 @@ paths:
                   "group_id": 3483,
                   "name": "&",
                   "email": "62e7d27c7d4f42d8afcc35e2002b812c@auth.local",
-                  "contact_email": "xiaowu2@qq.com",
+                  "contact_email": "daniel@example.com",
                   "login_id": "",
                   "avatar_url": "https://cloud.seafile.com/media/avatars/e/6/f489f6bea362e91740fd7a3a111800/resized/80/1672a4ff48124e6ada03a4414518cf4a_t5KAlDm.png",
                   "is_admin": false,
@@ -4304,6 +4423,42 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  type: object
+                  description: Invitation info
+                  properties:
+                    id: 
+                      type: integer
+                    token: 
+                      type: string
+                    inviter: 
+                      type: string
+                    accepter: 
+                      type: string
+                    type: 
+                      type: string
+                    invite_time: 
+                      type: string
+                    accept_time: 
+                      type: string
+                    expire_time: 
+                      type: string
+              example: [
+                    {
+                        "id": 32,
+                        "token": "776df132d6f34a88952d60f644705c96",
+                        "inviter": "9b4393c623c74243b0ad43709701687d@auth.local",
+                        "accepter": "11158479Seafile@example.com",
+                        "type": "guest",
+                        "invite_time": "2024-03-14T13:31:18+08:00",
+                        "accept_time": "",
+                        "expire_time": "2024-03-17T13:31:18+08:00"
+                    }
+                ]
 
     post:
       tags:
@@ -4311,19 +4466,54 @@ paths:
       summary: Add invitation
       security:
         - AccountTokenAuth: []
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           type:
-      #             $ref: '#/components/schemas/type'
-      #           accepter:
-      #             $ref: '#/components/schemas/accepter'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  $ref: '#/components/schemas/type'
+                accepter:
+                  $ref: '#/components/schemas/accepter'
+              required:
+                - type
+                - accepter 
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: Invitation info
+                properties:
+                  id: 
+                    type: integer
+                  token: 
+                    type: string
+                  inviter: 
+                    type: string
+                  accepter: 
+                    type: string
+                  type: 
+                    type: string
+                  invite_time: 
+                    type: string
+                  accept_time: 
+                    type: string
+                  expire_time: 
+                    type: string
+                example: {
+                    "id": 33,
+                    "token": "03e75cc0340a4fa4a35de057165d6a49",
+                    "inviter": "9b4393c623c74243b0ad43709701687d@auth.local",
+                    "accepter": "Seafile@example.com",
+                    "type": "guest",
+                    "invite_time": "2024-03-14T13:38:29+08:00",
+                    "accept_time": "",
+                    "expire_time": "2024-03-17T13:38:29+08:00"
+                }
 
   /api/v2.1/invitations/batch/:
     post:
@@ -4332,19 +4522,74 @@ paths:
       summary: Batch add invitations
       security:
         - AccountTokenAuth: []
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           type:
-      #             $ref: '#/components/schemas/type'
-      #           accepter:
-      #             $ref: '#/components/schemas/batch_accepter'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                type:
+                  $ref: '#/components/schemas/type'
+                accepter:
+                  $ref: '#/components/schemas/batch_accepter'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  failed:
+                    type: array
+                    items: 
+                      type: object
+                      description: Error message
+                      properties:
+                        email: 
+                          type: string
+                        error_msg:
+                          type: string
+                  success: 
+                    type: object
+                    description: Invitation info
+                    properties:
+                      id: 
+                        type: integer
+                      token: 
+                        type: string
+                      inviter: 
+                        type: string
+                      accepter: 
+                        type: string
+                      type: 
+                        type: string
+                      invite_time: 
+                        type: string
+                      accept_time: 
+                        type: string
+                      expire_time: 
+                        type: string
+                example: {
+                  "failed": [
+                      {
+                          "email": "Seahub@example.com",
+                          "error_msg": "Seahub@example.com is already invited."
+                      }
+                  ],
+                  "success": [
+                      {
+                          "id": 34,
+                          "token": "475a288e2fa64607bb81937c624ab756",
+                          "inviter": "9b4393c623c74243b0ad43709701687d@auth.local",
+                          "accepter": "Seafile@example.com",
+                          "type": "guest",
+                          "invite_time": "2024-03-14T13:53:44+08:00",
+                          "accept_time": "",
+                          "expire_time": "2024-03-17T13:53:44+08:00"
+                      }
+                  ]
+                    }
 
   /api/v2.1/invitations/{invitation_token}/:
     get:
@@ -4358,6 +4603,39 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: Invitation info
+                properties:
+                  id: 
+                    type: integer
+                  token: 
+                    type: string
+                  inviter: 
+                    type: string
+                  accepter: 
+                    type: string
+                  type: 
+                    type: string
+                  invite_time: 
+                    type: string
+                  accept_time: 
+                    type: string
+                  expire_time: 
+                    type: string
+
+                example: {
+                  "id": 34,
+                  "token": "475a288e2fa64607bb81937c624ab756",
+                  "inviter": "9b4393c623c74243b0ad43709701687d@auth.local",
+                  "accepter": "11@qq.com",
+                  "type": "guest",
+                  "invite_time": "2024-03-14T13:53:44+08:00",
+                  "accept_time": "",
+                  "expire_time": "2024-03-17T13:53:44+08:00"
+                      }
 
     delete:
       tags:
@@ -4376,6 +4654,7 @@ paths:
       tags:
         - Invitations
       summary: Revoke invitation
+      description: Revoke invitation when the accepter successfully creates an account. And set the account to inactive.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -4390,6 +4669,7 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    description: Success state
 
   /api2/default-repo/:
     get:
@@ -4511,11 +4791,11 @@ paths:
                           "id": "d5620899-1e9b-4a8c-b9af-b00a26324407",
                         "owner": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
                         "owner_name": "syq",
-                        "owner_contact_email": "1942999482@qq.com",
+                        "owner_contact_email": "daniel@example.com",
                         "name": "reply",
                         "mtime": 1709560091,
                         "modifier_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                        "modifier_contact_email": "1942999482@qq.com",
+                        "modifier_contact_email": "daniel@example.com",
                         "modifier_name": "syq",
                         "mtime_relative": "<time datetime=\"2024-03-04T21:48:11\" is=\"relative-time\" title=\"Mon, 04 Mar 2024 21:48:11 +0800\" >12 hours ago</time>",
                         "size": 2483389,
@@ -4688,7 +4968,7 @@ paths:
                     root: "abddbda4e1315a4d2ed671194a47fad34637e4f2"
                     permission: "rw"
                     modifier_email: "77a423e4804a4d7ca1ec78a150d71229@auth.local"
-                    modifier_contact_email: "1942999482@qq.com"
+                    modifier_contact_email: "daniel@example.com"
                     modifier_name: "test"
                     file_count: 2
                     head_commit_id: "1afe67b9bb1816912d496412c6076316937da58c"
@@ -4705,7 +4985,7 @@ paths:
                     "root": "0000000000000000000000000000000000000000",
                     "permission": "rw",
                     "modifier_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                    "modifier_contact_email": "1942999482@qq.com",
+                    "modifier_contact_email": "daniel@example.com",
                     "modifier_name": "test",
                     "file_count": 0,
                     "head_commit_id": "4875e1352495c8248349b47619718597e7b3a6ab",
@@ -4862,8 +5142,8 @@ paths:
                   "data": [
                       {
                           "email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                          "name": "冲鸭丶",
-                          "contact_email": "1942999482@qq.com",
+                          "name": "Seafile",
+                          "contact_email": "daniel@example.com",
                           "time": "2024-03-11T15:05:37+08:00",
                           "commit_id": "f8d665f9338ab8ec25ee064f2f3fcadad4c6c0b5",
                           "description": "Deleted \"222\"",
@@ -4874,8 +5154,8 @@ paths:
                       },
                       {
                           "email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                          "name": "冲鸭丶",
-                          "contact_email": "1942999482@qq.com",
+                          "name": "Seafile",
+                          "contact_email": "daniel@example.com",
                           "time": "2024-03-11T14:41:36+08:00",
                           "commit_id": "8def9edbc1e78b1c4b4a41796a76a54f2b36da59",
                           "description": "Deleted \"111\"",
@@ -4993,7 +5273,7 @@ paths:
                     "data": [
                           {
                               "parent_dir": "/",
-                              "obj_name": "1.pptx",
+                              "obj_name": "test.pptx",
                               "deleted_time": "2024-03-05T15:11:29+08:00",
                               "scan_stat": null,
                               "commit_id": "9ddc5bb951a91e1f761d37f74620231ce5c8604c",
@@ -5137,23 +5417,72 @@ paths:
       summary: Create Shared with All Library
       security:
         - AccountTokenAuth: []
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           repo_name:
-      #             $ref: '#/components/schemas/repo_name'
-      #           permission:
-      #             $ref: '#/components/schemas/permission'
-      #           passwd:
-      #             $ref: '#/components/schemas/password'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  $ref: '#/components/schemas/repo_name'
+                permission:
+                  $ref: '#/components/schemas/permission'
+                passwd:
+                  $ref: '#/components/schemas/password'
+              required:
+                - repo_name
+                - permission
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: Library info
+                properties:
+                  id: 
+                    type: string
+                  name: 
+                    type: string
+                  desc: 
+                    type: string
+                  size: 
+                    type: integer
+                  size_formatted: 
+                    type: string
+                  mtime: 
+                    type: number
+                  mtime_relative: 
+                    type: string
+                  encrypted: 
+                    type: boolean
+                  permission: 
+                    type: string
+                  owner: 
+                    type: string
+                  owner_nickname: 
+                    type: string
+                  owner_name: 
+                    type: string
+                example: {
+                    "id": "13dbfa2c-61b6-468b-aabc-26a5f53d5978",
+                    "name": "test-public-repo",
+                    "desc": "",
+                    "size": 0,
+                    "size_formatted": "0 bytes",
+                    "mtime": 1710382935,
+                    "mtime_relative": "<time datetime=\"2024-03-14T10:22:15\" is=\"relative-time\" title=\"Thu, 14 Mar 2024 10:22:15 +0800\" >Just now</time>",
+                    "encrypted": false,
+                    "permission": "rw",
+                    "owner": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                    "owner_nickname": "Seafile",
+                    "owner_name": "Seafile"
+                }
 
-  /api2/shared-repos/{repo_id}/:
+
+  # /api2/shared-repos/{repo_id}/:
+  /api/v2.1/shared-repos/{repo_id}/:
     put:
       tags:
         - Shared with All Libraries
@@ -5162,19 +5491,31 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           permission:
-      #             $ref: '#/components/schemas/permission'
-      #           share_type:
-      #             $ref: '#/components/schemas/share_type'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                permission:
+                  $ref: '#/components/schemas/permission'
+                share_type:
+                  $ref: '#/components/schemas/share_type'
+              required:
+                - permission
+                - share_type
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
+                          
 
     delete:
       tags:
@@ -5184,6 +5525,7 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/share_type'
       # requestBody:
       #   content:
       #     application/json:
@@ -5195,12 +5537,18 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+             schema: 
+              type: string
+              description: Returns a 'success' string
+              example: success
 
   /api2/server-info/:
     get:
       tags:
         - Server Info
-      summary: Get Server Information
+      summary: Get server information
       responses:
         '200':
           description: OK
@@ -5208,6 +5556,7 @@ paths:
             application/json:
               schema:
                 type: object
+                description: Server info
                 properties:
                   version:
                     type: string
@@ -5228,11 +5577,557 @@ paths:
     get:
       tags:
         - Share links
-      summary: List all Share Links
+      summary: List all share links
+      description: This api will list all folder/file download share links in all libraries created by user.
       security:
         - AccountTokenAuth: []
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: array
+                items: 
+                  type: object
+                  description: Share links info
+                  properties:
+                    username: 
+                      type: string
+                    repo_id: 
+                      type: string
+                    repo_name: 
+                      type: string
+                    path: 
+                      type: string
+                    obj_name: 
+                      type: string
+                    is_dir: 
+                      type: boolean
+                    token: 
+                      type: string
+                    link: 
+                      type: string
+                    view_cnt: 
+                      type: integer
+                    ctime: 
+                      type: string
+                    expire_date: 
+                      type: string
+                    is_expired: 
+                      type: boolean
+                    permissions: 
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          can_edit:
+                            type: boolean
+                          can_download: 
+                            type: boolean
+                          can_upload: 
+                            type: boolean
+                    password: 
+                      type: string
+                    repo_folder_permission: 
+                      type: string   
+              example: [
+                  {
+                      "username": "admin@seafile.com",
+                      "repo_id": "4150d508-9014-413d-b1d5-3f0cc9d28e64",
+                      "repo_name": "test",
+                      "path": "/folder/",
+                      "obj_name": "folder",
+                      "is_dir": true,
+                      "token": "2620b6669751447cac90",
+                      "link": "https://demo.seafile.top/d/2620b6669751447cac90/",
+                      "view_cnt": 0,
+                      "ctime": "2024-03-14T11:39:21+08:00",
+                      "expire_date": "2024-04-03T11:39:20+08:00",
+                      "is_expired": false,
+                      "permissions": {
+                          "can_edit": false,
+                          "can_download": true,
+                          "can_upload": false
+                      },
+                      "password": "",
+                      "repo_folder_permission": "rw"
+                  },
+                  {
+                      "username": "admin@seafile.com",
+                      "repo_id": "4150d508-9014-413d-b1d5-3f0cc9d28e64",
+                      "repo_name": "test",
+                      "path": "/folder/",
+                      "obj_name": "folder",
+                      "is_dir": true,
+                      "token": "626cd61fba99415c86a0",
+                      "link": "https://demo.seafile.top/d/626cd61fba99415c86a0/",
+                      "view_cnt": 0,
+                      "ctime": "2024-03-14T11:39:21+08:00",
+                      "expire_date": "2024-04-03T11:39:20+08:00",
+                      "is_expired": false,
+                      "permissions": {
+                          "can_edit": false,
+                          "can_download": true,
+                          "can_upload": false
+                      },
+                      "password": "",
+                      "repo_folder_permission": "rw"
+                  }
+                  
+              ]
 
+    post: 
+      tags:
+        - Share links
+      summary: Create share link
+      security:
+        - AccountTokenAuth: []
+      requestBody: 
+        description: Content type of parameter must be application/json and passed through POST request's body.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                repo_id:
+                  $ref: '#/components/schemas/repo_id'
+                path: 
+                  $ref: '#/components/schemas/path'
+                password: 
+                  $ref: '#/components/schemas/password'
+                expire_days: 
+                  $ref: '#/components/schemas/expire_days'
+                permissions: 
+                  $ref: '#/components/schemas/share_link_permission'
+              required:
+                - repo_id
+                - path
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: Share links info
+                properties:
+                  username: 
+                      type: string
+                  repo_id: 
+                    type: string
+                  repo_name: 
+                    type: string
+                  path: 
+                    type: string
+                  obj_name: 
+                    type: string
+                  is_dir: 
+                    type: boolean
+                  token: 
+                    type: string
+                  link: 
+                    type: string
+                  view_cnt: 
+                    type: integer
+                  ctime: 
+                    type: string
+                  expire_date: 
+                    type: string
+                  is_expired: 
+                    type: boolean
+                  permissions: 
+                    type: array
+                    items: 
+                      type: object
+                      properties:
+                        can_edit:
+                          type: boolean
+                        can_download: 
+                          type: boolean
+                        can_upload: 
+                          type: boolean
+                  password: 
+                    type: string
+                  can_edit:
+                    type: boolean
+                example: {
+                    "username": "admin@seafile.com",
+                    "repo_id": "4150d508-9014-413d-b1d5-3f0cc9d28e64",
+                    "repo_name": "test",
+                    "path": "/folder/",
+                    "obj_name": "folder",
+                    "obj_id": "fe9d9a3af10f1a36d7ae62fc29864ad080f73182",
+                    "is_dir": true,
+                    "token": "1139135e70f840c59ad8",
+                    "link": "https://demo.seafile.top/d/1139135e70f840c59ad8/",
+                    "view_cnt": 0,
+                    "ctime": "2024-03-14T15:03:32+08:00",
+                    "expire_date": "2024-04-03T15:03:32+08:00",
+                    "is_expired": false,
+                    "permissions": {
+                        "can_edit": false,
+                        "can_download": false,
+                        "can_upload": false
+                    },
+                    "password": "",
+                    "can_edit": false
+                   }
+          
+  /api/v2.1/share-links/?repo_id={repo_id}:
+    get:
+      tags:
+        - Share links
+      summary: List share links of a library
+      description: This api will list all folder/file download share links in a specific library.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: array
+                items: 
+                  type: object
+                  description: Share links info
+                  properties:
+                    username: 
+                      type: string
+                    repo_id: 
+                      type: string
+                    repo_name: 
+                      type: string
+                    path: 
+                      type: string
+                    obj_name: 
+                      type: string
+                    is_dir: 
+                      type: boolean
+                    token: 
+                      type: string
+                    link: 
+                      type: string
+                    view_cnt: 
+                      type: integer
+                    ctime: 
+                      type: string
+                    expire_date: 
+                      type: string
+                    is_expired: 
+                      type: boolean
+                    permissions: 
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          can_edit:
+                            type: boolean
+                          can_download: 
+                            type: boolean
+                          can_upload: 
+                            type: boolean
+                    password: 
+                      type: string
+                    repo_folder_permission: 
+                      type: string   
+              example: [
+                  {
+                      "username": "admin@seafile.com",
+                      "repo_id": "4150d508-9014-413d-b1d5-3f0cc9d28e64",
+                      "repo_name": "test",
+                      "path": "/folder/",
+                      "obj_name": "folder",
+                      "is_dir": true,
+                      "token": "2620b6669751447cac90",
+                      "link": "https://demo.seafile.top/d/2620b6669751447cac90/",
+                      "view_cnt": 0,
+                      "ctime": "2024-03-14T11:39:21+08:00",
+                      "expire_date": "2024-04-03T11:39:20+08:00",
+                      "is_expired": false,
+                      "permissions": {
+                          "can_edit": false,
+                          "can_download": true,
+                          "can_upload": false
+                      },
+                      "password": "",
+                      "repo_folder_permission": "rw"
+                  },
+                  {
+                      "username": "admin@seafile.com",
+                      "repo_id": "4150d508-9014-413d-b1d5-3f0cc9d28e64",
+                      "repo_name": "test",
+                      "path": "/folder/",
+                      "obj_name": "folder",
+                      "is_dir": true,
+                      "token": "626cd61fba99415c86a0",
+                      "link": "https://demo.seafile.top/d/626cd61fba99415c86a0/",
+                      "view_cnt": 0,
+                      "ctime": "2024-03-14T11:39:21+08:00",
+                      "expire_date": "2024-04-03T11:39:20+08:00",
+                      "is_expired": false,
+                      "permissions": {
+                          "can_edit": false,
+                          "can_download": true,
+                          "can_upload": false
+                      },
+                      "password": "",
+                      "repo_folder_permission": "rw"
+                  }
+                  
+              ]
 
+  /api/v2.1/share-links/?repo_id={repo_id}&path={path}:
+    get:
+      tags:
+        - Share links
+      summary: List share link of a folder (file)
+      description: This api will list download share link info of a specific folder/file.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/path'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: array
+                items: 
+                  type: object
+                  description: Share links info
+                  properties:
+                    username: 
+                      type: string
+                    repo_id: 
+                      type: string
+                    repo_name: 
+                      type: string
+                    path: 
+                      type: string
+                    obj_name: 
+                      type: string
+                    is_dir: 
+                      type: boolean
+                    token: 
+                      type: string
+                    link: 
+                      type: string
+                    view_cnt: 
+                      type: integer
+                    ctime: 
+                      type: string
+                    expire_date: 
+                      type: string
+                    is_expired: 
+                      type: boolean
+                    permissions: 
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          can_edit:
+                            type: boolean
+                          can_download: 
+                            type: boolean
+                          can_upload: 
+                            type: boolean
+                    password: 
+                      type: string
+                    repo_folder_permission: 
+                      type: string   
+                  
+                  example: [
+                    {
+                        "username": "admin@seafile.com",
+                        "repo_id": "4150d508-9014-413d-b1d5-3f0cc9d28e64",
+                        "repo_name": "test",
+                        "path": "/folder/file",
+                        "obj_name": "file",
+                        "is_dir": false,
+                        "token": "135d32eb8cc946c182d0",
+                        "link": "https://demo.seafile.top/f/135d32eb8cc946c182d0/",
+                        "view_cnt": 0,
+                        "ctime": "2024-03-14T14:32:28+08:00",
+                        "expire_date": "2024-04-03T14:32:27+08:00",
+                        "is_expired": false,
+                        "permissions": {
+                            "can_edit": false,
+                            "can_download": true,
+                            "can_upload": false
+                        },
+                        "password": "",
+                        "repo_folder_permission": "rw"
+                    }
+                   ]
+
+  /api/v2.1/share-links/{token}/:
+    delete:
+      tags:
+        - Share links
+      summary: Delete share link
+      description: The API will remove the share link
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/share_token'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
+
+  /api2/send-share-link/:
+    post: 
+      tags:
+        - Share links
+      summary: Send share link email
+      security:
+        - AccountTokenAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema: 
+              type: object
+              properties:
+                token:
+                  $ref: '#/components/schemas/token'
+                email: 
+                  $ref: '#/components/schemas/email'
+                extra_msg:
+                  $ref: '#/components/schemas/extra_msg'
+              required:
+                - token
+                - email
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  failed:
+                    type: array
+                    items: 
+                      type: object
+                      description: Error message
+                      properties:
+                        email: 
+                          type: string
+                        error_msg:
+                          type: string
+                  success: 
+                    type: array
+                    description: Return some successful eamil
+                    items: 
+                      type: string
+                example:  {
+                  "failed": [
+                      {
+                          "email": "invalid-email",
+                          "error_msg": "email invalid."
+                      }
+                  ],
+                  "success": [
+                      "sample@eamil.com"
+                  ]
+                 }
+
+  /api2/d/{token}/dir/: 
+    get: 
+      tags:
+        - Share links
+      summary: List items in folder download link
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/upload_link_token'
+        - $ref: '#/components/parameters/share_path'
+        - $ref: '#/components/parameters/password'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  type: object
+                  description: File info
+                  properties:
+                    size: 
+                      type: integer
+                    type: 
+                      type: string
+                    name: 
+                      type: string
+                    id: 
+                      type: string
+                    mtime: 
+                      type: number
+                example: [
+                      {
+                          "size": 0,
+                          "type": "file",
+                          "name": "test.md",
+                          "id": "0000000000000000000000000000000000000000",
+                          "mtime": 1710404571
+                      }
+                    ]
+
+  /api/v2.1/share-links/{token}/dirents/:
+    get: 
+      tags:
+        - Share links
+      summary: List direntry in dir download link
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/folder_link_token'
+        - $ref: '#/components/parameters/share_path'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  dirent_list: 
+                    type: array
+                    items: 
+                      type: object
+                      properties:
+                        size: 
+                          type: integer
+                        last_modified: 
+                          type: string
+                        is_dir: 
+                          type: boolean
+                        file_path: 
+                          type: string
+                        file_name: 
+                          type: string
+              example: {
+                  "dirent_list": [
+                      {
+                          "size": 0,
+                          "last_modified": "2024-03-14T16:22:51+08:00",
+                          "is_dir": false,
+                          "file_path": "/test.md",
+                          "file_name": "test.md"
+                      }
+                  ]
+                    }
