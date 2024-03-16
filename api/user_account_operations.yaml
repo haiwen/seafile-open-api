@@ -745,7 +745,46 @@ components:
         - $ref: '#/components/schemas/file_operation_copy'
         - $ref: '#/components/schemas/file_operation_move'
         - $ref: '#/components/schemas/file_operation_rename'
+    
+    library_create: 
+      title: Create library
+      type: object
+      properties:
+              name:
+                $ref: '#/components/schemas/repo_name'
+              passwd:
+                $ref: '#/components/schemas/library_passwd'
+              storage_id:
+                $ref: '#/components/schemas/storage_id'
+        
+    library_create_encrypted: 
+      title: Encrypted library
+      type: object
+      properties:
+        from :
+          type: string
+          description: if not passed, Seafile will generate repo sync token and then return it; if set its value to web , Seafile will not generate repo sync token.
+        name : 
+          type: string
+          description: repo's name.
+        repo_id: 
+          type: string
+        magic: 
+          type: string
+        random_key: 
+          type: string
+        enc_version : 
+          type: string
+          description: 0 or 1 or 2 or 3 . if passed 0 or 1 or 2 , Seafile will create v2 encrypted repo; if passed 3 , Seafile will create v3 encrypted repo. Note, if 3 is passed, client MUST passes salt parameter too.
+        salt : 
+          type: string
+          description: used for create v3 encrypted repo.
       
+    create_operation: 
+      oneOf:
+        - $ref: '#/components/schemas/library_create'
+        - $ref: '#/components/schemas/library_create_encrypted'
+
     file_lock_operation:
       title: 'operation'
       type: string
@@ -4919,25 +4958,14 @@ paths:
       tags:
         - Libraries
       summary: Create (Encrypted) library
+      description: Response code 200 and newly created library information are returned.
       security:
         - AccountTokenAuth: []
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schemas:
-      #         Create:
-      #           type: object
-      #           properties:
-      #             name:
-      #               $ref: '#/components/schemas/repo_name'
-      #             passwd:
-      #               $ref: '#/components/schemas/library_passwd'
-      #             storage_id:
-      #               $ref: '#/components/schemas/storage_id'
-      #         Create Encrypted: 
-      #           type: object
-      #           properties:
-
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/create_operation'
       responses:
         '200':
           description: OK
@@ -5016,6 +5044,7 @@ paths:
       tags:
         - Libraries
       summary: Get library info
+      description: Returns basic information about the specified library.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -5109,6 +5138,7 @@ paths:
       tags:
         - Libraries
       summary: Rename/Decrypt library
+      description: Wiht this request, you can rename or decrypt the specified library.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -5119,7 +5149,6 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/library_operation'
-              
       responses:
         '200':
           description: OK
@@ -5134,6 +5163,7 @@ paths:
       tags:
         - Libraries
       summary: Delete library
+      description: Delete an existing library.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -5153,6 +5183,7 @@ paths:
       tags:
         - Libraries
       summary: Get library owner
+      description: You can get the owner email of the specified library.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -5167,7 +5198,7 @@ paths:
                 properties:
                   owner: 
                     type: string
-                    description: email
+                    description: Email
               example:
                 {"owner": "77a423e4804a4d7ca1ec78a150d71229@auth.local"}
 
@@ -5175,6 +5206,7 @@ paths:
       tags:
         - Libraries
       summary: Transfer library
+      description: You can transfer an existing library with this request.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -5204,6 +5236,7 @@ paths:
       tags:
         - Libraries
       summary: Get library history
+      description: With this request, you can get all the historical operation information of the library.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -5282,6 +5315,7 @@ paths:
       tags:
         - Libraries
       summary: Get library history limit days
+      description: By calling this interface you can get the history storage period of the specified library.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -5304,6 +5338,7 @@ paths:
       tags:
         - Libraries
       summary: Set library history limit days
+      description: Using this interface you can set the history storage period of a specified library.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -5336,6 +5371,7 @@ paths:
       tags:
         - Libraries
       summary: Get library trash
+      description: Gets information about all files or folders in the specified library trash.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -5400,6 +5436,7 @@ paths:
       tags:
         - Libraries
       summary: Clean library trash
+      description: Clear all files from the trash in the specified library.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -5421,6 +5458,7 @@ paths:
       tags:
         - Libraries
       summary: Get library commit info
+      description: Get library commit info
       security:
         - AccountTokenAuth: []
       parameters:
@@ -5792,6 +5830,7 @@ paths:
       tags:
         - Share links
       summary: Create share link
+      description: Create a shared link for the library with specific permissions.
       security:
         - AccountTokenAuth: []
       requestBody: 
@@ -6104,6 +6143,7 @@ paths:
       tags:
         - Share links
       summary: Send share link email
+      description: Sends the generated share link to the specified user.
       security:
         - AccountTokenAuth: []
       requestBody:
@@ -6161,6 +6201,7 @@ paths:
       tags:
         - Share links
       summary: List items in folder download link
+      description: Lists all items under the specified path in the shared link.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -6203,6 +6244,7 @@ paths:
       tags:
         - Share links
       summary: List direntry in dir download link
+      description: Lists all direntry under the specified path in the shared link.
       security:
         - AccountTokenAuth: []
       parameters:
