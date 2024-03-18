@@ -491,6 +491,15 @@ components:
       required: true
       schema:
         type: string
+
+    path_in_query_true: 
+      name: path
+      in: query
+      description: / stands for unstar a library.
+      required: true
+      schema: 
+        type: string
+        example: /test
     
     is_dir:
       name: is_dir
@@ -952,7 +961,7 @@ components:
 
     path: 
       type: string
-      description: file/folder path
+      description: path of folder/file
       example: "/folder"
     
     expire_days: 
@@ -6641,4 +6650,187 @@ paths:
         '200':
           description: OK
 
+  /api/v2.1/starred-items/: 
+    get:
+      tags:
+        - Starred Items
+      summary: List starred items
+      description: Returns all star items for the current user.
+      security:
+        - AccountTokenAuth: []
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  starred_item_list: 
+                    type: array
+                    items: 
+                      type: object
+                      description: Starred items info
+                      properties:
+                        repo_id: 
+                          type: string
+                        repo_name: 
+                          type: string
+                        repo_encrypted: 
+                          type: boolean
+                        is_dir: 
+                          type: boolean
+                        path: 
+                          type: string
+                        obj_name: 
+                          type: string
+                        mtime: 
+                          type: string
+                        deleted: 
+                          type: boolean
+                        user_email: 
+                          type: string
+                        user_name: 
+                          type: string
+                        user_contact_email: 
+                          type: string
+                example: {
+                  "starred_item_list": [
+                      {
+                          "repo_id": "00e4dad1-a804-4598-96de-b102109bb4ce",
+                          "repo_name": "test",
+                          "repo_encrypted": false,
+                          "is_dir": true,
+                          "path": "/",
+                          "obj_name": "test",
+                          "mtime": "2024-03-13T11:02:42+08:00",
+                          "deleted": false,
+                          "user_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                          "user_name": "Seafile",
+                          "user_contact_email": "Seafile@example.com"
+                      },
+                      {
+                          "repo_id": "4e6ff511-deb2-4373-8377-c0ce247e6387",
+                          "repo_name": "111",
+                          "repo_encrypted": false,
+                          "is_dir": true,
+                          "path": "/test/",
+                          "obj_name": "test",
+                          "mtime": "2024-03-13T14:31:46+08:00",
+                          "deleted": false,
+                          "user_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                          "user_name": "Seafile",
+                          "user_contact_email": "Seafile@example.com"
+                      },
+                      {
+                          "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
+                          "repo_name": "test",
+                          "repo_encrypted": false,
+                          "is_dir": true,
+                          "path": "/list/",
+                          "obj_name": "list",
+                          "mtime": "",
+                          "deleted": true,
+                          "user_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                          "user_name": "Seafile",
+                          "user_contact_email": "Seafile@example.com"
+                      },
+                      {
+                          "repo_id": "5a2dc505-a880-44ed-9184-67697857869a",
+                          "repo_name": "My Library",
+                          "repo_encrypted": false,
+                          "is_dir": false,
+                          "path": "/test.md",
+                          "obj_name": "test.md",
+                          "mtime": "2024-03-18T16:41:17+08:00",
+                          "deleted": false,
+                          "user_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                          "user_name": "Seafile",
+                          "user_contact_email": "Seafile@example.com"
+                      }
+                  ]
+                 }
 
+    post:
+      tags:
+        - Starred Items
+      summary: Star a library/folder/file
+      description: Star existing libraries/folders/files for the current user.
+      security:
+        - AccountTokenAuth: []
+      requestBody:
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                repo_id: 
+                  $ref: '#/components/schemas/repo_id'
+                path: 
+                  $ref: '#/components/schemas/path'       
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                type: object
+                description: Starred item info
+                properties:
+                  repo_id: 
+                    type: string
+                  repo_name: 
+                    type: string
+                  repo_encrypted: 
+                    type: boolean
+                  is_dir: 
+                    type: boolean
+                  path: 
+                    type: string
+                  obj_name: 
+                    type: string
+                  mtime: 
+                    type: string
+                  deleted: 
+                    type: boolean
+                  user_email: 
+                    type: string
+                  user_name: 
+                    type: string
+                  user_contact_email: 
+                    type: string
+                example: {
+                  "repo_id": "51a583ab-96f5-4d37-8208-51ebef7f1b24",
+                  "repo_name": "rename_test",
+                  "repo_encrypted": false,
+                  "is_dir": true,
+                  "path": "/star/",
+                  "obj_name": "star",
+                  "mtime": "2024-03-18T16:58:24+08:00",
+                  "deleted": false,
+                  "user_email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                  "user_name": "Seafile",
+                  "user_contact_email": "Seafile@example.com"
+                 }
+    
+    delete: 
+      tags:
+          - Starred Items
+      summary: Unstar a library/folder/file
+      description: Cancel starred libraries/files/folders.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id_query'
+        - $ref: '#/components/parameters/path_in_query_true' 
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
