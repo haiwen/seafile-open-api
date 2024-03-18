@@ -1060,6 +1060,7 @@ components:
           type: string
 
     create: 
+      title: create
       type: object
       description: File information
       properties:
@@ -1091,10 +1092,12 @@ components:
       }
     
     rename: 
+      title: rename
       type: string
       example: "success"
 
     move: 
+      title: move
       type: object
       properties:
         repo_id: 
@@ -1109,6 +1112,7 @@ components:
           "obj_name": "foo.c"
       }
     copy: 
+      title: copy
       type: object
       properties:
         repo_id: 
@@ -3601,15 +3605,11 @@ paths:
           content:
             application/json:
               schema: 
-                allOf:
-                  - Create:
-                    $ref: '#/components/schemas/create'
-                  - Rename:
-                    $ref: '#/components/schemas/rename'
-                  - Move:
-                    $ref: '#/components/schemas/move'
-                  - Copy:
-                    $ref: '#/components/schemas/copy'
+                oneOf:
+                  - $ref: '#/components/schemas/create'
+                  - $ref: '#/components/schemas/rename'
+                  - $ref: '#/components/schemas/move'
+                  - $ref: '#/components/schemas/copy'
   
     delete:
       tags:
