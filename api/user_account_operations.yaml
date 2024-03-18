@@ -401,6 +401,23 @@ components:
       required: false
       schema: 
         type: string
+
+    path_query_folder: 
+      name: path
+      in: query
+      description: Folder path
+      schema: 
+        type: string
+        default: /
+
+    tag_name: 
+      name: tag_name
+      in: query
+      description: Tag name
+      required: true
+      schema: 
+        type: string
+        example: v1
     # Path parameters
 
     folder_link_token: 
@@ -643,6 +660,12 @@ components:
       type: string
       description: Unique identification of the operation
       example: b1a33768517f65ac7d618ff078dd27855374c7e0
+
+    tag_names: 
+      type: string
+      description: Separate multiple label names with commas (,)
+      example: v2.1,v2.2
+
 
     src_repo_id:
       type: string
@@ -1099,7 +1122,7 @@ paths:
       tags:
         - Account
       summary: Get account info
-      description: Get the detailed account information with the user's Account Token.
+      description: Return account information.
       security:
         - AccountTokenAuth: []
       responses:
@@ -1154,7 +1177,7 @@ paths:
       tags:
         - Account
       summary: Get user token
-      description: You can use this API to get a token.
+      description: Return a token that can be used by the client to login.
       security:
         - AccountTokenAuth: []
       responses:
@@ -1175,7 +1198,7 @@ paths:
       tags:
         - Activities
       summary: Get file activities
-      description: Obtain user operation information
+      description: Get current user's file activities.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1273,7 +1296,7 @@ paths:
       tags:
         - Avatars      
       summary: Get user avatar
-      description: You can get the avatar link through this API
+      description: Returns the user's avatar link
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1304,7 +1327,7 @@ paths:
       tags:
         - Department Libraries
       summary: Add group owned library
-      description: Create a library based on the unique identifier of the group
+      description: Create a library based on the unique identifier of the group, which is shared with group members.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1365,7 +1388,7 @@ paths:
       tags:
         - Department Libraries
       summary: Rename a group owned library
-      description: Modify the library name within the group
+      description: Modify the name of an existing library in a group。
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1419,7 +1442,7 @@ paths:
       tags:
         - Department Libraries
       summary: Delete group owned library
-      description: You can delete a specified library within a group by using the unique identifier of the group and library
+      description: Delete specified group owned library.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1442,7 +1465,7 @@ paths:
       tags:
         - Department Libraries
       summary: Get group owned library user share info
-      description: You can use this API to request that library users owned by your group share list information
+      description: Returns the group owned library user share information. 
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1475,7 +1498,7 @@ paths:
       tags:
         - Department Libraries
       summary: Share group owned library to user
-      description: Share a library owned by a group to a specific user.Return successful and failed user information
+      description: Share a library owned by a group to a specific user.return successful and failed user information
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1836,7 +1859,7 @@ paths:
       tags:
         - Devices
       summary: Unlink device
-      description: Deleting device Information
+      description: Delete the specified device information.
       security:
         - AccountTokenAuth: []
       requestBody:
@@ -1979,7 +2002,7 @@ paths:
       tags:
         - Directories
       summary: Delete directory
-      description: You can use this api to delete a specified directory in the library
+      description: Deletes the specified directory.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2001,7 +2024,7 @@ paths:
       tags:
         - Directories
       summary: Get directory detail
-      description: Get detailed information about the directory
+      description: Returns detailed information about the directory
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2074,7 +2097,7 @@ paths:
       tags:
         - Directories
       summary: Get task directory token
-      description: The token returned using the API request can be used to check the progress of the task.
+      description: Returns the token used to query the progress of the task.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2132,7 +2155,7 @@ paths:
       tags:
         - Directories
       summary: Query task progress
-      description: You can obtain the task progress information
+      description: The task progress is queried by the obtained zip_token.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2170,7 +2193,7 @@ paths:
       tags:
         - Directories
       summary: Move directory with items merged
-      description: You can merge a directory in one library into a directory in another.
+      description: Merge a directory into another directory.
       security:
         - AccountTokenAuth: []
       requestBody:
@@ -2374,7 +2397,7 @@ paths:
       tags:
         - File Comments
       summary: Get a file comment
-      description: This API allows you to get specific comment information
+      description: Returns comment information for the specified file.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2438,7 +2461,7 @@ paths:
       tags:
         - File Comments
       summary: Update a file comment
-      description: You can modify your content through this API
+      description: Update file with comment details.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2559,7 +2582,7 @@ paths:
       tags:
         - File History
       summary: Get file history
-      description: Obtain historical operation information about a file.
+      description: Gets the history of the specified file
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2658,7 +2681,7 @@ paths:
       tags:
         - File History
       summary: Create/Restore file from history
-      description: You can create or recover files by using the commit id.
+      description: Recover the file by getting commit_id in the history.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2710,7 +2733,7 @@ paths:
       tags:
         - Files
       summary: Lock/Unlock file
-      description: You can lock or unlock a file through this api. Locked files cannot be edited.
+      description:  Lock or unlock the file, locked files cannot be modified
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2770,7 +2793,7 @@ paths:
       tags:
         - File History
       summary: Download file from a revision
-      description: Download file from a revision
+      description: Return to the link to download the file
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3321,7 +3344,7 @@ paths:
       tags:
         - File Upload
       summary: Get upload link
-      description: With the API,you can generate an upload link.  These information are needed to upload a file/folder to a library.
+      description: Reutrn an upload link.  These information are needed to upload a file/folder to a library.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3484,7 +3507,7 @@ paths:
       tags:
         - File Upload
       summary: Get update link
-      description: With the API,you can generate an update link.  These information are needed to update a file/folder to a library.
+      description: Return an update link.  These information are needed to update a file/folder to a library.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3569,22 +3592,21 @@ paths:
           content:
             application/json:
               schema: 
-                type: object
-                properties:
-                  Create:
+                allOf:
+                  - Create:
                     $ref: '#/components/schemas/create'
-                  Rename:
+                  - Rename:
                     $ref: '#/components/schemas/rename'
-                  Move:
+                  - Move:
                     $ref: '#/components/schemas/move'
-                  Copy:
+                  - Copy:
                     $ref: '#/components/schemas/copy'
   
     delete:
       tags:
         - Files
       summary: Delete file
-      description: With this request, you can delete the specified file
+      description: Deletes the specified file.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3605,7 +3627,7 @@ paths:
       tags:
         - Files
       summary: Get file detail
-      description: The API can get the details of a file.
+      description: Returns details of the file.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3789,7 +3811,7 @@ paths:
       tags:
         - Files/Directories Batch Operation
       summary: Batch delete items
-      description: With this request, you can delete files in bulk
+      description: Delete files in bulk.
       security:
         - AccountTokenAuth: []
       requestBody:
@@ -3926,7 +3948,7 @@ paths:
       tags:
         - Files/Directories Batch Operation
       summary: Query async operation progress
-      description: You can query the progress of an asynchronous operation task by using the asynchronous operation id.
+      description: Returns the execution progress of the asynchronous operation task.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3963,7 +3985,7 @@ paths:
       tags:
         - Files/Directories Batch Operation
       summary: Cancel async operation
-      description: This request can cancel the asynchronous operation task.
+      description: Cancel the operation of an asynchronous task.
       security:
         - AccountTokenAuth: []
       requestBody:
@@ -4150,7 +4172,7 @@ paths:
       tags:
         - Groups
       summary: Rename/Transfer a group
-      description: With this request, you can rename or transfer a group.
+      description: Rename the group or transfer the current owner to another user.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -4206,7 +4228,7 @@ paths:
       tags:
         - Groups
       summary: Delete a group
-      description: Delete a group with its ID.
+      description: Delete a specified group.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -4430,7 +4452,7 @@ paths:
       tags:
         - Groups
       summary: Get info of a group member
-      description: You can obtain information about the members of a specified group by specifying an email address
+      description: Returns group member information.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -4554,7 +4576,7 @@ paths:
       tags:
         - Invitations
       summary: List invitations
-      description: With this request,you can get information about all the invitations you have initiated.
+      description: Returns all invitations initiated by the current user.
       security:
         - AccountTokenAuth: []
       responses:
@@ -4601,7 +4623,7 @@ paths:
       tags:
         - Invitations
       summary: Add invitation
-      description: You can invite the user by using his email address.
+      description: Invite users through their email.
       security:
         - AccountTokenAuth: []
       requestBody:
@@ -4658,7 +4680,7 @@ paths:
       tags:
         - Invitations
       summary: Batch add invitations
-      description: You can pass in multiple email addresses to invite users in batches.
+      description: The current user can batch invite users by using multiple email. Return the successful invitation message and the reason for the failure.
       security:
         - AccountTokenAuth: []
       requestBody:
@@ -4735,7 +4757,7 @@ paths:
       tags:
         - Invitations
       summary: Get invitation
-      description: You can use the token to get specific invitation information.
+      description: Returns the specified invitation information.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -4817,7 +4839,7 @@ paths:
       tags:
         - Libraries
       summary: Get default library
-      description: With this request, you can get the default library ID
+      description: Returns the id of the default library.
       security:
         - AccountTokenAuth: []
       responses:
@@ -4868,7 +4890,7 @@ paths:
         - Libraries
       summary: List libraries/Search library by name
       description: |- 
-        You can list all the library information that meets the conditions by type, or you can combine the name to query the specific library information.
+        Returns all eligible library information.
         *Note: If no type parameter contained in the url, this api will return all libraries user can access.*
       security:
         - AccountTokenAuth: []
@@ -5015,29 +5037,51 @@ paths:
                     type: string
                   permission: 
                     type: string   
-                example:
-                  {
-                  "relay_id": "44e8f253849ad910dc142247227c8ece8ec0f971",
-                  "relay_addr": "127.0.0.1",
-                  "relay_port": "80",
-                  "email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                  "token": "89661286502d98af109f30bb54b63a4b587e5e60",
-                  "repo_id": "6d833ca8-392e-4dbf-8f4f-af4895fff121",
-                  "repo_name": "test",
-                  "repo_desc": "",
-                  "repo_size": 0,
-                  "repo_size_formatted": "0 bytes",
-                  "mtime": 1709609851,
-                  "mtime_relative": "<time datetime=\"2024-03-05T11:37:31\" is=\"relative-time\" title=\"Tue, 05 Mar 2024 11:37:31 +0800\" >Just now</time>",
-                  "encrypted": 1,
-                  "enc_version": 2,
-                  "salt": "",
-                  "magic": "bc184948365cf90d211b53a82d5cc0c1921eb757788527e0be09c4d7ca22d0cf",
-                  "random_key": "0fb038875aa44237db4a7567facf02397fbe2cc890ddcf244af97632510dcab042500a15848bdc326ff3289f48d18afe",
-                  "repo_version": 1,
-                  "head_commit_id": "4875e1352495c8248349b47619718597e7b3a6ab",
-                  "permission": "rw"
-                }
+              examples:
+                Create Library:
+                  value: {
+                    "relay_id": "44e8f253849ad910dc142247227c8ece8ec0f971",
+                    "relay_addr": "127.0.0.1",
+                    "relay_port": "80",
+                    "email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                    "token": "89661286502d98af109f30bb54b63a4b587e5e60",
+                    "repo_id": "6d833ca8-392e-4dbf-8f4f-af4895fff121",
+                    "repo_name": "test",
+                    "repo_desc": "",
+                    "repo_size": 0,
+                    "repo_size_formatted": "0 bytes",
+                    "mtime": 1709609851,
+                    "mtime_relative": "<time datetime=\"2024-03-05T11:37:31\" is=\"relative-time\" title=\"Tue, 05 Mar 2024 11:37:31 +0800\" >Just now</time>",
+                    "encrypted": 1,
+                    "enc_version": 2,
+                    "salt": "",
+                    "magic": "bc184948365cf90d211b53a82d5cc0c1921eb757788527e0be09c4d7ca22d0cf",
+                    "random_key": "0fb038875aa44237db4a7567facf02397fbe2cc890ddcf244af97632510dcab042500a15848bdc326ff3289f48d18afe",
+                    "repo_version": 1,
+                    "head_commit_id": "4875e1352495c8248349b47619718597e7b3a6ab",
+                    "permission": "rw"
+                  }
+                Create Encrypted Library: 
+                  value: {'email': u'Seafile@lian.com',
+                        'enc_version': 2,
+                        'encrypted': 1,
+                        'head_commit_id': u'822e90c1ad6d1c28aa9656f7429f20e05a38e0c6',
+                        'magic': u'06d3cc794f7a18ad5b20d0cb279ebb347b39b555d22adc3e3e09f3312965b134',
+                        'mtime': 1558337264,
+                        'mtime_relative': u'<time datetime="2024-03-18T07:27:44" is="relative-time" title="Mon, 20 May 2019 07:27:44 +0000" >Just now</time>',
+                        'random_key': u'c2db23a18735962eb0ebbf6ae0665979bf22f0232976b913dab8f2851930039285009287154c08c3de11ab53348e63b4',
+                        'relay_addr': '127.0.0.1',
+                        'relay_id': u'ba789883abf9e65d8fb91b85635bb0485b3548e6',
+                        'relay_port': 10001,
+                        'repo_desc': u'dist',
+                        'repo_id': u'7914e90a-c34e-4fe9-9497-4cec4ce708f9',
+                        'repo_name': u'dist',
+                        'repo_size': 0,
+                        'repo_size_formatted': u'0\xa0bytes',
+                        'repo_version': 1,
+                        'salt': '',
+                        'token': u'cc7a4f953c5dd27c8e6021017273513c5c47815f'}
+
 
   /api2/repos/{repo_id}/:
     get:
@@ -5138,7 +5182,7 @@ paths:
       tags:
         - Libraries
       summary: Rename/Decrypt library
-      description: Wiht this request, you can rename or decrypt the specified library.
+      description: Decrypt or rename the library. To rename the library, pass the `op` parameter
       security:
         - AccountTokenAuth: []
       parameters:
@@ -5183,7 +5227,7 @@ paths:
       tags:
         - Libraries
       summary: Get library owner
-      description: You can get the owner email of the specified library.
+      description: Returns the owner email of the specified library.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -5206,7 +5250,7 @@ paths:
       tags:
         - Libraries
       summary: Transfer library
-      description: You can transfer an existing library with this request.
+      description: Transfer library to user.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -5236,7 +5280,7 @@ paths:
       tags:
         - Libraries
       summary: Get library history
-      description: With this request, you can get all the historical operation information of the library.
+      description: Returns all the history of the library.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -5929,7 +5973,7 @@ paths:
       tags:
         - Share links
       summary: List share links of a library
-      description: This api will list all folder/file download share links in a specific library.
+      description: List all folder/file download share links in a specific library.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -6035,7 +6079,7 @@ paths:
       tags:
         - Share links
       summary: List share link of a folder (file)
-      description: This api will list download share link info of a specific folder/file.
+      description: List download share link info of a specific folder/file.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -6121,7 +6165,7 @@ paths:
       tags:
         - Share links
       summary: Delete share link
-      description: The API will remove the share link
+      description: Remove the share link
       security:
         - AccountTokenAuth: []
       parameters:
@@ -6284,3 +6328,317 @@ paths:
                       }
                   ]
                     }
+
+  /api/v2.1/repos/{repo_id}/commits/{commit_id}/dir/: 
+     get: 
+      tags:
+        - Snapshot
+      summary: List items in directory of a snapshot
+      description: |-
+         Returns all items in the snapshot directory, 
+         *Note:Used in Snapshot and Trash.*
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/commit_id'
+        - $ref: '#/components/parameters/path_query_folder'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  dirent_list: 
+                    type: array
+                    items: 
+                      type: object
+                      description: Items info
+                      properties:
+                        type: 
+                          type: string
+                        size: 
+                          type: string
+                        parent_dir: 
+                          type: string
+                        obj_id: 
+                          type: string
+                        name: 
+                          type: string
+                example: {
+                  "dirent_list": [
+                      {
+                          "type": "dir",
+                          "parent_dir": "/",
+                          "obj_id": "88f77abc97effe050e61ae07af470ff801f16e43",
+                          "name": "test"
+                      },
+                      {
+                          "type": "file",
+                          "size": 0,
+                          "parent_dir": "/",
+                          "obj_id": "0000000000000000000000000000000000000000",
+                          "name": "test.md"
+                      }
+                  ]
+                  }
+
+  /api/v2.1/repos/{repo_id}/commits/{commit_id}/revert/:
+    post: 
+      tags:
+        - Snapshot
+      summary: Revert library to a snapshot
+      description:  |- 
+        Restore the library to a snapshot
+        *Note: Only library owner can revert.*
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/commit_id'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
+
+  /api/v2.1/revision-tags/tag-names/: 
+    get: 
+        tags:
+          - Snapshot Label
+        summary: Get snapshot label
+        description:  Returns all snapshot tags for the current user.
+        security:
+          - AccountTokenAuth: []
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json: 
+                schema: 
+                  type: array
+                  items: 
+                    type: string
+                    description: 'Tag name' 
+                  example: [
+                      "v1",
+                      "v2",
+                      "test",
+                      "qwe_-.12",
+                      "qwe_-1.",
+                      "r",
+                      "\u4e2d\u6587",
+                      "\u82f1\u6587"
+                  ]
+
+  /api/v2.1/revision-tags/tagged-items/:
+    post: 
+        tags:
+          - Snapshot Label
+        summary: Create snapshot label
+        description: Create a new snapshot label.
+        security:
+          - AccountTokenAuth: []
+        requestBody: 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  repo_id:
+                    $ref: '#/components/schemas/repo_id'
+                  commit_id:
+                    $ref: '#/components/schemas/commit_id'
+                  tag_names: 
+                     $ref: '#/components/schemas/tag_names'
+                required:
+                  - repo_id
+                  - tag_names 
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+               schema: 
+                  type: object
+                  properties:
+                    revisionTags: 
+                      type: array
+                      items: 
+                        type: object
+                        description: Tag info
+                        properties:
+                          tag: 
+                            type: string
+                          tag_creator: 
+                            type: string
+                          revision: 
+                            type: object
+                            description: revision info
+                            properties:
+                              repo_id: 
+                                type: string
+                              commit_id: 
+                                type: string
+                              email: 
+                                type: string
+                              name: 
+                                type: string
+                              contact_email: 
+                                type: string
+                              time: 
+                                type: string
+                              description: 
+                                type: string
+                              link: 
+                                type: string
+                  example: {
+                    "revisionTags": [
+                        {
+                            "tag": "v1",
+                            "tag_creator": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                            "revision": {
+                                "repo_id": "4e6ff511-deb2-4373-8377-c0ce247e6387",
+                                "commit_id": "c817a1b23786f67f853c534d5fec046f61a7067d",
+                                "email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                                "name": "Seafile",
+                                "contact_email": "Seafile@example.com",
+                                "time": "2024-03-13T15:38:33+08:00",
+                                "description": "Added directory \"test\"",
+                                "link": "/repo/history/view/4e6ff511-deb2-4373-8377-c0ce247e6387/?commit_id=c817a1b23786f67f853c534d5fec046f61a7067d"
+                            }
+                        },
+                        {
+                            "tag": "v2",
+                            "tag_creator": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                            "revision": {
+                                "repo_id": "4e6ff511-deb2-4373-8377-c0ce247e6387",
+                                "commit_id": "c817a1b23786f67f853c534d5fec046f61a7067d",
+                                "email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                                "name": "Seafile",
+                                "contact_email": "Seafile@example.com",
+                                "time": "2024-03-13T15:38:33+08:00",
+                                "description": "Added directory \"test\"",
+                                "link": "/repo/history/view/4e6ff511-deb2-4373-8377-c0ce247e6387/?commit_id=c817a1b23786f67f853c534d5fec046f61a7067d"
+                            }
+                        }
+                    ]
+                   }
+
+    put: 
+        tags:
+          - Snapshot Label
+        summary: Update snapshot label
+        description: Update the snapshot label in the history.
+        security:
+          - AccountTokenAuth: []
+        requestBody: 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  repo_id:
+                    $ref: '#/components/schemas/repo_id'
+                  commit_id:
+                    $ref: '#/components/schemas/commit_id'
+                    description: default is head commit if commit_id is empty
+                  tag_names: 
+                     $ref: '#/components/schemas/tag_names'
+                required:
+                  - repo_id
+                  - tag_names 
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    revisionTags: 
+                      type: array
+                      items: 
+                        type: object
+                        description: Tag info
+                        properties:
+                          tag: 
+                            type: string
+                          tag_creator: 
+                            type: string
+                          revision: 
+                            type: object
+                            description: revision info
+                            properties:
+                              repo_id: 
+                                type: string
+                              commit_id: 
+                                type: string
+                              email: 
+                                type: string
+                              name: 
+                                type: string
+                              contact_email: 
+                                type: string
+                              time: 
+                                type: string
+                              description: 
+                                type: string
+                              link: 
+                                type: string
+                  example: {
+                      "revisionTags": [
+                          {
+                              "tag": "v5",
+                              "tag_creator": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                              "revision": {
+                                  "repo_id": "4e6ff511-deb2-4373-8377-c0ce247e6387",
+                                  "commit_id": "c817a1b23786f67f853c534d5fec046f61a7067d",
+                                  "email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                                  "name": "Seafile",
+                                  "contact_email": "Seafile@example.com",
+                                  "time": "2024-03-13T15:38:33+08:00",
+                                  "description": "Added directory \"test\"",
+                                  "link": "/repo/history/view/4e6ff511-deb2-4373-8377-c0ce247e6387/?commit_id=c817a1b23786f67f853c534d5fec046f61a7067d"
+                              }
+                          },
+                          {
+                              "tag": "v6",
+                              "tag_creator": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                              "revision": {
+                                  "repo_id": "4e6ff511-deb2-4373-8377-c0ce247e6387",
+                                  "commit_id": "c817a1b23786f67f853c534d5fec046f61a7067d",
+                                  "email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                                  "name": "Seafile",
+                                  "contact_email": "Seafile@example.com",
+                                  "time": "2024-03-13T15:38:33+08:00",
+                                  "description": "Added directory \"test\"",
+                                  "link": "/repo/history/view/4e6ff511-deb2-4373-8377-c0ce247e6387/?commit_id=c817a1b23786f67f853c534d5fec046f61a7067d"
+                              }
+                          }
+                      ]
+                  }
+
+    delete: 
+      tags:
+        - Snapshot Label
+      summary: Delete snapshot label
+      description: Delete the existing snapshot label of the current user.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id_query'
+        - $ref: '#/components/parameters/tag_name'
+      responses:
+        '200':
+          description: OK
+
+
