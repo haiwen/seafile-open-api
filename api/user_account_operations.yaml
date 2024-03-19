@@ -418,56 +418,16 @@ components:
       schema: 
         type: string
         example: v1
-    # Path parameters
 
-    folder_link_token: 
-      name: token
-      in: path
+    folder_path: 
+      name: folder_path
+      description: path of folder
+      in: query
       required: true
-      description: Folder share link token
-      schema:
+      schema: 
         type: string
-    user:
-      name: user
-      in: path
-      required: true
-      schema:
-        type: string
-      example: user@example.com
+        example: /test
 
-    size:
-      name: size
-      in: path
-      required: true
-      schema:
-        type: integer
-      example: 64
-
-    group_id:
-      name: group_id
-      in: path
-      description: The unique identifier of a group
-      required: true
-      schema:
-        type: integer
-
-    email:
-      name: email
-      in: path
-      required: true
-      description: Member email
-      schema:
-        type: string
-
-    repo_id:
-      name: repo_id
-      in: path
-      description: The unique identifier of a library
-      required: true
-      schema:
-        type: string
-        pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
-    
     p:
       name: p
       in: query
@@ -516,6 +476,77 @@ components:
       description:  path of file/folder
       schema: 
         type: string
+    
+    p_library: 
+      name: p
+      in: query
+      required: false
+      description: '`/` means the root folder, which is equivalent to the library.'
+      schema: 
+        type: string
+        enum:
+          - /
+
+    share_type_libraries: 
+      name: share_type
+      in: query
+      description: "`user` or `group`"
+      required: true
+      schema: 
+        type: string
+        enum:
+          - user
+          - group
+        example: user
+
+    # Path parameters
+    folder_link_token: 
+      name: token
+      in: path
+      required: true
+      description: Folder share link token
+      schema:
+        type: string
+    user:
+      name: user
+      in: path
+      required: true
+      schema:
+        type: string
+      example: user@example.com
+
+    size:
+      name: size
+      in: path
+      required: true
+      schema:
+        type: integer
+      example: 64
+
+    group_id:
+      name: group_id
+      in: path
+      description: The unique identifier of a group
+      required: true
+      schema:
+        type: integer
+
+    email:
+      name: email
+      in: path
+      required: true
+      description: Member email
+      schema:
+        type: string
+
+    repo_id:
+      name: repo_id
+      in: path
+      description: The unique identifier of a library
+      required: true
+      schema:
+        type: string
+        pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
 
     comment_id:
       name: pk
@@ -606,9 +637,18 @@ components:
       description: "'r' or 'rw'"
       example: r
 
+    folder_path: 
+      type: string
+      description: path of folder
+      example: "/folder"
+
+    user_email: 
+      type: string
+      description: user email
+      example: Seafile@example.com
+
     password:
       type: string
-
 
     username:
       type: string
@@ -623,6 +663,7 @@ components:
 
     group_id:
       type: integer
+      description: The unique identifier of a group
       example: 1
 
     group_id_list:
@@ -778,6 +819,51 @@ components:
         - $ref: '#/components/schemas/file_operation_move'
         - $ref: '#/components/schemas/file_operation_rename'
     
+    share_type_library: 
+      type: string
+      description: "`user` or `group`"
+      enum:
+        - user
+        - group
+
+    share_permission: 
+      type: string
+      description: r, rw or admin, default r.
+      default: 'r'
+
+    share_user: 
+      title: Share a Library to User
+      type: object
+      properties:
+        share_type: 
+          type: string
+          enum:
+            - user 
+        username: 
+          type: string
+          description: A email string or a list contains multi emails
+          example: Seafile@example.com
+        permission: 
+          $ref: '#/components/schemas/share_permission'
+
+    share_group: 
+      title: Share a Library to Group
+      type: object
+      properties:
+        share_type: 
+          type: string
+          enum:
+            - group
+        group_id: 
+          $ref: '#/components/schemas/group_id'
+        permission: 
+          $ref: '#/components/schemas/share_permission'
+
+    share_operation: 
+      oneOf:
+        - $ref: '#/components/schemas/share_user'
+        - $ref: '#/components/schemas/share_group'
+
     library_create: 
       title: Create library
       type: object
@@ -1059,6 +1145,73 @@ components:
         ret_json: 
           type: string
 
+    share_r_group:
+      title: Share a Library to Group
+      type: object
+      description: Share information about successes and failures
+      properties:
+        failed: 
+          type: array
+          items: 
+            type: object
+        success: 
+          type: array
+          items: 
+            type: object
+            properties:
+              share_type: 
+                type: string
+              group_info: 
+                type: object
+                description: group info
+                properties:
+                  id: 
+                    type: integer
+                  name: 
+                    type: string
+              permission: 
+                type: string
+              is_admin: 
+                type: boolean
+
+    share_r_user:
+      title: Share a Library to User
+      type: object
+      description: Share information about successes and failures
+      properties:
+        failed: 
+          type: array
+          items: 
+            type: object
+            properties:
+              email: 
+                type: string
+              error_msg:
+                type: string
+        success: 
+          type: array
+          items:
+            type: object
+            properties:
+              share_type: 
+                type: string
+              user_info: 
+                type: object
+                description: User info
+                properties: 
+                  name: 
+                    type: string
+                  nickname: 
+                    type: string
+                  contact_email: 
+                    type: string
+                  avatar_url: 
+                    type: string
+              permission: 
+                type: string
+              is_admin: 
+                type: boolean
+              
     create: 
       title: create
       type: object
@@ -1080,16 +1233,6 @@ components:
           type: integer
         type: 
           type: string
-      example: {
-          'is_locked': False,
-          'mtime': '2024-03-12T14:57:42+08:00',
-          'obj_id': u'44bdca6005429390d1ecc6943b05c821bd30917a',
-          'obj_name': u'test.xlsx',
-          'parent_dir': u'/',
-          'repo_id': u'7460f7ac-a0ff-4585-8906-bb5a57d2e118',
-          'size': 7631,
-          'type': 'file'
-      }
     
     rename: 
       title: rename
@@ -1106,11 +1249,7 @@ components:
           type: string
         obj_name: 
           type: string
-      example: {
-          "repo_id": "affc837f-7fdd-4e91-b88a-32caf99897f2",
-          "parent_dir": "/example-folder",
-          "obj_name": "foo.c"
-      }
+
     copy: 
       title: copy
       type: object
@@ -1121,12 +1260,72 @@ components:
           type: string
         obj_name: 
           type: string
-      example: {
-          "repo_id": "affc837f-7fdd-4e91-b88a-32caf99897f2",
-          "parent_dir": "/example-folder",
-          "obj_name": "foo.c"
-      }
 
+    share_type_user: 
+      title: user
+      type: array
+      items: 
+        type: object
+        description: Share user info
+        properties:
+          share_type: 
+            type: string
+          user_info: 
+            type: object
+            description: User info
+            properties:
+              name: 
+                type: string
+              nickname: 
+                type: string
+              contact_email: 
+                type: string
+              avatar_url: 
+                type: string
+          permission: 
+            type: string
+          is_admin: 
+            type: boolean
+
+    share_type_group: 
+      title: group
+      type: array
+      items: 
+        type: object
+        properties:
+          share_type: 
+            type: string
+          group_info: 
+            type: object
+            properties:
+              id: 
+                type: integer
+              name: 
+                type: string
+          permission: 
+            type: string
+          is_admin:   
+            type: boolean
+      
+    
+    user_profile_name:
+      type: string
+      description: user's nickname, if no value passed, this field will not be changed
+      example:  new_name
+    telephone: 
+      type: string
+      description: if no value passed, this field will not be changed
+      example: 120
+
+    contact_email: 
+      type: string
+      description: if no value passed, or pass your old contact email, this field will not be changed
+      example: example@example.com
+
+    list_in_address_book: 
+      type: boolean
+      description: "`true` or `false`, whether list your account in global address book, if no value passed, this field will not be changed"
+      example: true
 
 paths:
   # Account
@@ -1401,7 +1600,7 @@ paths:
       tags:
         - Department Libraries
       summary: Rename a group owned library
-      description: Modify the name of an existing library in a group。
+      description: Modify the name of an existing library in a group.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3610,6 +3809,32 @@ paths:
                   - $ref: '#/components/schemas/rename'
                   - $ref: '#/components/schemas/move'
                   - $ref: '#/components/schemas/copy'
+              examples: 
+                Create file: 
+                  value: {
+                      'is_locked': False,
+                      'mtime': '2024-03-12T14:57:42+08:00',
+                      'obj_id': u'44bdca6005429390d1ecc6943b05c821bd30917a',
+                      'obj_name': u'test.xlsx',
+                      'parent_dir': u'/',
+                      'repo_id': u'7460f7ac-a0ff-4585-8906-bb5a57d2e118',
+                      'size': 7631,
+                      'type': 'file'
+                  }
+                Rename file: 
+                  value: success
+                Move file: 
+                  value: {
+                    "repo_id": "affc837f-7fdd-4e91-b88a-32caf99897f2",
+                    "parent_dir": "/example-folder",
+                    "obj_name": "foo.c"
+                      }
+                Copy file: 
+                  value: {
+                    "repo_id": "affc837f-7fdd-4e91-b88a-32caf99897f2",
+                    "parent_dir": "/example-folder",
+                    "obj_name": "foo.c"
+                      }
   
     delete:
       tags:
@@ -6834,3 +7059,831 @@ paths:
                   success: 
                     type: boolean
                     description: Success state
+
+  /api/v2.1/user/: 
+    get: 
+      tags:
+        - User-Profile
+      summary: Get user profile
+      description: Gets the current user's profile.
+      security:
+        - AccountTokenAuth: []
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: User's profile
+                properties:
+                  email: 
+                    type: string
+                  name: 
+                    type: string
+                  contact_email: 
+                    type: string
+                  telephone: 
+                    type: string
+                  login_id: 
+                    type: string
+                  list_in_address_book: 
+                    type: boolean
+                example: {
+                  "email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                  "name": "Seafile",
+                  "contact_email": "Seafile@example.com",
+                  "telephone": "",
+                  "login_id": null,
+                  "list_in_address_book": false
+                 }
+
+    put: 
+      tags:
+        - User-Profile
+      summary: Update user profile
+      description: |-
+        Update the current user's profile.
+        - If you want to use this api, you must set `ENABLE_UPDATE_USER_INFO` to `True` in `../conf/seahub_settings.py`, for more info please see this manual.
+        - If you want to change contact email, you must set `ENABLE_USER_SET_CONTACT_EMAIL` to `True` in `../conf/seahub_settings.py.`
+      security:
+        - AccountTokenAuth: []
+      requestBody: 
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties: 
+                  name: 
+                    $ref: '#/components/schemas/user_profile_name'
+                  telephone: 
+                    $ref: '#/components/schemas/telephone'
+                  contact_email: 
+                    $ref: '#/components/schemas/contact_email'
+                  list_in_address_book: 
+                    $ref: '#/components/schemas/list_in_address_book'          
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  email: 
+                    type: string
+                  name: 
+                    type: string
+                  contact_email: 
+                    type: string
+                  telephone: 
+                    type: string
+                  login_id: 
+                    type: string
+                  list_in_address_book: 
+                    type: boolean
+                example: {
+                  "email": "9b4393c623c74243b0ad43709701687d@auth.local",
+                  "name": "Seafile",
+                  "contact_email": "Seafile@qq.com",
+                  "telephone": "",
+                  "login_id": null,
+                  "list_in_address_book": false
+                    }
+
+  /api2/search-user/: 
+    get: 
+      tags:
+        - User Search
+      summary: Search user
+      description: Search users by keyword.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/q'
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  users: 
+                    type: array
+                    items: 
+                      type: object
+                      description: user info
+                      properties:
+                        email: 
+                          type: string
+                        avatar_url: 
+                          type: string
+                        name: 
+                          type: string
+                        contact_email:
+                          type: string
+                example: {
+                  "users": [
+                      {
+                          "email": "foo@foo.com",
+                          "avatar_url": "https://dev.seafile.com/seahub/image-view/avatars/3/7/17483f26171b61a4e2154fb37ffbd1/resized/32/1251f6b24ca35ffa689cce8dd731f256.png",
+                          "name": "foo",
+                          "contact_email": "foo@foo.com"
+                      }
+                  ]
+                 }
+      
+  /api2/repos/{repo_id}/user-folder-perm/:
+    get: 
+      tags:
+        - Sub Folder Permissions
+      summary: Get user folder permission
+      description: Returns user permission information for the specified folder.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/folder_path'
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                type: array
+                items: 
+                  type: object
+                  description: User permission info 
+                  properties:
+                    repo_id: 
+                      type: string
+                    user_email: 
+                      type: string
+                    user_name: 
+                      type: string
+                    folder_path: 
+                      type: string
+                    folder_name: 
+                      type: string
+                    permission: 
+                      type: string
+
+                  example: {
+                    "repo_id": "4e6ff511-deb2-4373-8377-c0ce247e6387",
+                    "user_email": "62e7d27c7d4f42d8afcc35e2002b812c@auth.local",
+                    "user_name": "Seafile",
+                    "folder_path": "/test",
+                    "folder_name": "test",
+                    "permission": "rw"
+                     }
+  
+    post: 
+      tags:
+        - Sub Folder Permissions
+      summary: Set user folder permission
+      description: Adding user folder permissions allows other users to have specified permissions on the folder.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          multipart/form-data:
+            schema: 
+              type: object
+              properties:
+                folder_path: 
+                  $ref: '#/components/schemas/folder_path'
+                user_email: 
+                  $ref: '#/components/schemas/user_email'
+                permission: 
+                  $ref: '#/components/schemas/permission'
+              required: 
+                - folder_path
+                - user_email
+                - permission        
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  failed: 
+                    type: array
+                    description: Failure reason
+                    items: 
+                      type: object
+                      properties:
+                        error_msg:
+                          type: string
+                        user_email: 
+                          type: string
+                  success: 
+                    type: array
+                    description: Successful information
+                    items: 
+                      type: object
+                      description: User folder permission info
+                      properties:
+                        repo_id: 
+                          type: string
+                        folder_path: 
+                          type: string
+                        permission: 
+                          type: string
+                        folder_name: 
+                          type: string
+                        user_name: 
+                          type: string
+                        user_email: 
+                          type: string
+                example: {
+                      "failed": [
+                          {
+                              "error_msg": "Permission already exists.",
+                              "user_email": "Seafile@example.com"
+                          }
+                      ],
+                      "success": [
+                          {
+                              "repo_id": "bdf816e6-aba8-468c-962f-77c2fcfd1d1c",
+                              "folder_path": "/123",
+                              "permission": "rw",
+                              "folder_name": "123",
+                              "user_name": "daniel",
+                              "user_email": "daniel@example.com"
+                          }
+                      ]
+                  }
+
+    put: 
+      tags:
+        - Sub Folder Permissions
+      summary: Modify user folder permission
+      description: Modify existing user folder permissions, return user folder permission information.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                folder_path: 
+                  $ref: '#/components/schemas/folder_path'
+                user_email: 
+                  $ref: '#/components/schemas/user_email'
+                permission: 
+                  $ref: '#/components/schemas/permission'
+              required: 
+                - folder_path
+                - user_email
+                - permission        
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                type: object
+                description: User folder permission info
+                properties:
+                  repo_id: 
+                    type: string
+                  folder_path: 
+                    type: string
+                  permission: 
+                    type: string
+                  folder_name: 
+                    type: string
+                  user_name: 
+                    type: string
+                  user_email: 
+                    type: string
+                example: {
+                  "repo_id": "4e6ff511-deb2-4373-8377-c0ce247e6387",
+                  "user_email": "62e7d27c7d4f42d8afcc35e2002b812c@auth.local",
+                  "user_name": "Seafile",
+                  "folder_path": "/test",
+                  "folder_name": "test",
+                  "permission": "rw"
+                    }
+
+    delete: 
+      tags:
+        - Sub Folder Permissions
+      summary: Delete user folder permission
+      description: Delete existing user folder permissions.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                folder_path: 
+                  $ref: '#/components/schemas/folder_path'
+                user_email: 
+                  $ref: '#/components/schemas/user_email'
+              required: 
+                - folder_path
+                - user_email     
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
+
+  /api2/repos/{repo_id}/group-folder-perm/:
+    get: 
+      tags:
+        - Sub Folder Permissions
+      summary: Get group folder permission
+      description: Returns group permission information for the specified folder.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/folder_path'
+      responses:
+        '200':
+          description: OK 
+          content:
+            application/json: 
+              schema: 
+                type: array
+                items: 
+                  type: object
+                  description: Group folder permission info
+                  properties:
+                    repo_id: 
+                      type: string
+                    group_id: 
+                      type: integer
+                    group_name: 
+                      type: string
+                    folder_path: 
+                      type: string
+                    folder_name: 
+                      type: string
+                    permission: 
+                      type: string
+                example: [
+                    {
+                        "repo_id": "4e6ff511-deb2-4373-8377-c0ce247e6387",
+                        "group_id": 3493,
+                        "group_name": "group-t",
+                        "folder_path": "/test",
+                        "folder_name": "test",
+                        "permission": "rw"
+                    }
+                  ]
+  
+    post: 
+      tags:
+        - Sub Folder Permissions
+      summary: Set group folder permission
+      description: Adding group folder permissions allows other group to have specified permissions on the folder.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          multipart/form-data:
+            schema: 
+              type: object
+              properties:
+                folder_path: 
+                  $ref: '#/components/schemas/folder_path'
+                group_id: 
+                  $ref: '#/components/schemas/group_id'
+                permission: 
+                  $ref: '#/components/schemas/permission'
+              required: 
+                - folder_path
+                - group_id
+                - permission        
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  failed: 
+                    type: array
+                    description: Failure reason
+                    items: 
+                      type: object
+                      properties:
+                        error_msg:
+                          type: string
+                        group_id: 
+                          type: string
+                  success: 
+                    type: array
+                    description: Successful information
+                    items: 
+                      type: object
+                      description: Group folder permission info
+                      properties:
+                        repo_id: 
+                          type: string
+                        folder_path: 
+                          type: string
+                        permission: 
+                          type: string
+                        folder_name: 
+                          type: string
+                        group_name: 
+                          type: string
+                        group_id: 
+                          type: integer
+                example: {
+                  "failed": [
+                      {
+                          "group_id": 65,
+                          "error_msg": "Permission already exists."
+                      }
+                  ],
+                  "success": [
+                      {
+                          "repo_id": "bdf816e6-aba8-468c-962f-77c2fcfd1d1c",
+                          "folder_path": "/folder",
+                          "permission": "rw",
+                          "group_name": "group-2",
+                          "folder_name": "folder",
+                          "group_id": 586
+                      }
+                  ]
+                }
+
+    put: 
+      tags:
+        - Sub Folder Permissions
+      summary: Modify group folder permission
+      description: Modify existing group folder permissions, return group folder permission information.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                folder_path: 
+                  $ref: '#/components/schemas/folder_path'
+                group_id: 
+                  $ref: '#/components/schemas/group_id'
+                permission: 
+                  $ref: '#/components/schemas/permission'
+              required: 
+                - folder_path
+                - group_id
+                - permission        
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                type: object
+                description: Group folder permission info
+                properties:
+                  repo_id: 
+                    type: string
+                  folder_path: 
+                    type: string
+                  permission: 
+                    type: string
+                  folder_name: 
+                    type: string
+                  group_id: 
+                    type: integer
+                  group_name: 
+                    type: string
+                example: {
+                      "repo_id": "4e6ff511-deb2-4373-8377-c0ce247e6387",
+                      "group_id": 3479,
+                      "group_name": "new_group",
+                      "folder_path": "/folder",
+                      "folder_name": "folder",
+                      "permission": "r"
+                  }
+
+    delete: 
+      tags:
+        - Sub Folder Permissions
+      summary: Delete group folder permission
+      description: Delete existing group folder permissions.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                folder_path: 
+                  $ref: '#/components/schemas/folder_path'
+                group_id: 
+                  $ref: '#/components/schemas/group_id'
+              required: 
+                - folder_path
+                - group_id     
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
+
+  /api2/repos/{repo_id}/dir/shared_items/: 
+    get: 
+      tags:
+        - Share
+      summary: List shared users/groups of a library
+      description: 'Return shared information of the library'
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/p_library'
+        - $ref: '#/components/parameters/share_type_libraries'
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                oneOf:
+                  - $ref: '#/components/schemas/share_type_user'
+                  - $ref: '#/components/schemas/share_type_group'
+              examples: 
+                user: 
+                  value:  [
+                    {
+                        "share_type": "user",
+                        "user_info": {
+                            "name": "62e7d27c7d4f42d8afcc35e2002b812c@auth.local",
+                            "nickname": "Seafile",
+                            "contact_email": "daniel@example.com",
+                            "avatar_url": "https://cloud.seafile.com/media/avatars/e/6/f489f6bea362e91740fd7a3a111800/resized/72/1672a4ff48124e6ada03a4414518cf4a_sB3MR0n.png"
+                        },
+                        "permission": "rw",
+                        "is_admin": false
+                    }
+                           ]
+                group: 
+                  value: [
+                        {
+                            "share_type": "group",
+                            "group_info": {
+                                "id": 3493,
+                                "name": "group-t"
+                            },
+                            "permission": "r",
+                            "is_admin": false
+                        },
+                        {
+                            "share_type": "group",
+                            "group_info": {
+                                "id": 3483,
+                                "name": "group-s"
+                            },
+                            "permission": "rw",
+                            "is_admin": false
+                        }
+                    ]
+
+    put: 
+      tags:
+        - Share
+      summary: Share a library to user/group
+      description: Share the current user's existing library with another user or group.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/p_library'
+      requestBody: 
+        content:
+          multipart/form-data:
+            schema: 
+              $ref: '#/components/schemas/share_operation'
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json:
+              schema: 
+                oneOf:
+                  - $ref: '#/components/schemas/share_r_user'
+                  - $ref: '#/components/schemas/share_r_group'  
+              examples:
+                User: 
+                  value: {
+                    "failed": [{"email": "invalid@email.com", "error_msg": "User invalid@email.com not found."}],
+                    "success": [
+                        {
+                            "share_type": "user",
+                            "user_info": {
+                                "name": "62e7d27c7d4f42d8afcc35e2002b812c@auth.local",
+                                "nickname": "Seafile",
+                                "contact_email": "daniel@example.com",
+                                "avatar_url": "https://cloud.seafile.com/media/avatars/e/6/f489f6bea362e91740fd7a3a111800/resized/72/1672a4ff48124e6ada03a4414518cf4a_4LiwkY9.png"
+                            },
+                            "permission": "r",
+                            "is_admin": false
+                        }
+                    ]
+                   }
+                Group: 
+                  value: {
+                    "failed": [],
+                    "success": [
+                        {
+                            "share_type": "group",
+                            "group_info": {
+                                "id": 3479,
+                                "name": "new_group"
+                            },
+                            "permission": "r",
+                            "is_admin": false
+                        }
+                    ]
+                    }
+
+  /api2/beshared-repos/: 
+    get: 
+      tags:
+        - Share
+      summary: List libraries shared to me
+      description: Return detailed information on libraries shared by other users with the current user.
+      security:
+        - AccountTokenAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json: 
+              schema: 
+                type: array
+                items: 
+                  type: object
+                  properties:
+                    id: 
+                      type: string
+                    name: 
+                      type: string
+                    desc: 
+                      type: string
+                    version: 
+                      type: integer
+                    last_modify: 
+                      type: number
+                    size: 
+                      type: integer
+                    file_count: 
+                      type: integer
+                    last_modifier: 
+                      type: string
+                    head_cmmt_id: 
+                      type: string
+                    root: 
+                      type: string
+                    status: 
+                      type: integer
+                    repo_id: 
+                      type: string
+                    repo_name: 
+                      type: string
+                    repo_desc: 
+                      type: string
+                    last_modified: 
+                      type: number
+                    encrypted: 
+                      type: boolean
+                    magic: 
+                      type: string
+                    enc_version: 
+                      type: integer
+                    random_key: 
+                      type: string
+                    salt: 
+                      type: string
+                    worktree: 
+                      type: string
+                    relay_id: 
+                      type: string
+                    last_sync_time: 
+                      type: integer
+                    auto_sync: 
+                      type: boolean
+                    worktree_invalid: 
+                      type: boolean
+                    is_virtual: 
+                      type: boolean
+                    origin_repo_id: 
+                      type: string
+                    origin_repo_name: 
+                      type: string
+                    origin_path: 
+                      type: string
+                    is_original_owner: 
+                      type: boolean
+                    virtual_perm: 
+                      type: string
+                    store_id: 
+                      type: string
+                    is_corrupted: 
+                      type: boolean
+                    repaired: 
+                      type: boolean
+                    share_type: 
+                      type: string
+                    permission: 
+                      type: string
+                    user: 
+                      type: string
+                    group_id: 
+                      type: integer
+                    group_name: 
+                      type: string
+                    is_shared: 
+                      type: boolean
+                    storage_id: 
+                      type: string
+                    storage_name: 
+                      type: string
+                example: [
+                  {
+                      "id": "4f0881c3-b1c7-4ff2-8b10-b0f519fabf68",
+                      "name": "test",
+                      "desc": null,
+                      "version": 1,
+                      "last_modify": 1709609146,
+                      "size": 0,
+                      "file_count": 0,
+                      "last_modifier": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                      "head_cmmt_id": "ed12805e4b2ec1f9d4c3319576ea96d6af607d1f",
+                      "root": null,
+                      "status": 0,
+                      "repo_id": "4f0881c3-b1c7-4ff2-8b10-b0f519fabf68",
+                      "repo_name": "test",
+                      "repo_desc": null,
+                      "last_modified": 1709609146,
+                      "encrypted": false,
+                      "magic": null,
+                      "enc_version": 0,
+                      "random_key": null,
+                      "salt": null,
+                      "worktree": null,
+                      "relay_id": null,
+                      "last_sync_time": 0,
+                      "auto_sync": false,
+                      "worktree_invalid": false,
+                      "is_virtual": false,
+                      "origin_repo_id": null,
+                      "origin_repo_name": null,
+                      "origin_path": null,
+                      "is_original_owner": false,
+                      "virtual_perm": null,
+                      "store_id": "4f0881c3-b1c7-4ff2-8b10-b0f519fabf68",
+                      "is_corrupted": false,
+                      "repaired": false,
+                      "share_type": "personal",
+                      "permission": "rw",
+                      "user": "62e7d27c7d4f42d8afcc35e2002b812c@auth.local",
+                      "group_id": 0,
+                      "group_name": null,
+                      "is_shared": false,
+                      "storage_id": null,
+                      "storage_name": null
+                  }
+                  ]
