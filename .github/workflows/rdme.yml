@@ -41,3 +41,9 @@ jobs:
         uses: readmeio/rdme@v8
         with:
           rdme: openapi ./api/user_account_operations.yaml --key=${{ secrets.README_API_KEY }} --id=658a8085ddbf15002d3426cb --useSpecVersion
+
+      # account operations: system admin
+      - name: admin account operations 🚀
+        uses: readmeio/rdme@v8
+        with:
+          rdme: openapi ./api/admin_account_operations.yaml --key=${{ secrets.README_API_KEY }} --id=658a8085ddbf15002d3426cb --useSpecVersion
