@@ -92,7 +92,7 @@ paths:
         - Ping
       summary: Ping Server (with authentication)
       description: |
-        Executes two checks against Seafile server:
+        Executes two checks against Seafile server in the cloud:
         - check the validity of the Account-Token 
         - check the status of Seafile Server
       security:
