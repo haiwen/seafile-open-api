@@ -499,6 +499,40 @@ components:
           - group
         example: user
 
+    username: 
+      name: username
+      in: query
+      required: true
+      description: a email string
+      schema: 
+        type: string
+        example: Seafile@example.com
+
+    group_id_query: 
+      name: group_id
+      in: query
+      required: true
+      description: an integer
+      schema: 
+        type: integer
+
+    from: 
+      name: from
+      in: query
+      required: true
+      description: User email
+      schema: 
+        type: string
+        example: Seafile@example.com
+    
+    share_type_all: 
+      name: share_type
+      in: query
+      required: true
+      description: share type
+      schema: 
+        type: string
+        example: "personal"
     # Path parameters
     folder_link_token: 
       name: token
@@ -1044,6 +1078,7 @@ components:
     repo_id:
       type: string
       description: The unique identifier of a library
+      example: d5620899-1e9b-4a8c-b9af-b00a26324407
 
     path: 
       type: string
@@ -1237,6 +1272,7 @@ components:
     rename: 
       title: rename
       type: string
+      description: Returns a 'success' string
       example: "success"
 
     move: 
@@ -7060,139 +7096,6 @@ paths:
                     type: boolean
                     description: Success state
 
-  /api/v2.1/user/: 
-    get: 
-      tags:
-        - User-Profile
-      summary: Get user profile
-      description: Gets the current user's profile.
-      security:
-        - AccountTokenAuth: []
-      responses:
-        '200':
-          description: OK  
-          content:
-            application/json:
-              schema: 
-                type: object
-                description: User's profile
-                properties:
-                  email: 
-                    type: string
-                  name: 
-                    type: string
-                  contact_email: 
-                    type: string
-                  telephone: 
-                    type: string
-                  login_id: 
-                    type: string
-                  list_in_address_book: 
-                    type: boolean
-                example: {
-                  "email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                  "name": "Seafile",
-                  "contact_email": "Seafile@example.com",
-                  "telephone": "",
-                  "login_id": null,
-                  "list_in_address_book": false
-                 }
-
-    put: 
-      tags:
-        - User-Profile
-      summary: Update user profile
-      description: |-
-        Update the current user's profile.
-        - If you want to use this api, you must set `ENABLE_UPDATE_USER_INFO` to `True` in `../conf/seahub_settings.py`, for more info please see this manual.
-        - If you want to change contact email, you must set `ENABLE_USER_SET_CONTACT_EMAIL` to `True` in `../conf/seahub_settings.py.`
-      security:
-        - AccountTokenAuth: []
-      requestBody: 
-          content:
-            application/json: 
-              schema: 
-                type: object
-                properties: 
-                  name: 
-                    $ref: '#/components/schemas/user_profile_name'
-                  telephone: 
-                    $ref: '#/components/schemas/telephone'
-                  contact_email: 
-                    $ref: '#/components/schemas/contact_email'
-                  list_in_address_book: 
-                    $ref: '#/components/schemas/list_in_address_book'          
-      responses:
-        '200':
-          description: OK  
-          content:
-            application/json: 
-              schema: 
-                type: object
-                properties:
-                  email: 
-                    type: string
-                  name: 
-                    type: string
-                  contact_email: 
-                    type: string
-                  telephone: 
-                    type: string
-                  login_id: 
-                    type: string
-                  list_in_address_book: 
-                    type: boolean
-                example: {
-                  "email": "9b4393c623c74243b0ad43709701687d@auth.local",
-                  "name": "Seafile",
-                  "contact_email": "Seafile@qq.com",
-                  "telephone": "",
-                  "login_id": null,
-                  "list_in_address_book": false
-                    }
-
-  /api2/search-user/: 
-    get: 
-      tags:
-        - User Search
-      summary: Search user
-      description: Search users by keyword.
-      security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/q'
-      responses:
-        '200':
-          description: OK  
-          content:
-            application/json: 
-              schema: 
-                type: object
-                properties:
-                  users: 
-                    type: array
-                    items: 
-                      type: object
-                      description: user info
-                      properties:
-                        email: 
-                          type: string
-                        avatar_url: 
-                          type: string
-                        name: 
-                          type: string
-                        contact_email:
-                          type: string
-                example: {
-                  "users": [
-                      {
-                          "email": "foo@foo.com",
-                          "avatar_url": "https://dev.seafile.com/seahub/image-view/avatars/3/7/17483f26171b61a4e2154fb37ffbd1/resized/32/1251f6b24ca35ffa689cce8dd731f256.png",
-                          "name": "foo",
-                          "contact_email": "foo@foo.com"
-                      }
-                  ]
-                 }
       
   /api2/repos/{repo_id}/user-folder-perm/:
     get: 
@@ -7739,6 +7642,94 @@ paths:
                     ]
                     }
 
+    delete: 
+      tags:
+        - Share
+      summary: Unshare a library from user/group
+      description: |- 
+        Unshare a library from user/group.
+        *Note: Select parameter username for users and parameter group_id for groups*
+      security:
+        - AccountTokenAuth: []
+      parameters:
+          - $ref: '#/components/parameters/repo_id'
+          - $ref: '#/components/parameters/p_library'
+          - $ref: '#/components/parameters/share_type_libraries'
+          - $ref: '#/components/parameters/username'
+          - $ref: '#/components/parameters/group_id_query'
+      responses:
+        '200':
+          description: OK 
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
+
+    post: 
+      tags:
+        - Share
+      summary: Update user share permission of a library
+      description: |- 
+          Update user share permission of a library.
+          *Note: Select parameter username for users and parameter group_id for groups*
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/p_library'
+        - $ref: '#/components/parameters/share_type_libraries'
+        - $ref: '#/components/parameters/username'
+        - $ref: '#/components/parameters/group_id_query'
+      requestBody: 
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                permission: 
+                  type: string
+                  description: r or rw
+                  example: r
+      responses:
+        '200':
+          description: OK 
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
+                  
+  /api2/beshared-repos/{repo_id}/:
+    delete:
+      tags:
+        - Share
+      summary: Delete a library shared to me (leave the share)
+      description: '' 
+      security:
+        - AccountTokenAuth: []
+      parameters:
+          - $ref: '#/components/parameters/repo_id'
+          - $ref: '#/components/parameters/from'
+          - $ref: '#/components/parameters/share_type_all'
+      responses:
+        '200':
+          description: OK 
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state 
+ 
   /api2/beshared-repos/: 
     get: 
       tags:
@@ -7756,6 +7747,7 @@ paths:
                 type: array
                 items: 
                   type: object
+                  description: Library info 
                   properties:
                     id: 
                       type: string
@@ -7887,3 +7879,417 @@ paths:
                       "storage_name": null
                   }
                   ]
+
+
+
+  /api/v2.1/upload-links/:
+    get: 
+      tags:
+        - Upload Links
+      summary: List upload links
+      description: |-
+        Return all upload link information.
+        *Note:The token in the return message can be used to delete the upload link*
+      security:
+        - AccountTokenAuth: []
+      responses:
+        '200':
+          description: OK       
+          content:
+            application/json: 
+              schema: 
+                type: array
+                items: 
+                  type: object
+                  description: Upload link info
+                  properties:
+                    repo_id: 
+                      type: string
+                    repo_name: 
+                      type: string
+                    path: 
+                      type: string
+                    obj_name: 
+                      type: string
+                    obj_id: 
+                      type: string
+                    view_cnt: 
+                      type: string
+                    ctime: 
+                      type: string
+                    link: 
+                      type: string
+                    token: 
+                      type: string
+                    username: 
+                      type: string
+                    expire_date: 
+                      type: string
+                    is_expired: 
+                      type: boolean
+                    password: 
+                      type: string
+                example: [
+                    {
+                        "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
+                        "repo_name": "test",
+                        "path": "/",
+                        "obj_name": "/",
+                        "obj_id": "b3429a425dfc03c339288d364b98ee0ab4e831d1",
+                        "view_cnt": 1,
+                        "ctime": "2024-03-07T09:53:57+08:00",
+                        "link": "https://cloud.seafile.com/u/d/b5bbd0b8cee24af69096/",
+                        "token": "b5bbd0b8cee24af69096",
+                        "username": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                        "expire_date": "",
+                        "is_expired": false,
+                        "password": ""
+                    },
+                    {
+                        "repo_id": "6e7e9041-a2ac-4522-bd98-15176a8ba789",
+                        "repo_name": "t",
+                        "path": "/",
+                        "obj_name": "/",
+                        "obj_id": "0000000000000000000000000000000000000000",
+                        "view_cnt": 0,
+                        "ctime": "2024-03-16T11:17:24+08:00",
+                        "link": "https://cloud.seafile.com/u/d/088db159adca494aa999/",
+                        "token": "088db159adca494aa999",
+                        "username": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                        "expire_date": "",
+                        "is_expired": false,
+                        "password": ""
+                    },
+                    {
+                        "repo_id": "d5620899-1e9b-4a8c-b9af-b00a26324407",
+                        "repo_name": "reply",
+                        "path": "/",
+                        "obj_name": "/",
+                        "obj_id": "446edd88ea00a959c8c3727b98258074391c4ef3",
+                        "view_cnt": 0,
+                        "ctime": "2024-03-20T09:52:42+08:00",
+                        "link": "https://cloud.seafile.com/u/d/1461e428de7b4038807a/",
+                        "token": "1461e428de7b4038807a",
+                        "username": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                        "expire_date": "",
+                        "is_expired": false,
+                        "password": ""
+                    }
+                ]
+      
+    post:
+      tags:
+        - Upload Links
+      summary: Create upload link
+      description: |-
+        Create a shared upload link for an existing folder, return the upload link information.
+        *Note:The token in the return message can be used to delete the upload link*
+      security:
+        - AccountTokenAuth: []
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                repo_id: 
+                  $ref: '#/components/schemas/repo_id'
+                path: 
+                  $ref: '#/components/schemas/path'
+                password: 
+                  $ref: '#/components/schemas/password'
+              required:
+                - repo_id
+                - path
+      responses:
+        '200':
+          description: OK    
+          content:
+            application/json: 
+              schema: 
+                type: object
+                description: Upload link info
+                properties:
+                  repo_id: 
+                    type: string
+                  repo_name: 
+                    type: string
+                  path: 
+                    type: string
+                  obj_name: 
+                    type: string
+                  obj_id: 
+                    type: string
+                  view_cnt: 
+                    type: string
+                  ctime: 
+                    type: string
+                  link: 
+                    type: string
+                  token: 
+                    type: string
+                  username: 
+                    type: string
+                  expire_date: 
+                    type: string
+                  is_expired: 
+                    type: boolean
+                  password: 
+                    type: string
+                example: {
+                  "repo_id": "c2c06888-6ae2-4457-8b2b-4402a2040a25",
+                  "repo_name": "Seafile",
+                  "path": "/folder",
+                  "obj_name": "folder",
+                  "obj_id": "0000000000000000000000000000000000000000",
+                  "view_cnt": 0,
+                  "ctime": "2024-03-20T10:10:29+08:00",
+                  "link": "https://cloud.seafile.com/u/d/49fb2ebd23f04f4882fb/",
+                  "token": "49fb2ebd23f04f4882fb",
+                  "username": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                  "expire_date": "",
+                  "is_expired": false,
+                  "password": ""
+                 }
+
+  /api/v2.1/upload-links/{token}/: 
+    delete: 
+      tags:
+        - Upload Links
+      summary: Delete upload links
+      description: Delete the specified shared upload link.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/upload_link_token'
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
+
+  /api2/send-upload-link/: 
+    post: 
+      tags:
+        - Upload Links
+      summary: Send upload link email
+      description: Send the existing shared upload link of the current user to other users.
+      security:
+        - AccountTokenAuth: []
+      requestBody: 
+        content:
+          multipart/form-data:
+            schema: 
+              type: object
+              properties:
+                token: 
+                  $ref: '#/components/schemas/token'
+                email: 
+                  $ref: '#/components/schemas/user_email'
+                extra_msg:
+                  $ref: '#/components/schemas/extra_msg'
+              required:
+                - token
+                - email
+      responses:
+        '200':
+          description: OK 
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  failed: 
+                    type: array
+                    items: 
+                      type: object
+                      description: Error message
+                      properties:
+                        email: 
+                          type: string
+                        error_msg: 
+                          type: string
+                  success: 
+                    type: array
+                    description: User email
+                    items:
+                      type: string
+                example: {
+                  "failed": [
+                      {
+                          "email": "invalid-email",
+                          "error_msg": "email invalid."
+                      }
+                  ],
+                  "success": [
+                      "sample@eamil.com"
+                  ]
+                 }
+
+  /api/v2.1/upload-links/{token}/upload/: 
+    get:
+      tags:
+          - Upload Links
+      summary: Get shared upload link
+      description: |-
+        Return an upload link.
+        *After get upload link, you can upload file to the shared dir, for more info, please see Upload File.*
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/upload_link_token'
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  upload_link: 
+                    description: Upload link
+                    type: string
+                example: {
+                    "upload_link": "https://cloud.seafile.com/seafhttp/upload-api/70d7b2eb-5a8e-448c-bf08-a8edde506e20"
+                }
+
+  /api/v2.1/user/: 
+    get: 
+      tags:
+        - User Profile
+      summary: Get user profile
+      description: Gets the current user's profile.
+      security:
+        - AccountTokenAuth: []
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: User's profile
+                properties:
+                  email: 
+                    type: string
+                  name: 
+                    type: string
+                  contact_email: 
+                    type: string
+                  telephone: 
+                    type: string
+                  login_id: 
+                    type: string
+                  list_in_address_book: 
+                    type: boolean
+                example: {
+                  "email": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
+                  "name": "Seafile",
+                  "contact_email": "Seafile@example.com",
+                  "telephone": "",
+                  "login_id": null,
+                  "list_in_address_book": false
+                 }
+
+    put: 
+      tags:
+        - User Profile
+      summary: Update user profile
+      description: |-
+        Update the current user's profile.
+        - If you want to use this api, you must set `ENABLE_UPDATE_USER_INFO` to `True` in `../conf/seahub_settings.py`, for more info please see this manual.
+        - If you want to change contact email, you must set `ENABLE_USER_SET_CONTACT_EMAIL` to `True` in `../conf/seahub_settings.py.`
+      security:
+        - AccountTokenAuth: []
+      requestBody: 
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties: 
+                  name: 
+                    $ref: '#/components/schemas/user_profile_name'
+                  telephone: 
+                    $ref: '#/components/schemas/telephone'
+                  contact_email: 
+                    $ref: '#/components/schemas/contact_email'
+                  list_in_address_book: 
+                    $ref: '#/components/schemas/list_in_address_book'          
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                type: object
+                description: User info
+                properties:
+                  email: 
+                    type: string
+                  name: 
+                    type: string
+                  contact_email: 
+                    type: string
+                  telephone: 
+                    type: string
+                  login_id: 
+                    type: string
+                  list_in_address_book: 
+                    type: boolean
+                example: {
+                  "email": "9b4393c623c74243b0ad43709701687d@auth.local",
+                  "name": "Seafile",
+                  "contact_email": "Seafile@qq.com",
+                  "telephone": "",
+                  "login_id": null,
+                  "list_in_address_book": false
+                    }
+
+  /api2/search-user/: 
+    get: 
+      tags:
+        - User Search
+      summary: Search user
+      description: Search users by keyword.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/q'
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  users: 
+                    type: array
+                    items: 
+                      type: object
+                      description: user info
+                      properties:
+                        email: 
+                          type: string
+                        avatar_url: 
+                          type: string
+                        name: 
+                          type: string
+                        contact_email:
+                          type: string
+                example: {
+                  "users": [
+                      {
+                          "email": "foo@foo.com",
+                          "avatar_url": "https://dev.seafile.com/seahub/image-view/avatars/3/7/17483f26171b61a4e2154fb37ffbd1/resized/32/1251f6b24ca35ffa689cce8dd731f256.png",
+                          "name": "foo",
+                          "contact_email": "foo@foo.com"
+                      }
+                  ]
+                 }
