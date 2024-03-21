@@ -8021,7 +8021,7 @@ paths:
                   "owner_name": "Teamfile"
                  }
 
-  /api/v2.1/shared-repos/{repo-id}/: 
+  /api/v2.1/shared-repos/{repo_id}: 
     put: 
       tags:
         - Share
