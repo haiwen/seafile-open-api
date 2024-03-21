@@ -516,6 +516,17 @@ components:
       schema: 
         type: integer
 
+    share_type_library: 
+      name: share_type
+      in: query
+      required: true
+      description: "`user` or `group`"
+      schema: 
+        type: string
+        enum:
+          - user
+          - group
+
     from: 
       name: from
       in: query
@@ -533,6 +544,16 @@ components:
       schema: 
         type: string
         example: "personal"
+
+    share_type_user: 
+      name: share_type
+      in: query
+      required: true
+      schema: 
+        type: string
+        enum:
+          - user
+
     # Path parameters
     folder_link_token: 
       name: token
@@ -670,6 +691,16 @@ components:
       type: string
       description: "'r' or 'rw'"
       example: r
+
+    operation_share: 
+      type: string
+      description: "`share`"
+      enum: [share]
+
+    library_name: 
+      type: string
+      description: name of library
+      example: "test-public-repo"
 
     folder_path: 
       type: string
@@ -897,6 +928,45 @@ components:
       oneOf:
         - $ref: '#/components/schemas/share_user'
         - $ref: '#/components/schemas/share_group'
+
+    share_user_batch:
+      title: User
+      type: object
+      properties:
+        operation: 
+          $ref: '#/components/schemas/operation_share'
+        permission: 
+          $ref: '#/components/schemas/permission'
+        repo_id: 
+          $ref: '#/components/schemas/repo_id'
+        share_type: 
+          type: string
+          description: '`user`'
+          enum:
+            - user
+        username: 
+          $ref: '#/components/schemas/username'
+    share_group_batch: 
+      title: Group
+      type: object
+      properties:
+        operation: 
+          $ref: '#/components/schemas/operation_share'
+        permission: 
+          $ref: '#/components/schemas/permission'
+        repo_id: 
+          $ref: '#/components/schemas/repo_id'
+        share_type: 
+          type: string
+          description: '`group`'
+          enum:
+            - group
+        group_id: 
+            $ref: '#/components/schemas/group_id'
+    share_operation_batch: 
+      oneOf:
+        - $ref: '#/components/schemas/share_user_batch'
+        - $ref: '#/components/schemas/share_group_batch'
 
     library_create: 
       title: Create library
@@ -1573,7 +1643,7 @@ paths:
   /api/v2.1/groups/{group_id}/group-owned-libraries/:
     post:
       tags:
-        - Department Libraries
+        - Department libraries
       summary: Add group owned library
       description: Create a library based on the unique identifier of the group, which is shared with group members.
       security:
@@ -1634,7 +1704,7 @@ paths:
   /api/v2.1/groups/{group_id}/group-owned-libraries/{repo_id}/:
     put:
       tags:
-        - Department Libraries
+        - Department libraries
       summary: Rename a group owned library
       description: Modify the name of an existing library in a group.
       security:
@@ -1688,7 +1758,7 @@ paths:
   /api/v2.1/groups/{group_id}/libraries/{repo_id}/:
     delete:
       tags:
-        - Department Libraries
+        - Department libraries
       summary: Delete group owned library
       description: Delete specified group owned library.
       security:
@@ -1711,7 +1781,7 @@ paths:
   /api/v2.1/group-owned-libraries/{repo_id}/user-share/:
     get:
       tags:
-        - Department Libraries
+        - Department libraries
       summary: Get group owned library user share info
       description: Returns the group owned library user share information. 
       security:
@@ -1744,7 +1814,7 @@ paths:
 
     post:
       tags:
-        - Department Libraries
+        - Department libraries
       summary: Share group owned library to user
       description: Share a library owned by a group to a specific user.return successful and failed user information
       security:
@@ -1815,7 +1885,7 @@ paths:
 
     put:
       tags:
-        - Department Libraries
+        - Department libraries
       summary: Modify group owned library user share permission
       description: Modify group owned library user share permission
       security:
@@ -1850,7 +1920,7 @@ paths:
 
     delete:
       tags:
-        - Department Libraries
+        - Department libraries
       summary: Delete group owned library user share
       description: Stop sharing a library to a user.
       security:
@@ -1884,7 +1954,7 @@ paths:
   /api/v2.1/group-owned-libraries/{repo_id}/group-share/:
     get:
       tags:
-        - Department Libraries
+        - Department libraries
       summary: Get group owned library group share info
       description: Lists all groups that are shared with a particular library
       security:
@@ -1916,7 +1986,7 @@ paths:
 
     post:
       tags:
-        - Department Libraries
+        - Department libraries
       summary: Share group owned library to group
       description: Return group information or failure reason
       security:
@@ -1981,7 +2051,7 @@ paths:
 
     put:
       tags:
-        - Department Libraries
+        - Department libraries
       summary: Modify group owned library group share permission
       description: Modify group owned library group share permission
       security:
@@ -2016,7 +2086,7 @@ paths:
 
     delete:
       tags:
-        - Department Libraries
+        - Department libraries
       summary: Delete group owned library group share
       description: Stop sharing a library to a group.
       security:
@@ -2482,7 +2552,7 @@ paths:
   /api2/repos/{repo_id}/file/comments/:
     get:
       tags:
-        - File Comments
+        - File comments
       summary: List file comments
       description: Lists all comment information for the file, including information about the user who commented
       security:
@@ -2568,7 +2638,7 @@ paths:
 
     post:
       tags:
-        - File Comments
+        - File comments
       summary: Submit a file comment
       description: Add a comment to the file
       security:
@@ -2643,7 +2713,7 @@ paths:
   /api2/repos/{repo_id}/file/comments/{pk}/:
     get:
       tags:
-        - File Comments
+        - File comments
       summary: Get a file comment
       description: Returns comment information for the specified file.
       security:
@@ -2707,7 +2777,7 @@ paths:
 
     put:
       tags:
-        - File Comments
+        - File comments
       summary: Update a file comment
       description: Update file with comment details.
       security:
@@ -2787,7 +2857,7 @@ paths:
                       }
     delete:
       tags:
-        - File Comments
+        - File comments
       summary: Delete a file comment
       description: Delete a specified file comment
       security:
@@ -2802,7 +2872,7 @@ paths:
   /api2/repos/{repo_id}/file/comments/counts/:
     get:
       tags:
-        - File Comments
+        - File comments
       summary: Get number of comments
       description: |-
         - If the parameter p represents a folder, this api will return comment count of all files in this folder. 
@@ -2828,7 +2898,7 @@ paths:
   /api/v2.1/repos/{repo_id}/file/history/:
     get:
       tags:
-        - File History
+        - File history
       summary: Get file history
       description: Gets the history of the specified file
       security:
@@ -2927,7 +2997,7 @@ paths:
   /api/v2.1/repos/{repo_id}/file/:
     post:
       tags:
-        - File History
+        - File history
       summary: Create/Restore file from history
       description: Recover the file by getting commit_id in the history.
       security:
@@ -3039,7 +3109,7 @@ paths:
   /api2/repos/{repo_id}/file/revision/:
     get:
       tags:
-        - File History
+        - File history
       summary: Download file from a revision
       description: Return to the link to download the file
       security:
@@ -3061,7 +3131,7 @@ paths:
   /api2/search/:
     get:
       tags:
-        - File Search
+        - File search
       summary: Search files in libraries
       description: By providing an exact match or a vague match to the name, you can find files that match the search criteria.
 
@@ -3179,7 +3249,7 @@ paths:
   /api/v2.1/search-file/:
     get:
       tags:
-        - File Search
+        - File search
       summary: Search files by name in library
       description: Search files by name in library
       security:
@@ -3223,7 +3293,7 @@ paths:
   /api/v2.1/repos/{repo_id}/repo-tags/:
     get:
       tags:
-        - File Tags
+        - File tags
       summary: List all tags of a library
       description: Lists all the label information in the library
       security:
@@ -3268,7 +3338,7 @@ paths:
                         }
     post:
       tags:
-        - File Tags
+        - File tags
       summary: Add a tag to a library
       description: Use this request to add a new tag to the library.
       security:
@@ -3324,7 +3394,7 @@ paths:
   /api/v2.1/repos/{repo_id}/repo-tags/{repo_tag_id}/:
     put:
       tags:
-        - File Tags
+        - File tags
       summary: Update a tag of a library
       description: Update the parameters of an existing label.
       security:
@@ -3374,7 +3444,7 @@ paths:
                         }
     delete:
       tags:
-        - File Tags
+        - File tags
       summary: Delete a tag of a library
       description: Delete existing tags from the library
       security:
@@ -3399,7 +3469,7 @@ paths:
   /api/v2.1/repos/{repo_id}/file-tags/:
     get:
       tags:
-        - File Tags
+        - File tags
       summary: List all tags of a file
       description: Gets all tag information on the file.
       security:
@@ -3449,7 +3519,7 @@ paths:
 
     post:
       tags:
-        - File Tags
+        - File tags
       summary: Add a tag for a file
       description: Tag a file with an existing tag in the library.
       security:
@@ -3497,7 +3567,7 @@ paths:
   /api/v2.1/repos/{repo_id}/file-tags/{file_tag_id}/:
     delete:
       tags:
-        - File Tags
+        - File tags
       summary: Delete a tag from a file
       description: Delete the existing tags in the file.
       security:
@@ -3520,7 +3590,7 @@ paths:
   /api/v2.1/repos/{repo_id}/tagged-files/{repo_tag_id}/:
     get:
       tags:
-        - File Tags
+        - File tags
       summary: List tagged files by tag id
       description: List tagged files by tag id
       security:
@@ -3590,7 +3660,7 @@ paths:
   /api2/repos/{repo_id}/upload-link/:
     get:
       tags:
-        - File Upload
+        - File upload
       summary: Get upload link
       description: Reutrn an upload link.  These information are needed to upload a file/folder to a library.
       security:
@@ -3611,7 +3681,7 @@ paths:
   /seafhttp/upload-aj/{upload_token}?ret-json=1:
     post:
       tags:
-        - File Upload
+        - File upload
       summary: Upload file
       description: After getting the upload link, POST to this link for uploading files.
       security:
@@ -3678,7 +3748,7 @@ paths:
   /api/v2.1/repos/{repo_id}/file-uploaded-bytes/:
     get:
       tags:
-        - File Upload
+        - File upload
       summary: Resumable upload file
       description: Check If Enable Resumable Upload, Get Bytes Already Uploaded
       security:
@@ -3711,7 +3781,7 @@ paths:
   /seafhttp/upload-api/{upload_token}/:
     post:
       tags:
-        - File Upload
+        - File upload
       summary: Upload file in chunks
       description: |-
         - Usually a large file is uploaded in many "chunks" with resumable upload. The chunk size can be chosen by the client app. The chunks are then uploaded one by one. After the last chunk is uploaded, the server will index the entire file and save it.
@@ -3753,7 +3823,7 @@ paths:
   /api2/repos/{repo_id}/update-link/:
     get:
       tags:
-        - File Upload
+        - File upload
       summary: Get update link
       description: Return an update link.  These information are needed to update a file/folder to a library.
       security:
@@ -3774,7 +3844,7 @@ paths:
   /seafhttp/update-api/{upload_token}/:
     post:
       tags:
-        - File Upload
+        - File upload
       summary: Update file
       description: After getting the update link, POST to this link for updating files.
       security:
@@ -3988,7 +4058,7 @@ paths:
   /api/v2.1/repos/sync-batch-copy-item/:
     post:
       tags:
-        - Files/Directories Batch Operation
+        - Files/Directories batch operation
       summary: Batch copy items synchronously
       security:
         - AccountTokenAuth: []
@@ -4033,7 +4103,7 @@ paths:
   /api/v2.1/repos/sync-batch-move-item/:
     post:
       tags:
-        - Files/Directories Batch Operation
+        - Files/Directories batch operation
       summary: Batch move items synchronously
       description: Batch Move Items Synchronously
       security:
@@ -4079,7 +4149,7 @@ paths:
   /api/v2.1/repos/batch-delete-item/:
     delete:
       tags:
-        - Files/Directories Batch Operation
+        - Files/Directories batch operation
       summary: Batch delete items
       description: Delete files in bulk.
       security:
@@ -4124,7 +4194,7 @@ paths:
   /api/v2.1/repos/async-batch-copy-item/:
     post:
       tags:
-        - Files/Directories Batch Operation
+        - Files/Directories batch operation
       summary: Batch copy items asynchronously
       description: Batch Copy Items Asynchronously
       security:
@@ -4170,7 +4240,7 @@ paths:
   /api/v2.1/repos/async-batch-move-item/:
     post:
       tags:
-        - Files/Directories Batch Operation
+        - Files/Directories batch operation
       summary: Batch move items asynchronously
       description: Batch Move Items Asynchronously
       security:
@@ -4216,7 +4286,7 @@ paths:
   /api/v2.1/query-copy-move-progress/:
     get:
       tags:
-        - Files/Directories Batch Operation
+        - Files/Directories batch operation
       summary: Query async operation progress
       description: Returns the execution progress of the asynchronous operation task.
       security:
@@ -4253,7 +4323,7 @@ paths:
   /api/v2.1/copy-move-task/:
     delete:
       tags:
-        - Files/Directories Batch Operation
+        - Files/Directories batch operation
       summary: Cancel async operation
       description: Cancel the operation of an asynchronous task.
       security:
@@ -5875,7 +5945,7 @@ paths:
   /api2/repos/public/:
     post:
       tags:
-        - Shared with All Libraries
+        - Shared with all libraries
       summary: Create Shared with All Library
       security:
         - AccountTokenAuth: []
@@ -5947,7 +6017,7 @@ paths:
   /api/v2.1/shared-repos/{repo_id}/:
     put:
       tags:
-        - Shared with All Libraries
+        - Shared with all libraries
       summary: Set Exist Lib as Shared with All Library
       security:
         - AccountTokenAuth: []
@@ -5981,7 +6051,7 @@ paths:
 
     delete:
       tags:
-        - Shared with All Libraries
+        - Shared with all libraries
       summary: Remove Shared with All Library
       security:
         - AccountTokenAuth: []
@@ -6009,7 +6079,7 @@ paths:
   /api2/server-info/:
     get:
       tags:
-        - Server Info
+        - Server info
       summary: Get server information
       description: Use this anonymous call to retrieve the current Seafile server version information. 
       responses:
@@ -6683,7 +6753,7 @@ paths:
   /api/v2.1/revision-tags/tag-names/: 
     get: 
         tags:
-          - Snapshot Label
+          - Snapshot label
         summary: Get snapshot label
         description:  Returns all snapshot tags for the current user.
         security:
@@ -6712,7 +6782,7 @@ paths:
   /api/v2.1/revision-tags/tagged-items/:
     post: 
         tags:
-          - Snapshot Label
+          - Snapshot label
         summary: Create snapshot label
         description: Create a new snapshot label.
         security:
@@ -6805,7 +6875,7 @@ paths:
 
     put: 
         tags:
-          - Snapshot Label
+          - Snapshot label
         summary: Update snapshot label
         description: Update the snapshot label in the history.
         security:
@@ -6899,7 +6969,7 @@ paths:
 
     delete: 
       tags:
-        - Snapshot Label
+        - Snapshot label
       summary: Delete snapshot label
       description: Delete the existing snapshot label of the current user.
       security:
@@ -6914,7 +6984,7 @@ paths:
   /api/v2.1/starred-items/: 
     get:
       tags:
-        - Starred Items
+        - Starred items
       summary: List starred items
       description: Returns all star items for the current user.
       security:
@@ -7014,7 +7084,7 @@ paths:
 
     post:
       tags:
-        - Starred Items
+        - Starred items
       summary: Star a library/folder/file
       description: Star existing libraries/folders/files for the current user.
       security:
@@ -7076,7 +7146,7 @@ paths:
     
     delete: 
       tags:
-          - Starred Items
+          - Starred items
       summary: Unstar a library/folder/file
       description: Cancel starred libraries/files/folders.
       security:
@@ -7100,7 +7170,7 @@ paths:
   /api2/repos/{repo_id}/user-folder-perm/:
     get: 
       tags:
-        - Sub Folder Permissions
+        - Sub folder permissions
       summary: Get user folder permission
       description: Returns user permission information for the specified folder.
       security:
@@ -7143,7 +7213,7 @@ paths:
   
     post: 
       tags:
-        - Sub Folder Permissions
+        - Sub folder permissions
       summary: Set user folder permission
       description: Adding user folder permissions allows other users to have specified permissions on the folder.
       security:
@@ -7224,7 +7294,7 @@ paths:
 
     put: 
       tags:
-        - Sub Folder Permissions
+        - Sub folder permissions
       summary: Modify user folder permission
       description: Modify existing user folder permissions, return user folder permission information.
       security:
@@ -7279,7 +7349,7 @@ paths:
 
     delete: 
       tags:
-        - Sub Folder Permissions
+        - Sub folder permissions
       summary: Delete user folder permission
       description: Delete existing user folder permissions.
       security:
@@ -7314,7 +7384,7 @@ paths:
   /api2/repos/{repo_id}/group-folder-perm/:
     get: 
       tags:
-        - Sub Folder Permissions
+        - Sub folder permissions
       summary: Get group folder permission
       description: Returns group permission information for the specified folder.
       security:
@@ -7358,7 +7428,7 @@ paths:
   
     post: 
       tags:
-        - Sub Folder Permissions
+        - Sub folder permissions
       summary: Set group folder permission
       description: Adding group folder permissions allows other group to have specified permissions on the folder.
       security:
@@ -7439,7 +7509,7 @@ paths:
 
     put: 
       tags:
-        - Sub Folder Permissions
+        - Sub folder permissions
       summary: Modify group folder permission
       description: Modify existing group folder permissions, return group folder permission information.
       security:
@@ -7494,7 +7564,7 @@ paths:
 
     delete: 
       tags:
-        - Sub Folder Permissions
+        - Sub folder permissions
       summary: Delete group folder permission
       description: Delete existing group folder permissions.
       security:
@@ -7880,12 +7950,414 @@ paths:
                   }
                   ]
 
+  /api2/repos/public: 
+    post:
+      tags:
+        - Share
+      summary: Create shared-with-all library.
+      description: Return the shared information of the current user.
+      security:
+        - AccountTokenAuth: []
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                name: 
+                  $ref: '#/components/schemas/library_name'
+                permission: 
+                  $ref: '#/components/schemas/permission'
+                passwd: 
+                  $ref: '#/components/schemas/password'
+              required:
+                - name
+                - permission
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                type: object
+                description: Library info
+                properties:
+                  id: 
+                    type: string
+                  name: 
+                    type: string
+                  desc: 
+                    type: string
+                  size: 
+                    type: integer
+                  size_formatted: 
+                    type: string
+                  mtime: 
+                    type: number
+                  mtime_relative: 
+                    type: string
+                  encrypted: 
+                    type: boolean
+                  permission: 
+                    type: string
+                  owner: 
+                    type: string
+                  owner_nickname: 
+                    type: string
+                  owner_name: 
+                    type: string
+                example: {
+                  "id": "daadb5e9-e9e2-431c-847f-c90731d821c6",
+                  "name": "test-public-repo",
+                  "desc": "",
+                  "size": 0,
+                  "size_formatted": "0 bytes",
+                  "mtime": 1710986989,
+                  "mtime_relative": "<time datetime=\"2024-03-21T10:09:49\" is=\"relative-time\" title=\"Thu, 21 Mar 2024 10:09:49 +0800\" >1 second ago</time>",
+                  "encrypted": false,
+                  "permission": "r",
+                  "owner": "admin@seafile.com",
+                  "owner_nickname": "Teamfile",
+                  "owner_name": "Teamfile"
+                 }
 
+  /api/v2.1/shared-repos/{repo-id}/: 
+    put: 
+      tags:
+        - Share
+      summary: Share existing library as shared-with-all
+      description: Share existing libraries with everyone.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                share_type: 
+                  $ref: '#/components/schemas/share_type'
+                permission: 
+                  $ref: '#/components/schemas/permission'
+              required:
+                - share_type
+                - permission
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
+
+    delete: 
+      tags:
+        - Share
+      summary: Remove library from shared-with-all
+      description: Remove library from shared-with-all.After removal, only oneself is visible.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/share_type'
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
+
+  /api/v2.1/repos/batch/: 
+    post:
+      tags:
+        - Share
+      summary: Batch share libraries to user/group
+      description: Batch sharing existing libraries with user/group.
+      security:
+        - AccountTokenAuth: []
+      requestBody: 
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/share_operation_batch'
+      responses:
+        '200':
+          description: OK 
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  failed: 
+                    type: array
+                    items: 
+                      type: object
+                      properties:
+                        repo_id: 
+                          type: string
+                        error_msg:
+                          type: string
+                  success: 
+                    type: array
+                    items: 
+                      type: object
+                      description: Successful info
+                      properties:
+                        repo_id: 
+                          type: string
+                        username: 
+                          type: string
+                        permission: 
+                          type: string
+              examples: 
+                User: 
+                  value: {
+                    "failed": [
+                        {
+                            "repo_id": "d5620899-1e9b-4a8c-b9af-b00a26324407",
+                            "error_msg": "Library d5620899-1e9b-4a8c-b9af-b00a26324407 not found."
+                        }
+                    ],
+                    "success": [
+                        {
+                            "repo_id": "daadb5e9-e9e2-431c-847f-c90731d821c6",
+                            "username": "0005926c7d894c7e91e163fd399529a5@auth.local",
+                            "permission": "rw"
+                        }
+                    ]
+                      }
+                Group: 
+                  value: {
+                    "failed": [
+                        {"repo_id": "f820bd12-0511-4542-b14b-3e48d8efc294", "error_msg": "This item has been shared to group-of-lian."}
+                    ],
+                    "success": [
+                        {"permission": "rw", "repo_id": "3761ade3-100b-4c3b-9508-79b3a510e6f6", "group_id": 65, "group_name": "group-of-lian"}
+                    ]
+                        }
+
+  /api2/repos/{repo-id}/dir/shared_items/:
+    put: 
+      tags:
+        - Share
+      summary: Share a folder
+      description: |-
+        Share folders with other users and groups.
+        - username, necessary if share_type is user
+        - group_id, necessary if share_type is group
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/p'
+      requestBody: 
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                share_type: 
+                  $ref: '#/components/schemas/share_type_library'
+                permission: 
+                  $ref: '#/components/schemas/permission'
+                username:
+                  $ref: '#/components/schemas/username'
+                group_id: 
+                  $ref: '#/components/schemas/group_id'
+              required:
+                - share_type
+                - permission
+      responses:
+        '200':
+          description: OK       
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  failed: 
+                    type: array
+                    items: 
+                      type: object
+                  user_info: 
+                    type: object
+                    properties:
+                      name: 
+                        type: string
+                      nickname: 
+                        type: string
+                      contact_email:
+                        type: string
+                      avatar_url:
+                        type: string
+                  permission: 
+                    type: string
+                  is_admin: 
+                    type: boolean
+                example: {
+                    "failed": [],
+                    "success": [
+                        {
+                            "share_type": "user",
+                            "user_info": {
+                                "name": "0005926c7d894c7e91e163fd399529a5@auth.local",
+                                "nickname": "20240320",
+                                "contact_email": "20240320@qq.com",
+                                "avatar_url": "https://demo.seafile.top/media/avatars/default.png"
+                            },
+                            "permission": "rw",
+                            "is_admin": false
+                        }
+                    ]
+                     }
+
+  /api/v2.1/shared-folders/:
+    get: 
+      tags:
+        - Share
+      summary: List shared folders
+      description: Return all shared folder information.
+      security:
+        - AccountTokenAuth: []
+      responses:
+        '200':
+          description: OK 
+          content:
+            application/json: 
+              schema: 
+                type: array
+                items: 
+                  type: object
+                  description: Shared info
+                  properties:
+                    repo_id: 
+                      type: string
+                    repo_name: 
+                      type: string
+                    path: 
+                      type: string
+                    folder_name: 
+                      type: string
+                    share_type: 
+                      type: string
+                    share_permission: 
+                      type: string
+                    share_permission_name: 
+                      type: string
+                    user_name: 
+                      type: string
+                    user_email: 
+                      type: string
+                    contact_email: 
+                      type: string
+                example: [
+                      {
+                          "repo_id": "daadb5e9-e9e2-431c-847f-c90731d821c6",
+                          "repo_name": "test-public-repo",
+                          "path": "/folder",
+                          "folder_name": "folder",
+                          "share_type": "personal",
+                          "share_permission": "rw",
+                          "share_permission_name": "",
+                          "user_name": "llin",
+                          "user_email": "Seafile@example.com",
+                          "contact_email": "Seafile@example.com"
+                      },
+                      {
+                          "repo_id": "daadb5e9-e9e2-431c-847f-c90731d821c6",
+                          "repo_name": "test-public-repo",
+                          "path": "/t",
+                          "folder_name": "t",
+                          "share_type": "personal",
+                          "share_permission": "rw",
+                          "share_permission_name": "",
+                          "user_name": "20240320",
+                          "user_email": "0005926c7d894c7e91e163fd399529a5@auth.local",
+                          "contact_email": "daniel@example.com"
+                      }
+                  ]
+
+  /api2/repos/{repo_id}/dir/shared_items/?p={path}:
+    post: 
+      tags:
+        - Share
+      summary: Update folder share permission
+      description: |-
+        Update shared folder permissions.
+        - username, necessary if share_type is user
+        - group_id, necessary if share_type is group
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/path'
+        - $ref: '#/components/parameters/share_type_library'
+        - $ref: '#/components/parameters/username'
+        - $ref: '#/components/parameters/group_id_query'
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                permission: 
+                  type: string
+                  description: "`r` or `rw`"
+                  example: r
+      responses:
+        '200':
+          description: OK 
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
+
+    delete: 
+      tags:
+        - Share
+      summary: Remove the specified shared folder
+      description: |-
+        - username, necessary if share_type is user
+        - group_id, necessary if share_type is group
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/path'
+        - $ref: '#/components/parameters/share_type_library'
+        - $ref: '#/components/parameters/username'
+        - $ref: '#/components/parameters/group_id_query'
+      responses:
+        '200':
+          description: OK 
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
 
   /api/v2.1/upload-links/:
     get: 
       tags:
-        - Upload Links
+        - Upload links
       summary: List upload links
       description: |-
         Return all upload link information.
@@ -7979,7 +8451,7 @@ paths:
       
     post:
       tags:
-        - Upload Links
+        - Upload links
       summary: Create upload link
       description: |-
         Create a shared upload link for an existing folder, return the upload link information.
@@ -8055,7 +8527,7 @@ paths:
   /api/v2.1/upload-links/{token}/: 
     delete: 
       tags:
-        - Upload Links
+        - Upload links
       summary: Delete upload links
       description: Delete the specified shared upload link.
       security:
@@ -8077,7 +8549,7 @@ paths:
   /api2/send-upload-link/: 
     post: 
       tags:
-        - Upload Links
+        - Upload links
       summary: Send upload link email
       description: Send the existing shared upload link of the current user to other users.
       security:
@@ -8135,7 +8607,7 @@ paths:
   /api/v2.1/upload-links/{token}/upload/: 
     get:
       tags:
-          - Upload Links
+          - Upload links
       summary: Get shared upload link
       description: |-
         Return an upload link.
@@ -8162,7 +8634,7 @@ paths:
   /api/v2.1/user/: 
     get: 
       tags:
-        - User Profile
+        - User profile
       summary: Get user profile
       description: Gets the current user's profile.
       security:
@@ -8199,7 +8671,7 @@ paths:
 
     put: 
       tags:
-        - User Profile
+        - User profile
       summary: Update user profile
       description: |-
         Update the current user's profile.
@@ -8254,7 +8726,7 @@ paths:
   /api2/search-user/: 
     get: 
       tags:
-        - User Search
+        - User search
       summary: Search user
       description: Search users by keyword.
       security:

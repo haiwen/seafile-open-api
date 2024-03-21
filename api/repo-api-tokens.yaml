@@ -1,12 +1,12 @@
 openapi: 3.0.3
 info:
-  title: via repo token
+  title: Via Repo-Token
   description: |-
-    Access library via repo token
+    Access library Via Repo-Token
   version: 1.0.1
 tags:
-  - name: Via Repo Token
-    description: Access library via repo token
+  - name: Via Repo-Token
+    description: Access library Via Repo-Token
 servers:
   - url: https://{server}
     variables: 
@@ -223,7 +223,7 @@ paths:
     get:
       summary: List repo api tokens
       tags:
-        - Via Repo Token
+        - Via Repo-Token
       description: List all repo tokens of a library
       security:
         - AccountTokenAuth: []
@@ -257,7 +257,7 @@ paths:
     put:
       summary: Update repo api token
       tags:
-        - Via Repo Token
+        - Via Repo-Token
       description: Update a repo api token
       security:
         - AccountTokenAuth: []
@@ -299,7 +299,7 @@ paths:
     delete:
       summary: Delete repo api token
       tags:
-        - Via Repo Token
+        - Via Repo-Token
       description: Delete a repo api token
       security:
         - AccountTokenAuth: []
@@ -318,7 +318,7 @@ paths:
     get:
       summary: List items in directory
       tags:
-        - Via Repo Token
+        - Via Repo-Token
       description: List all files and folders in a directory
       security:
         - RepoTokenAuth: []
@@ -382,7 +382,7 @@ paths:
     post:
       summary: Operation directory
       tags:
-        - Via Repo Token
+        - Via Repo-Token
       description: Create or rename or revert a directory
       security:
         - RepoTokenAuth: []
@@ -426,7 +426,7 @@ paths:
     post:
       summary: Operation file
       tags:
-        - Via Repo Token
+        - Via Repo-Token
       description: Rename or revert a file
       security:
         - RepoTokenAuth: []
@@ -479,7 +479,7 @@ paths:
     get:
       summary: Get upload link
       tags:
-        - Via Repo Token
+        - Via Repo-Token
       description: Get the upload link of a directory
       security:
         - RepoTokenAuth: []
@@ -502,7 +502,7 @@ paths:
     get:
       summary: Get download link
       tags:
-        - Via Repo Token
+        - Via Repo-Token
       description: Get the download link of a file
       security:
         - RepoTokenAuth: []
@@ -523,8 +523,8 @@ paths:
     get:
       summary: Get repo info
       tags:
-        - Via Repo Token
-      description: Get repo info via repo token
+        - Via Repo-Token
+      description: Get repo info Via Repo-Token
       security:
         - RepoTokenAuth: []
       responses:
@@ -548,7 +548,7 @@ paths:
     post:
       summary: Sync batch move item
       tags:
-        - Via Repo Token
+        - Via Repo-Token
       description: Batch move files and directories, all the parameters are required
       security:
         - RepoTokenAuth: []
@@ -569,7 +569,7 @@ paths:
     post:
       summary: Sync batch copy item
       tags:
-        - Via Repo Token
+        - Via Repo-Token
       description: Batch copy files and directories, all the parameters are required
       security:
         - RepoTokenAuth: []
@@ -590,7 +590,7 @@ paths:
     delete:
       summary: Batch delete items
       tags:
-        - Via Repo Token
+        - Via Repo-Token
       description: Batch delete files and directories
       security:
         - RepoTokenAuth: []
