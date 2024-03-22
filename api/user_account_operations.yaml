@@ -1494,7 +1494,7 @@ paths:
     post:
       tags:
         - Account
-      summary: Get user token
+      summary: Get client token
       description: Return a token that can be used by the client to login.
       security:
         - AccountTokenAuth: []
@@ -6122,140 +6122,6 @@ paths:
                     description: Success state
                   
 
-  /api2/repos/public/:
-    post:
-      tags:
-        - Shared with all libraries
-      summary: Create Shared with All Library
-      security:
-        - AccountTokenAuth: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  $ref: '#/components/schemas/repo_name'
-                permission:
-                  $ref: '#/components/schemas/permission'
-                passwd:
-                  $ref: '#/components/schemas/password'
-              required:
-                - repo_name
-                - permission
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema: 
-                type: object
-                description: Library info
-                properties:
-                  id: 
-                    type: string
-                  name: 
-                    type: string
-                  desc: 
-                    type: string
-                  size: 
-                    type: integer
-                  size_formatted: 
-                    type: string
-                  mtime: 
-                    type: number
-                  mtime_relative: 
-                    type: string
-                  encrypted: 
-                    type: boolean
-                  permission: 
-                    type: string
-                  owner: 
-                    type: string
-                  owner_nickname: 
-                    type: string
-                  owner_name: 
-                    type: string
-                example: {
-                    "id": "13dbfa2c-61b6-468b-aabc-26a5f53d5978",
-                    "name": "test-public-repo",
-                    "desc": "",
-                    "size": 0,
-                    "size_formatted": "0 bytes",
-                    "mtime": 1710382935,
-                    "mtime_relative": "<time datetime=\"2024-03-14T10:22:15\" is=\"relative-time\" title=\"Thu, 14 Mar 2024 10:22:15 +0800\" >Just now</time>",
-                    "encrypted": false,
-                    "permission": "rw",
-                    "owner": "77a423e4804a4d7ca1ec78a150d71229@auth.local",
-                    "owner_nickname": "Seafile",
-                    "owner_name": "Seafile"
-                }
-
-
-  # /api2/shared-repos/{repo_id}/:
-  /api/v2.1/shared-repos/{repo_id}/:
-    put:
-      tags:
-        - Shared with all libraries
-      summary: Set Exist Lib as Shared with All Library
-      security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                permission:
-                  $ref: '#/components/schemas/permission'
-                share_type:
-                  $ref: '#/components/schemas/share_type'
-              required:
-                - permission
-                - share_type
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success: 
-                    type: boolean
-                    description: Success state
-                          
-
-    delete:
-      tags:
-        - Shared with all libraries
-      summary: Remove Shared with All Library
-      security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
-        - $ref: '#/components/parameters/share_type'
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         type: object
-      #         properties:
-      #           share_type:
-      #             $ref: '#/components/schemas/share_type'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-             schema: 
-              type: string
-              description: Returns a 'success' string
-              example: success
-
   /api2/server-info/:
     get:
       tags:
@@ -7951,7 +7817,7 @@ paths:
                   }
                   ]
 
-  /api2/repos/public: 
+  /api2/repos/public/: 
     post:
       tags:
         - Shared-with-all libraries
@@ -8022,7 +7888,7 @@ paths:
                   "owner_name": "Teamfile"
                  }
 
-  /api/v2.1/shared-repos/{repo_id}: 
+  /api/v2.1/shared-repos/{repo_id}/: 
     put: 
       tags:
         - Shared-with-all libraries

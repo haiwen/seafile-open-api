@@ -68,10 +68,10 @@ components:
 paths:
   /api2/auth-token/:
     post:
-      summary: obtain account token
+      summary: Obtain account token
       tags:
         - Account-Token
-      description: obtain account token with username and password
+      description: Obtain account token with username and password
       security: []
       requestBody:
         content:
@@ -98,10 +98,10 @@ paths:
 
   /api/v2.1/repos/{repo_id}/repo-api-tokens/:
     post:
-      summary: generate repo api token
+      summary: Generate repo api token
       tags:
         - Repo-Token
-      description: generate a repo api token using the user's Account-Token.
+      description: Generate a repo api token using the user's Account-Token.
       security:
         - AccountTokenAuth: []
       requestBody:
