@@ -22,7 +22,7 @@ jobs:
       - name: Update Seafile API 🚀
         uses: readmeio/rdme@v8
         with:
-          rdme: docs ./reference --key=${{ secrets.README_API_KEY }} --version=1.0.1
+          rdme: docs ./reference --key=${{ secrets.README_API_KEY }} --version=11.0
 
       # authentication
       - name: authentication 🚀
