@@ -5941,6 +5941,186 @@ paths:
                       }
                   ]
                 }
+  /api2/repos/{repo_id}/dir/shared_items/: 
+    get: 
+      tags:
+        - List share
+      summary: List shared users/groups of a library
+      description: 'Return shared information of the library'
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/p_library'
+        - $ref: '#/components/parameters/share_type_libraries'
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json: 
+              schema: 
+                oneOf:
+                  - $ref: '#/components/schemas/share_type_user'
+                  - $ref: '#/components/schemas/share_type_group'
+              examples: 
+                user: 
+                  value:  [
+                    {
+                        "share_type": "user",
+                        "user_info": {
+                            "name": "62e7d27c7d4f42d8afcc35e2002b812c@auth.local",
+                            "nickname": "Seafile",
+                            "contact_email": "daniel@example.com",
+                            "avatar_url": "https://cloud.seafile.com/media/avatars/e/6/f489f6bea362e91740fd7a3a111800/resized/72/1672a4ff48124e6ada03a4414518cf4a_sB3MR0n.png"
+                        },
+                        "permission": "rw",
+                        "is_admin": false
+                    }
+                           ]
+                group: 
+                  value: [
+                        {
+                            "share_type": "group",
+                            "group_info": {
+                                "id": 3493,
+                                "name": "group-t"
+                            },
+                            "permission": "r",
+                            "is_admin": false
+                        },
+                        {
+                            "share_type": "group",
+                            "group_info": {
+                                "id": 3483,
+                                "name": "group-s"
+                            },
+                            "permission": "rw",
+                            "is_admin": false
+                        }
+                    ]
+
+    put: 
+      tags:
+        - Share to user/group
+      summary: Share a library to user/group
+      description: Share the current user's existing library with another user or group.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/p_library'
+      requestBody: 
+        content:
+          multipart/form-data:
+            schema: 
+              $ref: '#/components/schemas/share_operation'
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json:
+              schema: 
+                oneOf:
+                  - $ref: '#/components/schemas/share_r_user'
+                  - $ref: '#/components/schemas/share_r_group'  
+              examples:
+                User: 
+                  value: {
+                    "failed": [{"email": "invalid@email.com", "error_msg": "User invalid@email.com not found."}],
+                    "success": [
+                        {
+                            "share_type": "user",
+                            "user_info": {
+                                "name": "62e7d27c7d4f42d8afcc35e2002b812c@auth.local",
+                                "nickname": "Seafile",
+                                "contact_email": "daniel@example.com",
+                                "avatar_url": "https://cloud.seafile.com/media/avatars/e/6/f489f6bea362e91740fd7a3a111800/resized/72/1672a4ff48124e6ada03a4414518cf4a_4LiwkY9.png"
+                            },
+                            "permission": "r",
+                            "is_admin": false
+                        }
+                    ]
+                   }
+                Group: 
+                  value: {
+                    "failed": [],
+                    "success": [
+                        {
+                            "share_type": "group",
+                            "group_info": {
+                                "id": 3479,
+                                "name": "new_group"
+                            },
+                            "permission": "r",
+                            "is_admin": false
+                        }
+                    ]
+                    }
+
+    delete: 
+      tags:
+        - Share to user/group
+      summary: Unshare a library from user/group
+      description: |- 
+        Unshare a library from user/group.
+        *Note: Select parameter username for users and parameter group_id for groups*
+      security:
+        - AccountTokenAuth: []
+      parameters:
+          - $ref: '#/components/parameters/repo_id'
+          - $ref: '#/components/parameters/p_library'
+          - $ref: '#/components/parameters/share_type_libraries'
+          - $ref: '#/components/parameters/username'
+          - $ref: '#/components/parameters/group_id_query'
+      responses:
+        '200':
+          description: OK 
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
+
+    post: 
+      tags:
+        - Share to user/group
+      summary: Update user share permission of a library
+      description: |- 
+          Update user share permission of a library.
+          *Note: Select parameter username for users and parameter group_id for groups*
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/p_library'
+        - $ref: '#/components/parameters/share_type_libraries'
+        - $ref: '#/components/parameters/username'
+        - $ref: '#/components/parameters/group_id_query'
+      requestBody: 
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                permission: 
+                  type: string
+                  description: r or rw
+                  example: r
+      responses:
+        '200':
+          description: OK 
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
+                  
 
   /api2/repos/public/:
     post:
@@ -7596,192 +7776,13 @@ paths:
                     type: boolean
                     description: Success state
 
-  /api2/repos/{repo_id}/dir/shared_items/: 
-    get: 
-      tags:
-        - Share
-      summary: List shared users/groups of a library
-      description: 'Return shared information of the library'
-      security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
-        - $ref: '#/components/parameters/p_library'
-        - $ref: '#/components/parameters/share_type_libraries'
-      responses:
-        '200':
-          description: OK  
-          content:
-            application/json: 
-              schema: 
-                oneOf:
-                  - $ref: '#/components/schemas/share_type_user'
-                  - $ref: '#/components/schemas/share_type_group'
-              examples: 
-                user: 
-                  value:  [
-                    {
-                        "share_type": "user",
-                        "user_info": {
-                            "name": "62e7d27c7d4f42d8afcc35e2002b812c@auth.local",
-                            "nickname": "Seafile",
-                            "contact_email": "daniel@example.com",
-                            "avatar_url": "https://cloud.seafile.com/media/avatars/e/6/f489f6bea362e91740fd7a3a111800/resized/72/1672a4ff48124e6ada03a4414518cf4a_sB3MR0n.png"
-                        },
-                        "permission": "rw",
-                        "is_admin": false
-                    }
-                           ]
-                group: 
-                  value: [
-                        {
-                            "share_type": "group",
-                            "group_info": {
-                                "id": 3493,
-                                "name": "group-t"
-                            },
-                            "permission": "r",
-                            "is_admin": false
-                        },
-                        {
-                            "share_type": "group",
-                            "group_info": {
-                                "id": 3483,
-                                "name": "group-s"
-                            },
-                            "permission": "rw",
-                            "is_admin": false
-                        }
-                    ]
 
-    put: 
-      tags:
-        - Share
-      summary: Share a library to user/group
-      description: Share the current user's existing library with another user or group.
-      security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
-        - $ref: '#/components/parameters/p_library'
-      requestBody: 
-        content:
-          multipart/form-data:
-            schema: 
-              $ref: '#/components/schemas/share_operation'
-      responses:
-        '200':
-          description: OK  
-          content:
-            application/json:
-              schema: 
-                oneOf:
-                  - $ref: '#/components/schemas/share_r_user'
-                  - $ref: '#/components/schemas/share_r_group'  
-              examples:
-                User: 
-                  value: {
-                    "failed": [{"email": "invalid@email.com", "error_msg": "User invalid@email.com not found."}],
-                    "success": [
-                        {
-                            "share_type": "user",
-                            "user_info": {
-                                "name": "62e7d27c7d4f42d8afcc35e2002b812c@auth.local",
-                                "nickname": "Seafile",
-                                "contact_email": "daniel@example.com",
-                                "avatar_url": "https://cloud.seafile.com/media/avatars/e/6/f489f6bea362e91740fd7a3a111800/resized/72/1672a4ff48124e6ada03a4414518cf4a_4LiwkY9.png"
-                            },
-                            "permission": "r",
-                            "is_admin": false
-                        }
-                    ]
-                   }
-                Group: 
-                  value: {
-                    "failed": [],
-                    "success": [
-                        {
-                            "share_type": "group",
-                            "group_info": {
-                                "id": 3479,
-                                "name": "new_group"
-                            },
-                            "permission": "r",
-                            "is_admin": false
-                        }
-                    ]
-                    }
-
-    delete: 
-      tags:
-        - Share
-      summary: Unshare a library from user/group
-      description: |- 
-        Unshare a library from user/group.
-        *Note: Select parameter username for users and parameter group_id for groups*
-      security:
-        - AccountTokenAuth: []
-      parameters:
-          - $ref: '#/components/parameters/repo_id'
-          - $ref: '#/components/parameters/p_library'
-          - $ref: '#/components/parameters/share_type_libraries'
-          - $ref: '#/components/parameters/username'
-          - $ref: '#/components/parameters/group_id_query'
-      responses:
-        '200':
-          description: OK 
-          content:
-            application/json: 
-              schema: 
-                type: object
-                properties:
-                  success: 
-                    type: boolean
-                    description: Success state
-
-    post: 
-      tags:
-        - Share
-      summary: Update user share permission of a library
-      description: |- 
-          Update user share permission of a library.
-          *Note: Select parameter username for users and parameter group_id for groups*
-      security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
-        - $ref: '#/components/parameters/p_library'
-        - $ref: '#/components/parameters/share_type_libraries'
-        - $ref: '#/components/parameters/username'
-        - $ref: '#/components/parameters/group_id_query'
-      requestBody: 
-        content:
-          application/json:
-            schema: 
-              type: object
-              properties:
-                permission: 
-                  type: string
-                  description: r or rw
-                  example: r
-      responses:
-        '200':
-          description: OK 
-          content:
-            application/json: 
-              schema: 
-                type: object
-                properties:
-                  success: 
-                    type: boolean
-                    description: Success state
-                  
   /api2/beshared-repos/{repo_id}/:
     delete:
       tags:
-        - Share
+        - Share to user/group
       summary: Delete a library shared to me (leave the share)
-      description: '' 
+      description: Delete the library shared with the current user.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -7803,7 +7804,7 @@ paths:
   /api2/beshared-repos/: 
     get: 
       tags:
-        - Share
+        - List share
       summary: List libraries shared to me
       description: Return detailed information on libraries shared by other users with the current user.
       security:
@@ -7953,7 +7954,7 @@ paths:
   /api2/repos/public: 
     post:
       tags:
-        - Share
+        - Shared-with-all libraries
       summary: Create shared-with-all library.
       description: Return the shared information of the current user.
       security:
@@ -8024,7 +8025,7 @@ paths:
   /api/v2.1/shared-repos/{repo_id}: 
     put: 
       tags:
-        - Share
+        - Shared-with-all libraries
       summary: Share existing library as shared-with-all
       description: Share existing libraries with everyone.
       security:
@@ -8058,7 +8059,7 @@ paths:
 
     delete: 
       tags:
-        - Share
+        - Shared-with-all libraries
       summary: Remove library from shared-with-all
       description: Remove library from shared-with-all.After removal, only oneself is visible.
       security:
@@ -8081,7 +8082,7 @@ paths:
   /api/v2.1/repos/batch/: 
     post:
       tags:
-        - Share
+        - Share batch operation
       summary: Batch share libraries to user/group
       description: Batch sharing existing libraries with user/group.
       security:
@@ -8147,10 +8148,10 @@ paths:
                     ]
                         }
 
-  /api2/repos/{repo-id}/dir/shared_items/:
+  /api2/repos/{repo_id}/dir/shared_items/p={path}:
     put: 
       tags:
-        - Share
+        - Share folder
       summary: Share a folder
       description: |-
         Share folders with other users and groups.
@@ -8160,7 +8161,7 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/repo_id'
-        - $ref: '#/components/parameters/p'
+        - $ref: '#/components/parameters/path'
       requestBody: 
         content:
           multipart/form-data:
@@ -8225,7 +8226,7 @@ paths:
   /api/v2.1/shared-folders/:
     get: 
       tags:
-        - Share
+        - Share folder
       summary: List shared folders
       description: Return all shared folder information.
       security:
@@ -8291,7 +8292,7 @@ paths:
   /api2/repos/{repo_id}/dir/shared_items/?p={path}:
     post: 
       tags:
-        - Share
+        - Share folder
       summary: Update folder share permission
       description: |-
         Update shared folder permissions.
@@ -8329,7 +8330,7 @@ paths:
 
     delete: 
       tags:
-        - Share
+        - Share folder
       summary: Remove the specified shared folder
       description: |-
         - username, necessary if share_type is user
