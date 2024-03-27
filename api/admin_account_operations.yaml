@@ -286,7 +286,7 @@ paths:
             schema: 
               type: object
               properties:
-                eamil: 
+                email: 
                   $ref: '#/components/schemas/email'
                 password: 
                   $ref: '#/components/schemas/password'
