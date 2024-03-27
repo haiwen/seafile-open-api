@@ -23,84 +23,1119 @@ components:
       description: This is the [Account-Token](/reference/authentication).
       bearerFormat: Account-Token
 
+  parameters:
+  # Query parameters
+    page:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 1
+      example: 1
+
+    per_page:
+      name: per_page
+      in: query
+      required: false
+      schema:
+        type: integer
+      example: 25
+    owner: 
+      name: owner
+      in: query
+      required: false
+      schema: 
+        type: string
+      example: owner@owner.com
+    query: 
+      name: query
+      in: query
+      required: true
+      description: keyword for searching
+      schema: 
+        type: string
+ 
+
+  # Path parameters
+    email: 
+      name: email
+      in: path
+      required: true
+      schema:
+        type: string
+        example: Seafile@seafile.com
+    
+    repo_id:
+      name: repo_id
+      in: path
+      description: The unique identifier of a library
+      required: true
+      schema:
+        type: string
+        pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
+
+
   schemas:
-    ping_response:
-      type: string
-      description: if successful, this api returns just the string `pong`
-      example: pong
-    server_info:
-      type: object
-      description: get server info like the version and the edition
-      properties:
-        version:
-          type: string
-          description: current version number of Seafile Server
-        encrypted_library_version:
-          type: integer
-          description: encrypted library version
-        features:
-          type: array
-          description: features currently supported by the service
-          items:
-            type:
-              string
-      example:
-        version: '11.0.4'
-        encrypted_library_version: 2
-        features: [
-          'seafile-basic',
-          'seafile-pro',
-          'office-preview',
-          'file-search'
-        ]
+    # requestBody schemas
+      password:
+        type: string
+        example: password
+      
+      is_staff:
+        type: boolean
+        description: Staff state, true or false
+
+      contact_email: 
+        type: string
+        description: if no value passed, or pass your old contact email, this field will not be changed
+        example: example@example.com
+      
+      email: 
+        type: string
+        description: 'User email' 
+        example: Seafile@example.com
+        
+      update: 
+        type: object
+        properties:
+          status: 
+            type: string
+            enum:
+              - normal
+              - read-only
+            description: normal or read-only
+      transfer: 
+        type: object
+        properties:
+          owner: 
+            type: string
+            example: Seafile@example.com
+
+    # response schemas
+      no_owner:
+        type: object
+        properties:
+          page_info:
+            type: object
+            description: Paging Information
+            properties:
+              has_next_page:
+                type: boolean
+              current_page:
+                type: integer
+          repos: 
+            type: array
+            items: 
+              type: object
+              description: Library info
+              properties:
+                id: 
+                  type: string
+                name: 
+                  type: string
+                owner: 
+                  type: string
+                owner_email: 
+                  type: string
+                owner_contact_email: 
+                  type: string
+                size: 
+                  type: integer
+                size_formatted: 
+                  type: string
+                encrypted:  
+                  type: boolean
+                file_count: 
+                  type: integer
+                status: 
+                  type: string
+                last_modified: 
+                  type: string
+                owner_name: 
+                  type: string
+      owner: 
+        properties:
+          owner: 
+            type: string
+          repos: 
+            type: array
+            items: 
+              type: object
+              description: Library info
+              properties:
+                status: 
+                  type: string
+                name: 
+                  type: string
+                encrypted: 
+                  type: boolean
+                file_count: 
+                  type: integer
+                owner: 
+                  type: string
+                size_formatted: 
+                  type: string
+                id: 
+                  type: string
+                size: 
+                  type: integer
+          name: 
+            type: string
 
 paths:
-  /api2/server-info/:
+  /api/v2.1/admin/users/:
     get:
       tags:
-        - Info
-      summary: Get Server Information
-      description: >-
-        Use this anonymous call to retrieve the current Seafile server version
-        information. The response includes the current version number and the
-        type of subscription.
-      responses:
-        '200':
-          description: Return version and edition of Seafile Server
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/server_info'
-
-  /api2/ping/:
-    get:
-      tags:
-        - Ping
-      summary: Ping Server
-      description: Check the server status.
-      responses:
-        '200':
-          description: Service is available and running
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ping_response'
-
-  /api2/auth/ping/:
-    get:
-      tags:
-        - Ping
-      summary: Ping Server (with authentication)
-      description: |
-        Executes two checks against Seafile server in the cloud:
-        - check the validity of the Account-Token 
-        - check the status of Seafile Server
+        - Accounts
+      summary: List all users' info
+      description: Return all user information. 
       security:
         - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
       responses:
         '200':
-          description: Access granted and service is available and running
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ping_response'
+                type: object
+                properties:
+                  total_count: 
+                    type: integer
+                  data: 
+                    type: array
+                    items: 
+                      type: object
+                      description: User info 
+                      properties:
+                        login_id: 
+                          type: string
+                        quota_usage: 
+                          type: integer
+                        last_login: 
+                          type: string
+                        name: 
+                          type: string
+                        create_time: 
+                          type: string
+                        is_active: 
+                          type: boolean
+                        is_staff: 
+                          type: boolean
+                        contact_email: 
+                          type: string
+                        reference_id: 
+                          type: string
+                        department: 
+                          type: string
+                        quota_total: 
+                          type: integer
+                        role: 
+                          type: string
+                        email: 
+                          type: string
+                example: {
+                  "data": [
+                      {
+                          "login_id": "",
+                          "quota_usage": 4509,
+                          "last_login": "2019-08-12T01:31:49.873",
+                          "name": "851958789",
+                          "create_time": "2019-06-26T03:42:45+00:00",
+                          "is_active": true,
+                          "is_staff": true,
+                          "contact_email": "",
+                          "reference_id": "",
+                          "department": "",
+                          "quota_total": -2,
+                          "role": "default",
+                          "email": "Seafile@qq.com"
+                      },
+                      {
+                          "login_id": "",
+                          "quota_usage": 319340737,
+                          "last_login": "2019-08-09T07:00:25.548",
+                          "name": "123",
+                          "create_time": "2019-06-26T06:06:59+00:00",
+                          "is_active": true,
+                          "is_staff": true,
+                          "contact_email": "",
+                          "reference_id": "",
+                          "department": "",
+                          "quota_total": -2,
+                          "role": "can_generate_upload_link_false",
+                          "email": "Seahub@123.com"
+                      }
+                  ],
+                  'total_count': 2
+                 }
+    
+    post:
+      tags:
+        - Accounts
+      summary: Add user
+      description: Return user information.
+      security:
+        - AccountTokenAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema: 
+              type: object
+              properties:
+                email: 
+                  $ref: '#/components/schemas/email'
+                password: 
+                  $ref: '#/components/schemas/password'
+                is_staff:
+                  $ref: '#/components/schemas/is_staff'
+                is_active:
+                  type: boolean
+                  description: true or false
+                role:
+                  type: string
+                  description: User role
+                  example: Owner
+                name: 
+                  type: string
+                  description: User name
+                login_id:
+                  type: string
+                contact_email:
+                  $ref: '#/components/schemas/contact_email'
+                reference_id:
+                  type: string
+                department:
+                  type: string
+                quota_total:
+                  type: integer
+                  description: unit is MB
+              required:
+                - email
+                - password
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json: 
+              schema: 
+                type: object
+                description: User info
+                properties:
+                  email: 
+                    type: string
+                  name: 
+                    type: string
+                  contact_email: 
+                    type: string
+                  login_id: 
+                    type: string
+                  is_staff: 
+                    type: boolean
+                  is_active: 
+                    type: boolean
+                  reference_id: 
+                    type: string
+                  quota_usage: 
+                    type: integer
+                  quota_total: 
+                    type: integer
+                  create_time: 
+                    type: string
+                  has_default_device: 
+                    type: boolean
+                  is_force_2fa: 
+                    type: boolean
+                  institution: 
+                    type: string
+                  role: 
+                    type: string
+                  add_user_tip: 
+                    type: string
+                example: {
+                  "email": "608c4afc64d7440eaa00c872a4302770@auth.local",
+                  "name": "Seafile111",
+                  "contact_email": "Seafile111@example.com",
+                  "login_id": "",
+                  "is_staff": false,
+                  "is_active": true,
+                  "reference_id": "",
+                  "quota_usage": 0,
+                  "quota_total": 3000000000,
+                  "create_time": "2024-03-26T14:00:39+08:00",
+                  "has_default_device": false,
+                  "is_force_2fa": false,
+                  "institution": "",
+                  "role": "default",
+                  "add_user_tip": "Successfully added user Seafile111@example.com. An email notification has been sent."
+                   }
+
+  /api/v2.1/admin/search-user/:
+    get:
+      tags:
+        - Accounts
+      summary: Search user
+      description: By providing keywords for precise or fuzzy matching, users who meet the search criteria can be found.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/query'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_list: 
+                    type: array
+                    items: 
+                      type: object
+                      description: User info
+                      properties:
+                        email: 
+                          type: string
+                        name: 
+                          type: string
+                        contact_email: 
+                          type: string
+                        is_staff: 
+                          type: boolean
+                        is_active: 
+                          type: boolean
+                        source: 
+                          type: string
+                        quota_usage: 
+                          type: integer
+                        quota_total: 
+                          type: integer
+                        create_time: 
+                          type: string
+                        last_login: 
+                          type: string
+                        last_access_time: 
+                          type: string
+                        role: 
+                          type: string
+                        institution: 
+                          type: string
+                  page_info: 
+                    type: object
+                    properties:
+                      has_next_page: 
+                        type: boolean
+                      current_page: 
+                        type: integer
+                example: {
+                  "user_list": [
+                      {
+                          "email": "admin@seafile.com",
+                          "name": "Teamfile",
+                          "contact_email": "admin@seafile.com",
+                          "is_staff": true,
+                          "is_active": true,
+                          "source": "db",
+                          "quota_usage": 0,
+                          "quota_total": 1000000000000,
+                          "create_time": "2023-03-13T17:56:02+08:00",
+                          "last_login": "2024-03-25T15:38:33+08:00",
+                          "last_access_time": "2024-03-26T10:56:58+08:00",
+                          "role": "default",
+                          "institution": null
+                      },
+                      {
+                          "email": "admin123@seafile.com",
+                          "name": "admin123",
+                          "contact_email": "admin123@seafile.com",
+                          "is_staff": false,
+                          "is_active": true,
+                          "source": "db",
+                          "quota_usage": 0,
+                          "quota_total": 3000000000,
+                          "create_time": "2023-04-12T13:07:54+08:00",
+                          "last_login": "2023-04-12T13:14:47+08:00",
+                          "last_access_time": "2023-04-12T13:14:47+08:00",
+                          "role": "default",
+                          "institution": null
+                      }
+                  ],
+                  "page_info": {
+                      "has_next_page": true,
+                      "current_page": 1
+                  }
+                    }
+
+  /api/v2.1/admin/users/{email}/:
+    get:
+      tags:
+        - Accounts
+      summary: Get a user's info
+      description: Return detailed information of the user.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/email'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                description: User detail info
+                properties:
+                  email: 
+                    type: string
+                  name: 
+                    type: string
+                  contact_email: 
+                    type: string
+                  login_id: 
+                    type: string
+                  is_staff: 
+                    type: boolean
+                  is_active: 
+                    type: boolean
+                  reference_id: 
+                    type: string
+                  quota_usage: 
+                    type: integer
+                  quota_total: 
+                    type: integer
+                  create_time: 
+                    type: string
+                  has_default_device: 
+                    type: boolean
+                  is_force_2fa: 
+                    type: boolean
+                  institution: 
+                    type: string
+                  role: 
+                    type: string
+                  avatar_url: 
+                    type: string
+                  upload_rate_limit: 
+                    type: string
+                  download_rate_limit: 
+                    type: string
+                  last_login: 
+                    type: string
+                  last_access_time: 
+                    type: string
+                example: {
+                  "email": "admin123@seafile.com",
+                  "name": "admin123",
+                  "contact_email": "",
+                  "login_id": "",
+                  "is_staff": false,
+                  "is_active": true,
+                  "reference_id": "",
+                  "quota_usage": 0,
+                  "quota_total": 3000000000,
+                  "create_time": "2023-04-12T13:07:54+08:00",
+                  "has_default_device": false,
+                  "is_force_2fa": false,
+                  "institution": "",
+                  "role": "default",
+                  "avatar_url": "https://demo.seafile.top/media/avatars/default.png",
+                  "upload_rate_limit": "",
+                  "download_rate_limit": "",
+                  "last_login": "2023-04-12T13:14:47+08:00",
+                  "last_access_time": "2023-04-12T13:14:47+08:00"
+                 }
+
+    put:
+      tags:
+        - Accounts
+      summary: Update user info
+      description: Return user information.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/email'
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                password: 
+                  $ref: '#/components/schemas/password'
+                is_staff:
+                  $ref: '#/components/schemas/is_staff'
+                is_active:
+                  type: boolean
+                  description: true or false
+                role:
+                  type: string
+                  description: User role
+                  example: Owner
+                name: 
+                  type: string
+                  description: User name
+                login_id:
+                  type: string
+                contact_email:
+                  $ref: '#/components/schemas/contact_email'
+                reference_id:
+                  type: string
+                department:
+                  type: string
+                quota_total:
+                  type: integer
+                  description: unit is MB
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json: 
+              schema: 
+                type: object
+                description: User info 
+                properties:                  
+                  email: 
+                    type: string
+                  name: 
+                    type: string
+                  contact_email: 
+                    type: string
+                  login_id: 
+                    type: string
+                  is_staff: 
+                    type: boolean
+                  is_active: 
+                    type: boolean
+                  reference_id: 
+                    type: string
+                  quota_usage: 
+                    type: integer
+                  quota_total: 
+                    type: integer
+                  create_time: 
+                    type: string
+                  has_default_device: 
+                    type: boolean
+                  is_force_2fa: 
+                    type: boolean
+                  institution: 
+                    type: string
+                  role: 
+                    type: string
+                  update_status_tip: 
+                    type: string
+                  upload_rate_limit: 
+                    type: string
+                  download_rate_limit: 
+                    type: string
+                example: {
+                  "email": "admin123@seafile.com",
+                  "name": "admin123",
+                  "contact_email": "",
+                  "login_id": "",
+                  "is_staff": false,
+                  "is_active": true,
+                  "reference_id": "",
+                  "quota_usage": 0,
+                  "quota_total": 1000000,
+                  "create_time": "2023-04-12T13:07:54+08:00",
+                  "has_default_device": false,
+                  "is_force_2fa": false,
+                  "institution": "",
+                  "role": "default",
+                  "update_status_tip": "",
+                  "upload_rate_limit": "",
+                  "download_rate_limit": ""
+                     }
+
+    delete: 
+      tags:
+        - Accounts
+      summary: Delete user
+      description: Delete existing users.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/email'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Success state
+
+  /api/v2.1/admin/update-user-ccnet-email/:
+    put:
+      tags: 
+        - Accounts
+      summary: Update user identity email
+      description: Seafile uses an email as user's unique identification. This email is stored in ccnet database, and should NOT be modified. But in some special cases, you want to change this email, you can use this api.
+      security:
+        - AccountTokenAuth: []
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                old_email:
+                  type: string
+                  description: Current email
+                  example: old@example.com
+                new_email:
+                  type: string
+                  description: New email
+                  example: new@example.com
+              required:
+                - old_email
+                - new_email
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
+
+  /api2/accounts/{email}/: 
+    post: 
+      tags:
+        - Accounts
+      summary: Migrate account
+      description: Migrate existing account.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/email'
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                op:
+                  type: string
+                  description: Use op=migrate to migrate an account
+                  example: migrate
+                to_user:
+                  type: string
+                  description: The user id you want to migrate the user to, this user must exist
+                  example: Seafile@example.com
+              required:
+                - op
+                - to_user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
+
+  /api/v2.1/admin/libraries/:
+    get:
+      tags:
+        - Libraries
+      summary: Get all libraries/Search library by owner
+      description: |-
+        - If there is no parameter owner, this API will return all library information
+        - If there is parameter owner, return the library information that meets the conditions 
+        *Note:Available for Seafile v6.0.0+*
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+        - $ref: '#/components/parameters/owner'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                oneOf:
+                  - $ref: '#/components/schemas/no_owner'
+                  - $ref: '#/components/schemas/owner'
+              examples:
+                No-Owner: 
+                  value: {
+                    "page_info": {
+                        "has_next_page": true,
+                        "current_page": 1
+                    },
+                    "repos": [
+                        {
+                            "id": "1b9a259b-fa28-4cbc-890f-8970c349c459",
+                            "name": "C#",
+                            "owner": "admin@seafile.com",
+                            "owner_email": "admin@seafile.com",
+                            "owner_contact_email": "admin@seafile.com",
+                            "size": 0,
+                            "size_formatted": "0 bytes",
+                            "encrypted": false,
+                            "file_count": 0,
+                            "status": "normal",
+                            "last_modified": "2024-03-27T10:05:39+08:00",
+                            "owner_name": "Teamfile"
+                        },
+                        {
+                            "id": "0d566f89-bcde-4d21-a710-9872709da7f9",
+                            "name": "C++",
+                            "owner": "admin@seafile.com",
+                            "owner_email": "admin@seafile.com",
+                            "owner_contact_email": "admin@seafile.com",
+                            "size": 0,
+                            "size_formatted": "0 bytes",
+                            "encrypted": false,
+                            "file_count": 0,
+                            "status": "normal",
+                            "last_modified": "2024-03-27T10:05:34+08:00",
+                            "owner_name": "Teamfile"
+                        }
+                    ]
+                    } 
+                Owner: 
+                  value: {
+                    "owner": "Seafile@example.com",
+                    "repos": [
+                        {
+                            "status": "normal",
+                            "name": "lib-of-lian",
+                            "encrypted": false,
+                            "file_count": 0,
+                            "owner": "Seafile@example.com",
+                            "size_formatted": "16.5 KB",
+                            "id": "78c620ee-2989-4427-8eff-7748f4fbebc0",
+                            "size": 16883
+                        },
+                        {
+                            
+                            "status": "normal",
+                            "name": "encrypted",
+                            "encrypted": true,
+                            "file_count": 0,
+                            "owner": "Seafile@example.com",
+                            "size_formatted": "18.1 MB",
+                            "id": "47695bb8-3364-4274-939d-3c5a0df9710c",
+                            "size": 18997225
+                        },
+                        ...
+                    ],
+                    "name": ""
+                    }
+    post: 
+      tags:
+        - Libraries
+      summary: Create library
+      description: Response code 200 and newly created library information are returned.
+      security:
+        - AccountTokenAuth: []
+      requestBody:
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                name: 
+                  type: string
+                  description: Library name
+                  example: new_lib_name
+                owner: 
+                  type: string
+                  description: default is current admin user  
+              required:
+                - name
+      responses:
+        '200':
+          description: OK 
+          content:
+            application/json: 
+              schema: 
+                type: object
+                description: Library info
+                properties:
+                  id: 
+                    type: string
+                  name: 
+                    type: string
+                  owner: 
+                    type: string
+                  owner_email: 
+                    type: string
+                  owner_contact_email: 
+                    type: string
+                  size: 
+                    type: integer
+                  size_formatted: 
+                    type: string
+                  encrypted: 
+                    type: boolean
+                  file_count: 
+                    type: integer
+                  status: 
+                    type: string
+                  last_modified: 
+                    type: string
+                  owner_name: 
+                    type: string
+                example: {
+                  "id": "6597901e-60eb-4c8c-870b-0f23fce6eb70",
+                  "name": "new_lib_name",
+                  "owner": "admin@seafile.com",
+                  "owner_email": "admin@seafile.com",
+                  "owner_contact_email": "admin@seafile.com",
+                  "size": 0,
+                  "size_formatted": "0 bytes",
+                  "encrypted": false,
+                  "file_count": 0,
+                  "status": "normal",
+                  "last_modified": "2024-03-27T14:11:12+08:00",
+                  "owner_name": "Teamfile"
+                 }
+
+
+  /api/v2.1/admin/search-library/:
+    get:
+      tags:
+        - Libraries
+      summary: Search library by name
+      description: Returns library information for a specified name.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/query'
+      responses:
+        '200':
+          description: OK 
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  repo_list: 
+                    type: array
+                    items: 
+                      type: object
+                      description: Library info
+                      properties:
+                        id: 
+                          type: string
+                        name: 
+                          type: string
+                        owner_email: 
+                          type: string
+                        owner_name: 
+                          type: string
+                        owner_contact_email: 
+                          type: string
+                        size: 
+                          type: integer
+                        encrypted: 
+                          type: boolean
+                        file_count: 
+                          type: integer
+                        status: 
+                          type: string
+              example: {
+                "repo_list": [
+                    {
+                        "id": "a0877bb0-c4f8-4316-8e52-c4ce416362c3",
+                        "name": "lib in test department",
+                        "owner_email": "Seafile@seafile_group",
+                        "owner_name": "test department",
+                        "owner_contact_email": "",
+                        "size": 0,
+                        "encrypted": false,
+                        "file_count": 0,
+                        "status": "normal"
+                    },
+                    {
+                        "id": "b2134604-ea68-41d0-a075-0970e889b848",
+                        "name": "lib of 7.1 lian",
+                        "owner_email": "Seahub@example.com",
+                        "owner_name": "name-of-lian",
+                        "owner_contact_email": "Seahub@example.com",
+                        "size": 15,
+                        "encrypted": false,
+                        "file_count": 0,
+                        "status": "normal"
+                    }
+                ]
+              }
+
+  /api/v2.1/admin/libraries/{repo_id}/: 
+    get:
+      tags:
+        - Libraries
+      summary: Get a library info
+      description: Returns basic information about the specified library.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+        '200':
+          description: OK 
+          content:
+            application/json: 
+              schema: 
+                type: object
+                description: Library info
+                properties:
+                  id: 
+                    type: string
+                  name: 
+                    type: string
+                  owner: 
+                    type: string
+                  owner_email: 
+                    type: string
+                  owner_contact_email: 
+                    type: string
+                  size: 
+                    type: integer
+                  size_formatted: 
+                    type: string
+                  encrypted: 
+                    type: boolean
+                  file_count: 
+                    type: integer
+                  status: 
+                    type: string
+                  last_modified: 
+                    type: string
+                  owner_name: 
+                    type: string
+                example: {
+                  "id": "1b9a259b-fa28-4cbc-890f-8970c349c459",
+                  "name": "C#",
+                  "owner": "admin@seafile.com",
+                  "owner_email": "admin@seafile.com",
+                  "owner_contact_email": "admin@seafile.com",
+                  "size": 0,
+                  "size_formatted": "0 bytes",
+                  "encrypted": false,
+                  "file_count": 0,
+                  "status": "normal",
+                  "last_modified": "2024-03-27T10:05:39+08:00",
+                  "owner_name": "Teamfile"
+                 }
+
+    delete: 
+      tags:
+        - Libraries
+      summary: Delete a Library
+      description: Delete an existing library.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+        '200':
+          description: OK 
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
+
+    put: 
+      tags:
+          - Libraries
+      summary: Update a library status
+      description: Update the status of existing libraries. 
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              oneOf:
+                - $ref: '#/components/schemas/update'
+                - $ref: '#/components/schemas/transfer'
+      responses:
+        '200':
+          description: OK 
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  id: 
+                    type: string
+                  name: 
+                    type: string
+                  owner: 
+                    type: string
+                  owner_email: 
+                    type: string
+                  owner_contact_email: 
+                    type: string
+                  size: 
+                    type: integer
+                  size_formatted: 
+                    type: string
+                  encrypted: 
+                    type: boolean
+                  file_count: 
+                    type: integer
+                  status: 
+                    type: string
+                  last_modified: 
+                    type: string
+                  owner_name: 
+                    type: string
+              examples:
+                Update a Library Status: 
+                  value: {
+                        "id": "1b9a259b-fa28-4cbc-890f-8970c349c459",
+                        "name": "C#",
+                        "owner": "admin@seafile.com",
+                        "owner_email": "admin@seafile.com",
+                        "owner_contact_email": "admin@seafile.com",
+                        "size": 0,
+                        "size_formatted": "0 bytes",
+                        "encrypted": false,
+                        "file_count": 0,
+                        "status": "read-only",
+                        "last_modified": "2024-03-27T10:05:39+08:00",
+                        "owner_name": "Teamfile"
+                          }
+                Transfer a Library: 
+                    value: {
+                        "id": "0dd5949a-94e4-4a8a-b727-9cbe3f2dcad0",
+                        "name": "My Library",
+                        "owner": "a1@a1.com",
+                        "owner_email": "a1@a1.com",
+                        "owner_name": "a1",
+                        "owner_contact_email": "a1@a1.com",
+                        "size": 180175,
+                        "size_formatted": "176.0 KB",
+                        "encrypted": false,
+                        "file_count": 1,
+                        "status": "normal"
+                    }
+
