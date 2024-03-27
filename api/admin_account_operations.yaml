@@ -1046,6 +1046,8 @@ paths:
       description: Delete an existing library.
       security:
         - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
       responses:
         '200':
           description: OK 
@@ -1065,6 +1067,8 @@ paths:
       description: '' 
       security:
         - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
       requestBody: 
         content:
           application/json: 
