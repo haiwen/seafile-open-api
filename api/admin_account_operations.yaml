@@ -1064,7 +1064,7 @@ paths:
       tags:
           - Libraries
       summary: Update a library status
-      description: '' 
+      description: Update the status of existing libraries. 
       security:
         - AccountTokenAuth: []
       parameters:
