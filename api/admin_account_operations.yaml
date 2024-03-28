@@ -1067,7 +1067,7 @@ paths:
     delete: 
       tags:
         - Libraries
-      summary: Delete a Library
+      summary: Delete a library
       description: |-
         Delete an existing library.
         *Note:Available for Seafile v6.0.0+*
@@ -1236,8 +1236,6 @@ paths:
       description: Clean all deleted libraries.
       security:
         - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
       responses:
         '200':
           description: OK
