@@ -178,14 +178,14 @@ components:
             type: string
             example: Seafile@example.com
 
-      transfer a group: 
+      transfer_a_group: 
         type: object
         properties:
           new_owner:
             type: string
             description: Owner email
 
-      set department quota: 
+      set_department_quota: 
         type: object
         properties:
           quota:
@@ -1680,8 +1680,8 @@ paths:
           application/json:
             schema: 
               oneOf:
-                - $ref: '#/components/schemas/transfer a group'
-                - $ref: '#/components/schemas/set department quota'
+                - $ref: '#/components/schemas/transfer_a_group'
+                - $ref: '#/components/schemas/set_department_quota'
       responses:
         '200':
           description: OK
