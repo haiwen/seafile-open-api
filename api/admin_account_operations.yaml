@@ -48,6 +48,8 @@ components:
       schema: 
         type: string
       example: owner@owner.com
+      description: Library owner's email.
+
     query: 
       name: query
       in: query
@@ -56,6 +58,14 @@ components:
       schema: 
         type: string
  
+    parent_dir: 
+      name: parent_dir
+      in: query
+      required: true
+      description: Parent directory
+      schema: 
+        type: string
+        example: /folder
 
   # Path parameters
     email: 
@@ -75,7 +85,14 @@ components:
         type: string
         pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
 
-
+    group_id: 
+      name: group_id
+      in: path
+      required: true
+      description: The unique identifier of a group
+      schema: 
+        type: integer
+        example: 8
   schemas:
     # requestBody schemas
       password:
@@ -96,7 +113,7 @@ components:
         description: 'User email' 
         example: Seafile@example.com
         
-      update: 
+      update_status: 
         type: object
         properties:
           status: 
@@ -105,6 +122,14 @@ components:
               - normal
               - read-only
             description: normal or read-only
+      update_name:
+        type: object
+        properties:
+          name: 
+            type: string
+            description: The new name of the library
+            example: new_name_library
+
       transfer: 
         type: object
         properties:
@@ -1042,8 +1067,10 @@ paths:
     delete: 
       tags:
         - Libraries
-      summary: Delete a Library
-      description: Delete an existing library.
+      summary: Delete a library
+      description: |-
+        Delete an existing library.
+        *Note:Available for Seafile v6.0.0+*
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1063,8 +1090,11 @@ paths:
     put: 
       tags:
           - Libraries
-      summary: Update a library status
-      description: Update the status of existing libraries. 
+      summary: Update a library status/Transfer a library
+      description: |-
+        - Update the status of existing libraries. 
+        - Transfer existing libraries
+        *Note:Available for Seafile v6.0.0+*
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1074,8 +1104,9 @@ paths:
           application/json: 
             schema: 
               oneOf:
-                - $ref: '#/components/schemas/update'
+                - $ref: '#/components/schemas/update_status'
                 - $ref: '#/components/schemas/transfer'
+                - $ref: '#/components/schemas/update_name'
       responses:
         '200':
           description: OK 
@@ -1109,7 +1140,7 @@ paths:
                   owner_name: 
                     type: string
               examples:
-                Update a Library Status: 
+                Update a Library Status/Update Library Name: 
                   value: {
                         "id": "1b9a259b-fa28-4cbc-890f-8970c349c459",
                         "name": "C#",
@@ -1139,3 +1170,555 @@ paths:
                         "status": "normal"
                     }
 
+  /api/v2.1/admin/trash-libraries/:
+    get:
+      tags:
+        - Libraries
+      summary: Get all deleted libraries/Get deleted libraries by owner
+      description: Returns information about the deleted library.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+        - $ref: '#/components/parameters/owner'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  page_info: 
+                    type: object
+                    description: Page info
+                    properties:
+                      has_next_page:
+                        type: boolean
+                      current_page:
+                        type: integer
+                  repos:
+                    type: array
+                    items: 
+                      type: object
+                      description: Library info
+                      properties:
+                        name: 
+                          type: string
+                        id: 
+                          type: string
+                        owner: 
+                          type: string
+                        owner_name: 
+                          type: string
+                        delete_time: 
+                          type: string
+                example: {
+                  "page_info": {
+                      "has_next_page": true,
+                      "current_page": 2
+                  },
+                  "repos": [
+                      {
+                          "name": "Java",
+                          "id": "d5225045-c4f5-4be6-aa9a-89b1bdaa9dd7",
+                          "owner": "admin@seafile.com",
+                          "owner_name": "Teamfile",
+                          "delete_time": "2024-03-28T09:46:34+08:00"
+                      }
+                  ]
+                  }
+    delete: 
+      tags:
+        - Libraries
+      summary: Clean all deleted libraries
+      description: Clean all deleted libraries.
+      security:
+        - AccountTokenAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Success state      
+
+  /api/v2.1/admin/trash-libraries/{repo_id}/:
+    delete: 
+      tags:
+        - Libraries
+      summary: Clean deleted library
+      description: Delete the specified library from the trash.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Success state
+                    
+    put:
+      tags:
+        - Libraries
+      summary: Restore deleted library
+      description: Restores the specified deleted library.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Success state      
+    
+  /api/v2.1/admin/libraries/{repo_id}/history-limit/:
+    get:
+      tags:
+        - Libraries
+      summary: Get library history setting
+      description: By calling this interface you can get the history storage period of the specified library.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: Storage time
+                properties:
+                  keep_days: 
+                    type: integer
+                example: {
+                  "keep_days": 60
+                 }
+
+    put:
+      tags:
+        - Libraries
+      summary: Update library history setting
+      description: Using this interface you can set the history storage period of a specified library.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          multipart/form-data:
+            schema: 
+              type: object
+              properties:
+                keep_days:
+                  type: integer
+                  description: -1 means no limit. 0 means don't keep history.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  keep_days:
+                    type: integer
+                example: { "keep_days" :-1 }
+  /api/v2.1/admin/libraries/{repo_id}/dirents/:
+    post: 
+      tags:
+          - Libraries
+      summary: Create library folder
+      description: Create a new directory for the specified directory.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/parent_dir'
+      requestBody: 
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                obj_name: 
+                  type: string
+                  description: New folder's name
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: Folder info 
+                properties:
+                  is_file: 
+                    type: boolean
+                  obj_name:
+                    type: string
+                  file_size: 
+                    type: integer
+                  last_update: 
+                    type: string
+                example: {
+                  "is_file": false,
+                  "obj_name": "t",
+                  "file_size": "",
+                  "last_update": "2024-03-28T10:41:33+08:00"
+                    }
+
+  /api/v2.1/admin/groups/:
+    get: 
+      tags:
+        - Groups 
+      summary: Get all groups
+      description: List all group information.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  page_info:
+                    type: object
+                    description: Page info
+                    properties:
+                      current_page:
+                        type: integer
+                      has_next_page:
+                        type: boolean
+                  groups: 
+                    type: array
+                    items: 
+                      type: object
+                      description: Group info
+                      properties:
+                        id: 
+                          type: string
+                        name: 
+                          type: string
+                        owner: 
+                          type: string
+                        owner_name: 
+                          type: string
+                        created_at: 
+                          type: string
+                        quota: 
+                          type: string
+                        parent_group_id: 
+                          type: string
+                example: {
+                  "page_info": {
+                      "current_page": 1,
+                      "has_next_page": true
+                  },
+                  "groups": [
+                      {
+                      "id": 2321,
+                      "name": "A-测试部门",
+                      "owner": "system admin",
+                      "owner_name": "system admin",
+                      "created_at": "2024-03-13T11:22:00+08:00",
+                      "quota": -2,
+                      "parent_group_id": -1
+                    },
+                     {
+                        "id": 2320,
+                        "name": "abc",
+                        "owner": "wei@fuloon.com",
+                        "owner_name": "wei",
+                        "created_at": "2024-03-08T09:05:01+08:00",
+                        "quota": -1,
+                        "parent_group_id": 0
+                      }  
+                   ]
+                  }
+    post: 
+      tags:
+        - Groups 
+      summary: Create a new group
+      description: Create a new group for the specified user. 
+      security:
+        - AccountTokenAuth: []
+      requestBody: 
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                group_name:
+                  type: string
+                  description: Group name
+                group_owner:
+                  type: string
+                  description: Email of group owner. If left blank, owner will be admin.
+                  example: 'daniel@seafile.com'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: Group info
+                properties:
+                  id: 
+                    type: integer
+                  name: 
+                    type: string
+                  owner: 
+                    type: string
+                  owner_name: 
+                    type: string
+                  created_at: 
+                    type: string
+                  quota: 
+                    type: integer
+                  parent_group_id: 
+                    type: integer
+                example: {
+                  "id": 2322,
+                  "name": "Seafile",
+                  "owner": "admin@seafile.com",
+                  "owner_name": "Teamfile",
+                  "created_at": "2024-03-28T14:07:22+08:00",
+                  "quota": -1,
+                  "parent_group_id": 0
+                }
+  /api/v2.1/admin/groups/{group_id}/:
+    delete: 
+      tags:
+        - Groups
+      summary: Delete a group
+      description: Delete a specified group.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/group_id'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Success state
+
+    put: 
+      tags:
+        - Groups
+      summary: Transfer a group
+      description: Transfer existing groups to specified users.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/group_id'
+      requestBody: 
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                new_owner:
+                  type: string
+                  description: Owner email
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: Group info
+                properties:
+                  owner: 
+                    type: string
+                  created_at: 
+                    type: string
+                  id: 
+                    type: integer
+                  name: 
+                    type: string
+                example: {
+                  "owner": "Seafile@example.com",
+                  "created_at": "2016-08-04T17:34:05+08:00",
+                  "id": 1528,
+                  "name": "test_group"
+                  }
+
+
+  /api/v2.1/admin/search-group/:
+    get: 
+      tags:
+        - Groups 
+      summary: Search group
+      description: Returns group information for the specified keyword. 
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/query'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: Group info
+                properties:
+                  group_list: 
+                    type: array
+                    items: 
+                      type: object
+                      properties:
+                        id: 
+                          type: integer
+                        name: 
+                          type: string
+                        owner: 
+                          type: string
+                        owner_name: 
+                          type: string
+                        created_at: 
+                          type: string
+                        quota: 
+                          type: integer
+                        parent_group_id: 
+                          type: integer
+                example: {
+                  "group_list": [
+                      {
+                          "id": 2224,
+                          "name": "abc",
+                          "owner": "demo@seafile.com",
+                          "owner_name": "freedoom",
+                          "created_at": "2023-09-13T17:03:54+08:00",
+                          "quota": -1,
+                          "parent_group_id": 0
+                      },
+                      {
+                          "id": 2320,
+                          "name": "abc",
+                          "owner": "wei@fuloon.com",
+                          "owner_name": "wei",
+                          "created_at": "2024-03-08T09:05:01+08:00",
+                          "quota": -1,
+                          "parent_group_id": 0
+                      }
+                  ]
+                  }
+
+  /api/v2.1/admin/groups/{group_id}/members/:
+    get:
+      tags:
+        - Groups
+      summary: List group members
+      description: Get all members of a group.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/group_id'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  group_id: 
+                    type: integer
+                  group_name:
+                    type: string
+                  members: 
+                    type: array
+                    items: 
+                      type: object
+                      description: Member info
+                      properties:
+                        group_id: 
+                          type: string
+                        name: 
+                          type: string
+                        email: 
+                          type: string
+                        contact_email: 
+                          type: string
+                        login_id: 
+                          type: string
+                        avatar_url: 
+                          type: string
+                        is_admin: 
+                          type: string
+                        role: 
+                          type: string
+                  page_info:
+                    type: object
+                    description: Page info
+                    properties:
+                      has_next_page:
+                        type: boolean
+                      current_page:
+                        type: integer
+                example: {
+                  "group_id": 2265,
+                  "group_name": "test_group",
+                  "members": [
+                      {
+                          "group_id": 2265,
+                          "name": "Teamfile",
+                          "email": "admin@seafile.com",
+                          "contact_email": "admin@seafile.com",
+                          "login_id": "",
+                          "avatar_url": "https://demo.seafile.top/media/avatars/7/a/ce4483526f8aefec13fb8c14458893/resized/80/1ae78cb64ba5442c2929247926af0e6f.png",
+                          "is_admin": true,
+                          "role": "Owner"
+                      },
+                      {
+                          "group_id": 2265,
+                          "name": "test2_group",
+                          "email": "5a77db35418648c8ab23fd401da595ca@auth.local",
+                          "contact_email": "Seafile@example.com",
+                          "login_id": "",
+                          "avatar_url": "https://demo.seafile.top/media/avatars/default.png",
+                          "is_admin": false,
+                          "role": "Member"
+                      }
+                  ],
+                  "page_info": {
+                      "has_next_page": false,
+                      "current_page": 1
+                  }
+                 }
