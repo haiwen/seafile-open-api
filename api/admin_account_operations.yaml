@@ -67,6 +67,37 @@ components:
         type: string
         example: /folder
 
+    return_ancestors: 
+      name: return_ancestors
+      in: query
+      required: false
+      description: true or false, defaults to false
+      schema: 
+        type: boolean
+        default: false
+
+    repo_id_query: 
+      name: repo_id
+      in: query
+      required: true
+      description: The unique identifier of a library
+      schema:
+        type: string
+        pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
+
+    share_type: 
+      name: share_type
+      in: query
+      description: "`user` or `group`"
+      required: true
+      schema: 
+        type: string
+        enum:
+          - user
+          - group
+        example: user
+
+    
   # Path parameters
     email: 
       name: email
@@ -93,6 +124,16 @@ components:
       schema: 
         type: integer
         example: 8
+
+    org_id: 
+      name: org_id
+      in: path
+      required: true
+      description: The unique identifier of a organization
+      schema: 
+        type: integer
+
+
   schemas:
     # requestBody schemas
       password:
@@ -137,7 +178,57 @@ components:
             type: string
             example: Seafile@example.com
 
+      transfer_a_group: 
+        type: object
+        properties:
+          new_owner:
+            type: string
+            description: Owner email
+
+      set_department_quota: 
+        type: object
+        properties:
+          quota:
+            type: integer
+            description: -2 means no quota limit.
+
+      org_name: 
+        type: string
+        description: organization name
+
+
     # response schemas
+      response_transfer:
+        type: object
+        description: Group info
+        properties:
+          owner: 
+            type: string
+          created_at: 
+            type: string
+          id: 
+            type: integer
+          name: 
+            type: string
+      response_quota:
+        type: object
+        description: Department info
+        properties:
+          id: 
+            type: integer
+          name: 
+            type: string
+          owner: 
+            type: string
+          owner_name: 
+            type: string
+          created_at: 
+            type: string
+          quota: 
+            type: integer
+          parent_group_id: 
+            type: integer
+
       no_owner:
         type: object
         properties:
@@ -207,6 +298,43 @@ components:
                   type: integer
           name: 
             type: string
+
+      response_user: 
+        type: array
+        items: 
+          type: object
+          description: User info
+          properties:
+            repo_id: 
+              type: string
+            share_type: 
+              type: string
+            permission: 
+              type: string
+            path: 
+              type: string
+            user_name: 
+              type: string
+            user_email: 
+              type: string
+      response_group:
+        type: array
+        items: 
+          type: object
+          description: Group info
+          properties:
+            repo_id: 
+              type: string
+            share_type: 
+              type: string
+            permission: 
+              type: string
+            path: 
+              type: string
+            group_id: 
+              type: integer
+            group_name: 
+              type: string
 
 paths:
   /api/v2.1/admin/users/:
@@ -1539,8 +1667,10 @@ paths:
     put: 
       tags:
         - Groups
-      summary: Transfer a group
-      description: Transfer existing groups to specified users.
+      summary: Transfer a group/Set department quota
+      description: |-
+        - Transfer existing groups to specified users.
+        - Set quotas for existing departments.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -1549,33 +1679,36 @@ paths:
         content:
           application/json:
             schema: 
-              type: object
-              properties:
-                new_owner:
-                  type: string
-                  description: Owner email
+              oneOf:
+                - $ref: '#/components/schemas/transfer_a_group'
+                - $ref: '#/components/schemas/set_department_quota'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema: 
-                type: object
-                description: Group info
-                properties:
-                  owner: 
-                    type: string
-                  created_at: 
-                    type: string
-                  id: 
-                    type: integer
-                  name: 
-                    type: string
-                example: {
-                  "owner": "Seafile@example.com",
-                  "created_at": "2016-08-04T17:34:05+08:00",
-                  "id": 1528,
-                  "name": "test_group"
+                oneOf:
+                  - $ref: '#/components/schemas/response_transfer'
+                  - $ref: '#/components/schemas/response_quota'
+                
+              examples:
+                transfer: 
+                  value: {
+                      "owner": "Seafile@example.com",
+                      "created_at": "2016-08-04T17:34:05+08:00",
+                      "id": 1528,
+                      "name": "test_group"
+                      }
+                quota: 
+                  value: {
+                      "id": 2251,
+                      "name": "SeafileDepartment",
+                      "owner": "system admin",
+                      "owner_name": "system admin",
+                      "created_at": "2023-11-14T11:24:34+08:00",
+                      "quota": 100,
+                      "parent_group_id": -1
                   }
 
 
@@ -1722,3 +1855,662 @@ paths:
                       "current_page": 1
                   }
                  }
+
+    post: 
+      tags:
+        - Groups
+      summary: Add group member
+      description: Add member to the specified group. 
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/group_id'
+      requestBody: 
+        content:
+          multipart/form-data:
+            schema: 
+              type: object
+              properties:
+                email: 
+                  $ref: '#/components/schemas/email'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  failed: 
+                    type: array
+                    items: 
+                      type: object
+                      description: Failure Information
+                  success:
+                    type: array
+                    items: 
+                      type: object
+                      description: Member info
+                      properties:
+                        group_id: 
+                          type: integer
+                        name: 
+                          type: string
+                        email: 
+                          type: string
+                        contact_email: 
+                          type: string
+                        login_id: 
+                          type: string
+                        avatar_url: 
+                          type: string
+                        is_admin: 
+                          type: boolean
+                        role: 
+                          type: string
+                example: {
+                  "failed": [],
+                  "success": [
+                      {
+                          "group_id": 2119,
+                          "name": "test4",
+                          "email": "test4@example.com",
+                          "contact_email": "test4@example.com",
+                          "login_id": "",
+                          "avatar_url": "https://demo.seafile.top/media/avatars/default.png",
+                          "is_admin": false,
+                          "role": "Member"
+                      }
+                  ]
+                 }
+      
+  /api/v2.1/admin/groups/{group_id}/members/{email}/: 
+    delete: 
+      tags:
+        - Groups
+      summary: Delete group member 
+      description: Delete the specified members of this group.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+         - $ref: '#/components/parameters/group_id'
+         - $ref: '#/components/parameters/email'
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Success state
+
+    put: 
+      tags:
+        - Groups
+      summary: Set(Unset) a group member as admin
+      description: To set or unset a member as an administrator in a specified group.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+         - $ref: '#/components/parameters/group_id'
+         - $ref: '#/components/parameters/email'
+      requestBody: 
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                is_admin:
+                  type: boolean
+                  enum:
+                    - true
+                    - false
+              required:
+                - is_admin
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: Member info
+                properties:
+                  group_id: 
+                    type: string
+                  name: 
+                    type: string
+                  email: 
+                    type: string
+                  contact_email: 
+                    type: string
+                  login_id: 
+                    type: string
+                  avatar_url: 
+                    type: string
+                  is_admin: 
+                    type: boolean
+                  role: 
+                    type: string
+                example: {
+                  "group_id": 2119,
+                  "name": "Seafile",
+                  "email": "Seafile@example.com",
+                  "contact_email": "Seafile@example.com",
+                  "login_id": "",
+                  "avatar_url": "https://demo.seafile.top/media/avatars/default.png",
+                  "is_admin": true,
+                  "role": "Admin"
+                 }
+
+  /api/v2.1/admin/groups/{group_id}/libraries/:
+    get: 
+      tags:
+        - Groups
+      summary: List libraries shared to a group
+      description: Returns the group owned library share information.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+         - $ref: '#/components/parameters/group_id'
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  group_id: 
+                    type: integer
+                  group_name:
+                    type: string
+                  libraries: 
+                    type: array
+                    items: 
+                      type: object
+                      description: Library info
+                example: {
+                  "group_id": 2119,
+                  "group_name": "IT部门",
+                  "libraries": []
+                  }
+      
+  /api/v2.1/admin/groups/{group_id}/libraries/{repo_id}/: 
+    delete: 
+      tags:
+        - Groups
+      summary: Remove a library from group
+      description: Delete existing libraries in the group.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+         - $ref: '#/components/parameters/group_id'
+         - $ref: '#/components/parameters/repo_id'
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Success state
+
+  /api/v2.1/admin/address-book/groups/: 
+    get: 
+      tags:
+        - Departments
+      summary: List top level departments
+      description: Return all top-level department information.
+      security:
+        - AccountTokenAuth: []
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: 
+                      type: object
+                      description: Department info
+                      properties:
+                        name: 
+                          type: string
+                        created_at: 
+                          type: string
+                        quota: 
+                          type: integer
+                        parent_group_id: 
+                          type: integer
+                        owner: 
+                          type: string
+                        id: 
+                          type: integer
+                example: {
+                  "data": [
+                    {
+                      "name": "test-xxx",
+                      "created_at": "2018-06-05T10:45:45+08:00",
+                      "quota": -2,
+                      "parent_group_id": -1,
+                      "owner": "system admin",
+                      "id": 176
+                    },
+                    {
+                      "name": "test1",
+                      "created_at": "2018-05-15T11:57:16+08:00",
+                      "quota": 1000000000,
+                      "parent_group_id": -1,
+                      "owner": "system admin",
+                      "id": 168
+                    }
+                  ]
+                }
+    
+    post:
+      tags:
+        - Departments
+      summary: Add a department
+      description: Return department information.
+      security:
+        - AccountTokenAuth: []
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                group_name: 
+                  type: string
+                  description: Department name
+                group_owner:
+                  type: string
+                  description: defaults to ''
+                  default: '' 
+                parent_group: 
+                  type: integer
+                  description: Positive Integer, defaults to -1
+                  default: -1 
+              required:
+                - group_name
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json: 
+              schema: 
+                type: object
+                description: Department info
+                properties:
+                  org_id: 
+                    type: integer
+                  id: 
+                    type: integer
+                  name: 
+                    type: string
+                  owner: 
+                    type: string
+                  created_at: 
+                    type: string
+                  parent_group_id: 
+                    type: integer
+                  quota: 
+                    type: integer
+                example: {
+                  "org_id": -1,
+                  "id": 2323,
+                  "name": "Seafile",
+                  "owner": "system admin",
+                  "created_at": "2024-03-29T13:41:24+08:00",
+                  "parent_group_id": -1,
+                  "quota": -2
+                 }
+
+
+  /api/v2.1/admin/address-book/groups/{group_id}/:
+    get: 
+      tags:
+        - Departments
+      summary: List groups and members in a department
+      description: List group and member information in the department.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/group_id'
+        - $ref: '#/components/parameters/return_ancestors'
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: Department info
+                properties:
+                  org_id: 
+                    type: integer
+                  id: 
+                    type: integer
+                  name: 
+                    type: string
+                  owner: 
+                    type: string
+                  created_at: 
+                    type: string
+                  parent_group_id: 
+                    type: integer
+                  quota: 
+                    type: integer
+                  groups: 
+                    type: array
+                    items: 
+                      type: object
+                      description: Group info
+                      properties:
+                        org_id: 
+                          type: integer
+                        id: 
+                          type: integer
+                        name: 
+                          type: string
+                        owner: 
+                          type: string
+                        created_at: 
+                          type: string
+                        parent_group_id: 
+                          type: integer
+                        quota: 
+                          type: integer
+                  members: 
+                    type: array
+                    items: 
+                      type: object
+                      description: Member info
+                      properties:
+                        group_id: 
+                          type: integer
+                        group_name: 
+                          type: string
+                        email: 
+                          type: string
+                        name: 
+                          type: string
+                        contact_email: 
+                          type: string
+                        avatar_url: 
+                          type: string
+                        is_admin: 
+                          type: boolean
+                        role: 
+                          type: string
+                  ancestor_groups: 
+                    type: array
+                    items: 
+                      type: object
+                      description: Group info
+                example: {
+                    "org_id": -1,
+                    "id": 2251,
+                    "name": "SeafileDepartment",
+                    "owner": "system admin",
+                    "created_at": "2023-11-14T11:24:34+08:00",
+                    "parent_group_id": -1,
+                    "quota": -2,
+                    "groups": [
+                        {
+                            "org_id": -1,
+                            "id": 2252,
+                            "name": "01-市场销售部",
+                            "owner": "system admin",
+                            "created_at": "2023-11-14T11:26:27+08:00",
+                            "parent_group_id": 2251,
+                            "quota": -2
+                        },
+                        {
+                            "org_id": -1,
+                            "id": 2253,
+                            "name": "02-产品开发部",
+                            "owner": "system admin",
+                            "created_at": "2023-11-14T11:38:18+08:00",
+                            "parent_group_id": 2251,
+                            "quota": -2
+                        },
+                        {
+                            "org_id": -1,
+                            "id": 2254,
+                            "name": "03-系统测试部",
+                            "owner": "system admin",
+                            "created_at": "2023-11-14T11:38:29+08:00",
+                            "parent_group_id": 2251,
+                            "quota": -2
+                        },
+                        {
+                            "org_id": -1,
+                            "id": 2255,
+                            "name": "04-项目实施部",
+                            "owner": "system admin",
+                            "created_at": "2023-11-14T11:38:40+08:00",
+                            "parent_group_id": 2251,
+                            "quota": -2
+                        }
+                    ],
+                    "members": [
+                        {
+                            "group_id": 2251,
+                            "group_name": "SeafileDepartment",
+                            "email": "daniel@163.com",
+                            "name": "daniel",
+                            "contact_email": "daniel@163.com",
+                            "avatar_url": "https://demo.seafile.top/media/avatars/default.png",
+                            "is_admin": true,
+                            "role": "Admin"
+                        },
+                        {
+                            "group_id": 2251,
+                            "group_name": "SeafileDepartment",
+                            "email": "admin@seafile.com",
+                            "name": "Teamfile",
+                            "contact_email": "admin@seafile.com",
+                            "avatar_url": "https://demo.seafile.top/media/avatars/7/a/ce4483526f8aefec13fb8c14458893/resized/80/1ae78cb64ba5442c2929247926af0e6f.png",
+                            "is_admin": true,
+                            "role": "Admin"
+                        },
+                        {
+                            "group_id": 2251,
+                            "group_name": "SeafileDepartment",
+                            "email": "adfs@seafile.com",
+                            "name": "adfs-admin",
+                            "contact_email": "adfs@seafile.com",
+                            "avatar_url": "https://demo.seafile.top/media/avatars/default.png",
+                            "is_admin": false,
+                            "role": "Member"
+                        }
+                    ],
+                    "ancestor_groups": []
+                }
+    
+    delete: 
+      tags:
+        - Departments
+      summary: Delete a department
+      description: Delete specified department.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/group_id'
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Success state
+  
+  /api/v2.1/admin/organizations/:
+    get:
+      tags:
+        - Organizations
+      summary: Get organizations
+      description: '' 
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+      responses:
+        '200': 
+          description: OK
+
+    post:
+      tags:
+        - Organizations
+      summary: Add organizations
+      description: '' 
+      security:
+        - AccountTokenAuth: []
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties: 
+                org_name: 
+                  $ref: '#/components/schemas/org_name'
+                owner_email:
+                  $ref: '#/components/schemas/email'
+                owner_password: 
+                  $ref: '#/components/schemas/password'
+      responses:
+        '200': 
+          description: OK
+  
+  /api/v2.1/admin/search-organization/:
+    get:
+      tags:
+        - Organizations
+      summary: Search organizations
+      description: '' 
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/query'
+      responses:
+        '200': 
+          description: OK
+  
+  /api/v2.1/admin/organizations/{org_id}/: 
+    get:
+      tags:
+        - Organizations
+      summary: Get organization info
+      description: '' 
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/org_id'
+      responses:
+        '200': 
+          description: OK
+    
+    put: 
+      tags:
+        - Organizations
+      summary: Update organization info
+      description: '' 
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/org_id'
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                org_name: 
+                  $ref: '#/components/schemas/org_name'
+                max_user_number:
+                  type: integer
+                  description: Max user number
+                quota:
+                  type: integer
+                  description: -2 means no quota limit.
+              required:
+                - org_name
+      responses:
+        '200': 
+          description: OK
+    
+    delete: 
+      tags:
+        - Organizations
+      summary: Delete organization
+      description: '' 
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/org_id'
+      responses:
+        '200': 
+          description: OK
+
+  /api/v2.1/admin/shares/: 
+    get: 
+      tags:
+        - Share
+      summary: Get repo user/group shares
+      description: Return shared information of the library.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id_query'
+        - $ref: '#/components/parameters/share_type'
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json: 
+              schema: 
+                oneOf:
+                  - $ref: '#/components/schemas/response_user'
+                  - $ref: '#/components/schemas/response_group'
+              examples:
+                User: 
+                  value: [
+                    {
+                        "repo_id": "ddd42241-e003-425d-960e-0f9f7144866f",
+                        "share_type": "user",
+                        "permission": "r",
+                        "path": "/",
+                        "user_name": "name of user 2",
+                        "user_email": "daniel@example.com"
+                    }
+                    ]
+                Group: 
+                  value: [
+                    {
+                        "repo_id": "ddd42241-e003-425d-960e-0f9f7144866f",
+                        "share_type": "group",
+                        "permission": "rw",
+                        "group_name": "SeafileGroup",
+                        "path": "/",
+                        "group_id": 2
+                    }
+                      ]
+
+
+
