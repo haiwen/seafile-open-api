@@ -25,6 +25,23 @@ components:
 
   parameters:
   # Query parameters
+    user: 
+      name: user
+      in: query
+      required: true
+      description: User's email.
+      schema: 
+        type: string
+
+    avatar_size: 
+      name: avatar_size
+      in: query
+      required: false
+      description: Default value is 72.
+      schema: 
+        type: integer
+        default: 72
+    
     username:
       name: username
       in: query
@@ -3904,3 +3921,87 @@ paths:
                   success: 
                     type: boolean
                     description: Success state
+
+  /api/v2.1/admin/user-activities/:
+    get: 
+      tags:
+          - User activities
+      summary: Get one user's activities
+      description: Return activity information for the specified user. 
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/user'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+        - $ref: '#/components/parameters/avatar_size'
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      type: object
+                      description: Activitie info
+                      properties:
+                        commit_id: 
+                          type: string
+                        obj_type: 
+                          type: string
+                        repo_id: 
+                          type: string
+                        name: 
+                          type: string
+                        author_email: 
+                          type: string
+                        author_contact_email: 
+                          type: string
+                        time: 
+                          type: string
+                        author_name: 
+                          type: string
+                        avatar_url: 
+                          type: string
+                        op_type: 
+                          type: string
+                        path: 
+                          type: string
+                        repo_name: 
+                          type: string
+                example: {
+                  "events": [
+                      {
+                          "commit_id": "110d26aeb4b3f492c51270b6c1dda115138a46ac",
+                          "obj_type": "file",
+                          "repo_id": "d4f596ed-09ea-4ac6-8d59-12acbd089097",
+                          "name": "setting.py",
+                          "author_email": "daniel@example.com",
+                          "author_contact_email": "daniel@email.com",
+                          "time": "2019-01-05T15:34:01+08:00",
+                          "author_name": "name of seafile",
+                          "avatar_url": "http://192.168.1.113:8000/media/avatars/0/1/a72299021077701e7c522c46fdaa87/resized/72/f1624528379862140839578963eb24f2.png",
+                          "op_type": "delete",
+                          "path": "/setting.py",
+                          "repo_name": "Python"
+                      },
+                      {
+                          "commit_id": "740cc4ae773fb913a4ef8a413e9e2dc240f0bbe4",
+                          "obj_type": "file",
+                          "repo_id": "564dd12c-d804-4ea6-96af-7843e3c56e35",
+                          "name": "file.md",
+                          "author_email": "daniel@example.com",
+                          "author_contact_email": "daniel@email.com",
+                          "time": "2018-09-20T14:58:55+08:00",
+                          "author_name": "name of seafile",
+                          "avatar_url": "http://192.168.1.113:8000/media/avatars/0/1/a72299021077701e7c522c46fdaa87/resized/72/f1624528379862140839578963eb24f2.png",
+                          "op_type": "edit",
+                          "path": "/file.md",
+                          "repo_name": "Repo"
+                      },
+                  ]
+                }
