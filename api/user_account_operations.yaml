@@ -1074,6 +1074,7 @@ components:
         file:
           type: string
           description: this field contains the contents to be uploaded.
+          format: binary
         parent_dir:
           type: string
           description: path in your Seafile repo that you want to upload local file to. This path must be the same as the 'p' parameter you specified when getting the upload link.
@@ -1090,6 +1091,7 @@ components:
         file:
           type: string
           description: this field contains the contents to be uploaded.
+          format: binary
         target_file:
           type: string
           description: The absolute path inside the library of the file being updated.
