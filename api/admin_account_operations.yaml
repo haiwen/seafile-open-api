@@ -25,6 +25,23 @@ components:
 
   parameters:
   # Query parameters
+    user: 
+      name: user
+      in: query
+      required: true
+      description: User's email.
+      schema: 
+        type: string
+
+    avatar_size: 
+      name: avatar_size
+      in: query
+      required: false
+      description: Default value is 72.
+      schema: 
+        type: integer
+        default: 72
+    
     username:
       name: username
       in: query
@@ -131,6 +148,23 @@ components:
       schema: 
         type: string
         default: /
+    
+    path_share: 
+      name: path
+      in: query
+      required: true
+      description: Only used for download (sub) file/folder of shared dir.
+      schema: 
+        type: string
+
+    type:
+      name: type
+      in: query
+      description: Only used for download (sub) file/folder of shared dir, `file` or `folder`.
+      required: true
+      schema:
+        type: string
+      example: 'file'
 
   # Path parameters
     email: 
@@ -179,6 +213,7 @@ components:
   schemas:
     # requestBody schemas
 
+
       repo_id:
         type: string
         description: The unique identifier of a library
@@ -199,6 +234,7 @@ components:
 
       password:
         type: string
+        description: Password
         example: password
       
       is_staff:
@@ -2772,7 +2808,7 @@ paths:
       tags:
         - Organizations
       summary: Get organizations
-      description: '' 
+      description: Return existing organizational information. 
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2781,12 +2817,62 @@ paths:
       responses:
         '200': 
           description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  organizations: 
+                    type: array
+                    items: 
+                      type: object
+                      description: Organization info
+                      properties:
+                        org_id: 
+                          type: integer
+                        org_name: 
+                          type: string
+                        ctime: 
+                          type: string
+                        org_url_prefix: 
+                          type: string
+                        role: 
+                          type: string
+                        creator_email: 
+                          type: string
+                        creator_name: 
+                          type: string
+                        creator_contact_email: 
+                          type: string
+                        quota: 
+                          type: integer
+                        quota_usage: 
+                          type: integer
+                  total_count:
+                    type: integer
+                example: {
+                    "organizations": [
+                        {
+                            "org_id": 1,
+                            "org_name": "organization",
+                            "ctime": "2024-04-01T02:11:22+00:00",
+                            "org_url_prefix": "org-1d2sr27xc29wcc9c8hbl",
+                            "role": "default",
+                            "creator_email": "20e4e00ecc1d4ac58f2ca0a3fe96df0b@auth.local",
+                            "creator_name": "seafile",
+                            "creator_contact_email": "seafile@123.com",
+                            "quota": -2,
+                            "quota_usage": 0
+                        }
+                    ],
+                    "total_count": 1
+                }
 
     post:
       tags:
         - Organizations
       summary: Add organizations
-      description: '' 
+      description: Create a new organization. 
       security:
         - AccountTokenAuth: []
       requestBody: 
@@ -2801,16 +2887,58 @@ paths:
                   $ref: '#/components/schemas/email'
                 owner_password: 
                   $ref: '#/components/schemas/password'
+              required:
+                - org_name
+                - owner_email
+                - owner_password
       responses:
         '200': 
           description: OK
+          content:
+            application/json: 
+              schema: 
+                type: object
+                description: Organization info
+                properties:
+                  org_id: 
+                    type: integer
+                  org_name: 
+                    type: string
+                  ctime: 
+                    type: string
+                  org_url_prefix: 
+                    type: string
+                  role: 
+                    type: string
+                  creator_email: 
+                    type: string
+                  creator_name: 
+                    type: string
+                  creator_contact_email: 
+                    type: string
+                  quota: 
+                    type: integer
+                  quota_usage: 
+                    type: integer
+                example: {
+                    "org_id": 2,
+                    "org_name": "Org",
+                    "ctime": "2024-04-01T02:17:13+00:00",
+                    "org_url_prefix": "org-63b5i68jmucb3lt5ob8u",
+                    "role": "default",
+                    "creator_email": "badf1c8b1feb43178163736e9ae14247@auth.local",
+                    "creator_name": "seafile",
+                    "creator_contact_email": "seafile@example.com",
+                    "quota": -2,
+                    "quota_usage": 0
+                }
   
   /api/v2.1/admin/search-organization/:
     get:
       tags:
         - Organizations
       summary: Search organizations
-      description: '' 
+      description: By providing an exact match or a vague match to the name, you can find organization that match the search criteria.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2818,13 +2946,71 @@ paths:
       responses:
         '200': 
           description: OK
-  
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  organization_list: 
+                    type: array
+                    items: 
+                      type: object
+                      description: Organization info
+                      properties:
+                        org_id: 
+                          type: integer
+                        org_name: 
+                          type: string
+                        ctime: 
+                          type: string
+                        org_url_prefix: 
+                          type: string
+                        role: 
+                          type: string
+                        creator_email: 
+                          type: string
+                        creator_name: 
+                          type: string
+                        creator_contact_email: 
+                          type: string
+                        quota: 
+                          type: integer
+                        quota_usage: 
+                          type: integer
+                example: {
+                    "organization_list": [
+                        {
+                            "org_id": 1,
+                            "org_name": "organization",
+                            "ctime": "2024-04-01T02:11:22+00:00",
+                            "org_url_prefix": "org-1d2sr27xc29wcc9c8hbl",
+                            "role": "default",
+                            "creator_email": "20e4e00ecc1d4ac58f2ca0a3fe96df0b@auth.local",
+                            "creator_name": "daniel",
+                            "creator_contact_email": "daniel@example.com",
+                            "quota": -2,
+                            "quota_usage": 0
+                        },
+                        {
+                            "org_id": 2,
+                            "org_name": "Org",
+                            "ctime": "2024-04-01T02:17:13+00:00",
+                            "org_url_prefix": "org-63b5i68jmucb3lt5ob8u",
+                            "role": "default",
+                            "creator_email": "badf1c8b1feb43178163736e9ae14247@auth.local",
+                            "creator_name": "seafile",
+                            "creator_contact_email": "seafile@example.com",
+                            "quota": -2,
+                            "quota_usage": 0
+                        }
+                    ]
+                }
   /api/v2.1/admin/organizations/{org_id}/: 
     get:
       tags:
         - Organizations
       summary: Get organization info
-      description: '' 
+      description: Return specified organization information. 
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2832,12 +3018,61 @@ paths:
       responses:
         '200': 
           description: OK
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  org_id: 
+                    type: integer
+                  org_name: 
+                    type: string
+                  ctime: 
+                    type: string
+                  org_url_prefix: 
+                    type: string
+                  role: 
+                    type: string
+                  creator_email: 
+                    type: string
+                  creator_name: 
+                    type: string
+                  creator_contact_email: 
+                    type: string
+                  quota: 
+                    type: integer
+                  quota_usage: 
+                    type: integer
+                  users_count: 
+                    type: integer
+                  repos_count: 
+                    type: integer
+                  groups_count: 
+                    type: integer
+                  enable_saml_login: 
+                    type: boolean
+                example: {
+                    "org_id": 2,
+                    "org_name": "Org",
+                    "ctime": "2024-04-01T02:17:13+00:00",
+                    "org_url_prefix": "org-63b5i68jmucb3lt5ob8u",
+                    "role": "default",
+                    "creator_email": "badf1c8b1feb43178163736e9ae14247@auth.local",
+                    "creator_name": "seafile",
+                    "creator_contact_email": "seafile@example.com",
+                    "quota": -2,
+                    "quota_usage": 0,
+                    "users_count": 1,
+                    "repos_count": 0,
+                    "groups_count": 0,
+                    "enable_saml_login": false
+                }
     
     put: 
       tags:
         - Organizations
       summary: Update organization info
-      description: '' 
+      description: Update existing organization information.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2861,12 +3096,50 @@ paths:
       responses:
         '200': 
           description: OK
+          content:
+            application/json: 
+              schema: 
+                type: object
+                description: Organization info
+                properties:
+                  org_id: 
+                    type: integer
+                  org_name: 
+                    type: string
+                  ctime: 
+                    type: string
+                  org_url_prefix: 
+                    type: string
+                  role: 
+                    type: string
+                  creator_email: 
+                    type: string
+                  creator_name: 
+                    type: string
+                  creator_contact_email: 
+                    type: string
+                  quota: 
+                    type: integer
+                  quota_usage: 
+                    type: integer
+                example: {
+                  "org_id": 2,
+                  "org_name": "NewOrg",
+                  "ctime": "2024-04-01T02:17:13+00:00",
+                  "org_url_prefix": "org-63b5i68jmucb3lt5ob8u",
+                  "role": "default",
+                  "creator_email": "badf1c8b1feb43178163736e9ae14247@auth.local",
+                  "creator_name": "seafile",
+                  "creator_contact_email": "seafile@example.com",
+                  "quota": 1000000,
+                  "quota_usage": 0
+                 }
     
     delete: 
       tags:
         - Organizations
       summary: Delete organization
-      description: '' 
+      description: Delete existing organizations. 
       security:
         - AccountTokenAuth: []
       parameters:
@@ -2874,6 +3147,284 @@ paths:
       responses:
         '200': 
           description: OK
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
+  
+  /api/v2.1/admin/organizations/{org_id}/users/:
+    get:
+      tags:
+        - Organizations
+      summary: Get organization users
+      description: Return member information for the current organization.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/org_id'
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  users: 
+                    type: array
+                    items: 
+                      type: object
+                      description: Memeber info
+                      properties:
+                        org_id: 
+                          type: integer
+                        email: 
+                          type: string
+                        name: 
+                          type: string
+                        contact_email: 
+                          type: string
+                        quota_total: 
+                          type: integer
+                        quota_usage: 
+                          type: integer
+                        create_time: 
+                          type: string
+                        last_login: 
+                          type: string
+                        is_org_staff: 
+                          type: boolean
+                        active: 
+                          type: boolean
+                example: {
+                  "users": [
+                      {
+                          "org_id": 1,
+                          "email": "20e4e00ecc1d4ac58f2ca0a3fe96df0b@auth.local",
+                          "name": "Seafile",
+                          "contact_email": "Seafile@example.com",
+                          "quota_total": -2,
+                          "quota_usage": 0,
+                          "create_time": "2024-04-01T02:11:22+00:00",
+                          "last_login": "",
+                          "is_org_staff": true,
+                          "active": true
+                      }
+                  ]
+                  }
+            
+    post: 
+      tags:
+        - Organizations
+      summary: Add organization user
+      description: Add users to existing organizations.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/org_id'
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                email: 
+                  $ref: '#/components/schemas/email'
+                password: 
+                  $ref: '#/components/schemas/password'
+              required:
+                - email
+                - password
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json: 
+              schema: 
+                type: object
+                description: User info
+                properties:
+                  org_id: 
+                    type: integer
+                  email: 
+                    type: string
+                  name: 
+                    type: string
+                  contact_email: 
+                    type: string
+                  quota_total: 
+                    type: integer
+                  quota_usage: 
+                    type: integer
+                  create_time: 
+                    type: string
+                  last_login: 
+                    type: string
+                  is_org_staff: 
+                    type: boolean
+                  active: 
+                    type: boolean
+                example: {
+                  "org_id": 1,
+                  "email": "b8920e4e945a40e098fc8cf8fc533a2d@auth.local",
+                  "name": "seafile",
+                  "contact_email": "seafile@example.com",
+                  "quota_total": -2,
+                  "quota_usage": 0,
+                  "create_time": "2024-04-01T02:55:58+00:00",
+                  "last_login": "",
+                  "is_org_staff": false,
+                  "active": true
+                 }
+          
+  /api/v2.1/admin/organizations/{org_id}/users/{email}/: 
+    get:
+      tags:
+        - Organizations
+      summary: Get organization user info
+      description: Return user information specified by the current organization.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/org_id'
+        - $ref: '#/components/parameters/email'
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json: 
+              schema: 
+                type: object
+                description: User info 
+                properties:
+                  org_id: 
+                    type: integer
+                  email: 
+                    type: string
+                  name: 
+                    type: string
+                  contact_email: 
+                    type: string
+                  quota_total: 
+                    type: integer
+                  quota_usage: 
+                    type: integer
+                  create_time: 
+                    type: string
+                  last_login: 
+                    type: string
+                  is_org_staff: 
+                    type: boolean
+                  active: 
+                    type: boolean
+                example: {
+                    "org_id": 1,
+                    "email": "b8920e4e945a40e098fc8cf8fc533a2d@auth.local",
+                    "name": "seafile",
+                    "contact_email": "seafile@example.com",
+                    "quota_total": -2,
+                    "quota_usage": 0,
+                    "create_time": "2024-04-01T02:55:58+00:00",
+                    "last_login": "",
+                    "is_org_staff": false,
+                    "active": true
+                }
+
+    put: 
+      tags:
+        - Organizations
+      summary: Update organization user info
+      description: Update existing user information for the current organization. 
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/org_id'
+        - $ref: '#/components/parameters/email'
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                active:
+                  type: string
+                  description: "`true` or `false`" 
+                name: 
+                  type: string
+                  description: User name
+                contact_email:
+                  type: string
+                  example: Seafile@example.com
+                quota_total: 
+                  type: integer
+                  description: Integer greater than 0, unit is MB.
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json: 
+              schema: 
+                type: object
+                description: User info
+                properties:
+                  org_id: 
+                    type: integer
+                  email: 
+                    type: string
+                  name: 
+                    type: string
+                  contact_email: 
+                    type: string
+                  quota_total: 
+                    type: integer
+                  quota_usage: 
+                    type: integer
+                  create_time: 
+                    type: string
+                  last_login: 
+                    type: string
+                  is_org_staff: 
+                    type: boolean
+                  active: 
+                    type: boolean
+                example: {
+                  "org_id": 1,
+                  "email": "b8920e4e945a40e098fc8cf8fc533a2d@auth.local",
+                  "name": "Seahub",
+                  "contact_email": "Seafile@example.com",
+                  "quota_total": 1000000,
+                  "quota_usage": 0,
+                  "create_time": "2024-04-01T02:55:58+00:00",
+                  "last_login": "",
+                  "is_org_staff": false,
+                  "active": true
+                   }
+      
+    delete: 
+      tags:
+        - Organizations
+      summary: Delete organization users
+      description: Delete existing users in the current organization.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/org_id'
+        - $ref: '#/components/parameters/email'
+      responses:
+        '200': 
+          description: OK 
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
 
   /api/v2.1/admin/shares/: 
     get: 
@@ -3311,3 +3862,146 @@ paths:
                       "obj_name": "file.docx"
                   }
                     ]
+
+  /api/v2.1/admin/share-links/{token}/download/:
+    get: 
+      tags:
+          - Share links
+      summary: Download file/dir
+      description: Return to the download link for a file or folder.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/token'
+        - $ref: '#/components/parameters/path_share' 
+        - $ref: '#/components/parameters/type' 
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  download_link: 
+                    type: string
+                    description: Download link
+                example: {
+                  "download_link": "http://127.0.0.1:8082/zip/b53cf7cf-45d9-4201-bce6-e7f5bdd910f3"
+                   }
+
+  /api/v2.1/admin/share-links/{token}/check-password/:
+    post: 
+      tags:
+          - Share links
+      summary: Check password
+      description: Check if the password for encrypted sharing is correct.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/token'
+      requestBody: 
+        content:
+          multipart/form-data:
+            schema: 
+              type: object
+              properties:
+                password:
+                  $ref: '#/components/schemas/password' 
+              required:
+                - password
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    description: Success state
+
+  /api/v2.1/admin/user-activities/:
+    get: 
+      tags:
+          - User activities
+      summary: Get one user's activities
+      description: Return activity information for the specified user. 
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/user'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+        - $ref: '#/components/parameters/avatar_size'
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      type: object
+                      description: Activitie info
+                      properties:
+                        commit_id: 
+                          type: string
+                        obj_type: 
+                          type: string
+                        repo_id: 
+                          type: string
+                        name: 
+                          type: string
+                        author_email: 
+                          type: string
+                        author_contact_email: 
+                          type: string
+                        time: 
+                          type: string
+                        author_name: 
+                          type: string
+                        avatar_url: 
+                          type: string
+                        op_type: 
+                          type: string
+                        path: 
+                          type: string
+                        repo_name: 
+                          type: string
+                example: {
+                  "events": [
+                      {
+                          "commit_id": "110d26aeb4b3f492c51270b6c1dda115138a46ac",
+                          "obj_type": "file",
+                          "repo_id": "d4f596ed-09ea-4ac6-8d59-12acbd089097",
+                          "name": "setting.py",
+                          "author_email": "daniel@example.com",
+                          "author_contact_email": "daniel@email.com",
+                          "time": "2019-01-05T15:34:01+08:00",
+                          "author_name": "name of seafile",
+                          "avatar_url": "http://192.168.1.113:8000/media/avatars/0/1/a72299021077701e7c522c46fdaa87/resized/72/f1624528379862140839578963eb24f2.png",
+                          "op_type": "delete",
+                          "path": "/setting.py",
+                          "repo_name": "Python"
+                      },
+                      {
+                          "commit_id": "740cc4ae773fb913a4ef8a413e9e2dc240f0bbe4",
+                          "obj_type": "file",
+                          "repo_id": "564dd12c-d804-4ea6-96af-7843e3c56e35",
+                          "name": "file.md",
+                          "author_email": "daniel@example.com",
+                          "author_contact_email": "daniel@email.com",
+                          "time": "2018-09-20T14:58:55+08:00",
+                          "author_name": "name of seafile",
+                          "avatar_url": "http://192.168.1.113:8000/media/avatars/0/1/a72299021077701e7c522c46fdaa87/resized/72/f1624528379862140839578963eb24f2.png",
+                          "op_type": "edit",
+                          "path": "/file.md",
+                          "repo_name": "Repo"
+                      },
+                  ]
+                }
