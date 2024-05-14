@@ -3684,7 +3684,7 @@ paths:
     post:
       tags:
         - File upload
-      summary: Uploading files
+      summary: Upload file
       description: |-
         After getting the upload link, POST to this link for uploading files.
         The request body must be in multipart/form-data format.
@@ -3705,29 +3705,6 @@ paths:
       responses:
         '200':
           description: OK
-
-
-  /seafhttp/upload-aj/{upload_token}?ret-json=1:
-    post:
-      tags:
-        - File upload
-      summary: Upload file
-      description: After getting the upload link, POST to this link for uploading files.
-      security:
-        - AccountTokenAuth: []
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/upload_file'
-      parameters:
-        - $ref: '#/components/parameters/upload_token'
-        - $ref: '#/components/parameters/upload_ret-json'
-        - $ref: '#/components/parameters/upload_need_idx_progres'
-      responses:
-        '200':
-          description: OK
           content:
             application/json:
               schema:
@@ -3737,9 +3714,6 @@ paths:
                      $ref: '#/components/schemas/file_upload_noret'
                   file_upload_ret:  
                      $ref: '#/components/schemas/file_upload_ret'
-                  file_upload_task_id:  
-                     $ref: '#/components/schemas/file_upload_task_id'
-
               examples:
                 No ret-json:
                   value: adc83b19e793491b1c6ea0fd8b46cd9f32e592fc
@@ -3751,29 +3725,6 @@ paths:
                         "size": 2987
                     }
                   ]
-                Sample response with relative_path and ret-json:
-                  value: [
-                        {
-                            "name": "test.txt",
-                            "id": "4ccd37916552e2943314027931edd0b45240be7c",
-                            "size": 2987
-                        },
-                        {
-                            "name": "1.jpg",
-                            "id": "12e07dd00c124fa7ea3b645ff9fe183f73eab2a1",
-                            "size": 1699246
-                        }
-                    ]
-                Sample response with ?need_idx_progress=true:
-                  value: d319a3f4-40da-4d58-9d3f-07864061f633
-                Sample response with ?task_id:
-                  value: {
-                    "indexed": 1244,
-                    "total": 1244,
-                    "status": 0,
-                    "ret_json": "[{\"name\": \"seafile-license (1).txt\", \"id\": \"cb8d8eaa4e540d30550a26e399b1207ef798bc67\", \"size\": 1244}]"
-                    }
-
 
   /api2/repos/{repo_id}/update-link/:
     get:
