@@ -42,7 +42,7 @@ components:
       required: true
       schema:
         type: string
-      example: '1.txt'
+      example: '/Folder/xx.md'
 
     dir_path:
       name: path
@@ -169,6 +169,7 @@ components:
           enum:
             - rename
             - revert
+            - create
         newname:
           type: string
           example: '2.txt'
@@ -421,13 +422,88 @@ paths:
                   'obj_name': 'new_folder'
                   'obj_id': '0000000000000000000000000000000000000000'
                   'mtime': '2023-12-26T07:03:06+00:00'
+    delete:
+      summary: Delete dir
+      tags:
+        - Via Repo-Token
+      description: Delete the current repo directory
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/dir_path'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: Success info
+                properties:
+                  success:
+                    type: boolean
+                  commit_id:
+                    type: string
+              example: {
+                  "success": true,
+                  "commit_id": "574eaa90fbf8c279735a1350253b43824e8904d1"
+                    }
 
   /api/v2.1/via-repo-token/file/:
+    get:
+      summary: Get file info
+      tags:
+        - Via Repo-Token
+      description: Get detailed information about the specified file
+      security:
+        - RepoTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/file_path'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: The file information
+                properties:
+                  type: 
+                    type: string
+                  repo_id: 
+                    type: string
+                  parent_dir: 
+                    type: string
+                  obj_name: 
+                    type: string
+                  obj_id: 
+                    type: string
+                  size: 
+                    type: integer
+                  mtime: 
+                    type: string
+                  can_preview: 
+                    type: boolean
+                  can_edit: 
+                    type: boolean
+                example: {
+                  "type": "file",
+                  "repo_id": "fedd5bc8-3da3-4be3-91d4-00b90c7de77f",
+                  "parent_dir": "/Folder",
+                  "obj_name": "Seafile.md",
+                  "obj_id": "0000000000000000000000000000000000000000",
+                  "size": 0,
+                  "mtime": "2024-03-20T11:32:02+08:00",
+                  "can_preview": true,
+                  "can_edit": true
+                    }
     post:
       summary: Operation file
       tags:
         - Via Repo-Token
-      description: Rename or revert a file
+      description: |-
+        Rename or revert or create a file
+        *Note: If you want to create a file, simply pass in the path*
       security:
         - RepoTokenAuth: []
       parameters:
@@ -474,6 +550,32 @@ paths:
                   'mtime': '2023-12-26T06:03:06+00:00'
                   'can_preview': true
                   'can_edit': true
+    delete:
+      summary: Delete file
+      tags:
+        - Via Repo-Token
+      description: Delete existing files
+      security:
+        - RepoTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/file_path'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: Success info
+                properties:
+                  success:
+                    type: boolean
+                  commit_id:
+                    type: string
+                example: {
+                  "success": true,
+                  "commit_id": "d6c213abcaf50ae1f5e775eaf1808b4c80c9ed61"
+                    }
 
   /api/v2.1/via-repo-token/upload-link/:
     get:
@@ -606,3 +708,5 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponseSuccess'
+
+  
