@@ -1283,7 +1283,7 @@ paths:
             schema:
               type: object
               properties:
-                name:
+                repo_name:
                   $ref: '#/components/schemas/repo_name'
                 permission:
                   $ref: '#/components/schemas/permission'
