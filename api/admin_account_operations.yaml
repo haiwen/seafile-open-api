@@ -1290,8 +1290,7 @@ paths:
                 password:
                   $ref: '#/components/schemas/password'
               required:
-                - repo_name
-                - permission
+                - name
       responses:
         '200':
           description: OK
