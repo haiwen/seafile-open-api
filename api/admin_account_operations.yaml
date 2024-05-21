@@ -197,6 +197,11 @@ components:
         description: "'r' or 'rw'"
         example: r
 
+      repo_name:
+        description: 'Name of the library'
+        type: string
+        example: 'test'
+
       password:
         type: string
         example: password
@@ -1261,6 +1266,91 @@ paths:
                   success:
                     type: boolean
                     description: Success state
+
+  /api/v2.1/admin/groups/{group_id}/group-owned-libraries/:
+    post:
+      tags:
+        - Department libraries
+      summary: Add group owned library
+      description: Create a library based on the unique identifier of the group, which is shared with group members.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/group_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  $ref: '#/components/schemas/repo_name'
+                permission:
+                  $ref: '#/components/schemas/permission'
+                password:
+                  $ref: '#/components/schemas/password'
+              required:
+                - repo_name
+                - permission
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Department library info
+                properties:
+                  id: 
+                    type: string
+                  name: 
+                    type: string
+                  mtime: 
+                    type: string
+                  size: 
+                    type: integer
+                  encrypted: 
+                    type: boolean
+                  owner: 
+                    type: string
+                  group_name: 
+                    type: string
+                  permission: 
+                    type: string
+                example: {
+                  "id": "4150d508-9014-413d-b1d5-3f0cc9d28e64",
+                  "name": "test",
+                  "mtime": "2024-03-13T11:27:58+08:00",
+                  "size": 0,
+                  "encrypted": false,
+                  "owner": "2251@seafile_group",
+                  "group_name": "公司AAA",
+                  "permission": "rw"
+                      }
+
+  /api/v2.1/admin/groups/{group_id}/group-owned-libraries/{repo_id}/:
+    delete:
+      tags:
+        - Department libraries
+      summary: Delete group owned library
+      description: Delete specified group owned library.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/group_id'
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Success state
+
  
   /api/v2.1/admin/groups/:
     get: 
