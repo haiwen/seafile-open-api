@@ -44,6 +44,15 @@ components:
         type: string
       example: '/Folder/xx.md'
 
+    file_p:
+      name: p
+      in: query
+      description: 'Path to the file'
+      required: true
+      schema:
+        type: string
+      example: '/Folder/xx.md'
+
     dir_path:
       name: path
       in: query
@@ -161,22 +170,69 @@ components:
         commit_id:
           type: string
 
-    operation_file:
+    file_operation_create:
+      title: 'Create file'
       type: object
       properties:
         operation:
           type: string
-          enum:
-            - rename
-            - revert
-            - create
-        newname:
+          enum: [create]
+        
+
+    file_operation_move:
+      title: 'Move file'
+      type: object
+      properties:
+        operation:
           type: string
-          example: '2.txt'
+          enum: [move]
+        dst_dir:
+          title: dst_dir
+          type: string
+          example: /folder
+
+    file_operation_revert:
+      title: 'Revert file'
+      type: object
+      properties:
+        operation:
+          type: string
+          enum: [copy]
         commit_id:
+          title: dst_dir
           type: string
-      required:
-        - operation
+          example: 'fb53724f838f92b56559dbe3d86c1c1d3d01f53b'
+    
+    file_operation_rename:
+      title: 'Rename file'
+      type: object
+      properties:
+        operation:
+          type: string
+          enum: [rename]
+        newname:
+          title: 'newname'
+          type: string
+          example: 'test.md'
+      
+    file_operation_copy:
+      title: 'Copy file'
+      type: object
+      properties:
+        operation:
+          type: string
+          enum: [copy]
+        dst_dir:
+          type: string
+          example: '/'
+
+    file_operation:
+      oneOf:
+        - $ref: '#/components/schemas/file_operation_create'
+        - $ref: '#/components/schemas/file_operation_revert'
+        - $ref: '#/components/schemas/file_operation_move'
+        - $ref: '#/components/schemas/file_operation_rename'
+        - $ref: '#/components/schemas/file_operation_copy'
 
     batch_copy_or_move:
       type: object
@@ -219,6 +275,102 @@ components:
         success:
           type: boolean
 
+    operation_file_response: 
+      title: create rename move copy
+      type: object
+      description: File information
+      properties:
+        mtime:
+          type: string
+        obj_id: 
+          type: string
+        obj_name: 
+          type: string
+        parent_dir: 
+          type: string
+        repo_id: 
+          type: string
+        size: 
+          type: integer
+        type: 
+          type: string
+        can_preview: 
+          type: boolean
+        can_edit: 
+          type: boolean
+
+    move: 
+      title: move
+      type: object
+      properties:
+        repo_id: 
+          type: string
+        parent_dir: 
+          type: string
+        obj_name: 
+          type: string
+
+    revert: 
+      title: revert
+      type: object
+      properties:
+        success: 
+          type: boolean
+
+    file_lock_operation:
+      title: 'operation'
+      type: string
+      enum:
+        - lock
+        - unlock
+      example: "lock"
+
+    share_links: 
+      type: object
+      properties:
+          username:
+            type: string
+          repo_id:
+            type: string
+          repo_name:
+            type: string
+          path:
+            type: string
+          obj_name:
+            type: string
+          obj_id:
+            type: string
+          is_dir:
+            type: boolean
+          token:
+            type: string
+          link:
+            type: string
+          view_cnt:
+            type: number
+          ctime:
+            type: string
+          expire_date:
+            type: string
+          is_expired:
+            type: boolean
+          permissions:
+            type: object
+            properties:
+              can_edit:
+                type: boolean
+              can_download:
+                type: boolean
+              can_upload:
+                type: boolean
+          password:
+            type: string
+          user_scope:
+            type: string
+          can_edit:
+            type: boolean
+        
+          
 paths:
   /api/v2.1/repos/{repo_id}/repo-api-tokens/:
     get:
@@ -502,17 +654,62 @@ paths:
       tags:
         - Via Repo-Token
       description: |-
-        Rename or revert or create a file
+        Rename or revert or create or move a file
         *Note: If you want to create a file, simply pass in the path*
       security:
         - RepoTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/file_path'
       requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/file_operation'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                oneOf:
+                  - $ref: '#/components/schemas/operation_file_response'
+                  - $ref: '#/components/schemas/revert'
+              examples: 
+                Create or Rename or Move or Copy file: 
+                  value: {
+                    "type": "file",
+                    "repo_id": "761f27e6-c198-4c93-8a06-05a3f6e1ac2f",
+                    "parent_dir": "/folder",
+                    "obj_name": "create",
+                    "obj_id": "0000000000000000000000000000000000000000",
+                    "size": 0,
+                    "mtime": "2024-08-28T08:23:59+00:00",
+                    "can_preview": false,
+                    "can_edit": false
+                  }
+                Revert file: 
+                  value: {
+                      "success": true
+                  }
+    
+    put:
+      tags:
+        - Via Repo-Token
+      summary: Lock/Unlock file
+      description:  Lock or unlock the file, locked files cannot be modified
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/file_p'
+      requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/operation_file'
+              type: object
+              properties:
+                operation:
+                  $ref: '#/components/schemas/file_lock_operation'
       responses:
         '200':
           description: OK
@@ -520,36 +717,37 @@ paths:
             application/json:
               schema:
                 type: object
-                description: The file information
+                description: Return file information
                 properties:
-                  type:
+                  type: 
                     type: string
-                  repo_id:
+                  repo_id: 
                     type: string
-                  parent_dir:
+                  parent_dir: 
                     type: string
                   obj_name:
                     type: string
-                  obj_id:
+                  obj_id: 
                     type: string
-                  size:
+                  size: 
                     type: integer
                   mtime:
                     type: string
                   can_preview:
-                    type: string
+                    type: boolean
                   can_edit:
-                    type: string
+                    type: boolean
                 example:
-                  'type': 'file'
-                  'repo_id': 'b8e06f24-edfe-44a3-b63b-ad9ecc59e1eb'
-                  'parent_dir': '/'
-                  'obj_name': '2.txt'
-                  'obj_id': '0000000000000000000000000000000000000000'
-                  'size': 0
-                  'mtime': '2023-12-26T06:03:06+00:00'
-                  'can_preview': true
-                  'can_edit': true
+                  type: "file"
+                  repo_id: "eaa2b714-7993-4abc-93ce-56286d45d3de"
+                  parent_dir: "/folder"
+                  obj_name: "b"
+                  obj_id: "0000000000000000000000000000000000000000"
+                  size: 0
+                  mtime: "2024-03-04T15:44:56+08:00"
+                  can_preview: true
+                  can_edit: false   
+  
     delete:
       summary: Delete file
       tags:
@@ -576,6 +774,45 @@ paths:
                   "success": true,
                   "commit_id": "d6c213abcaf50ae1f5e775eaf1808b4c80c9ed61"
                     }
+
+  /api/v2.1/via-repo-token/move-folder-merge/:
+    post:
+      tags:
+        - Via Repo-Token
+      summary: Move directory with items merged
+      description: Move the directory in the current repo.
+      security:
+        - AccountTokenAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                src_parent_dir:
+                  type: string
+                  example: '/Folder'
+                src_dirent_name:
+                  type: string
+                  example: 'folder'
+                dst_parent_dir:
+                  type: string
+                  example: '/Folder/folder2'
+              required:
+                - src_parent_dir
+                - src_dirent_name
+                - dst_parent_dir
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Success state
 
   /api/v2.1/via-repo-token/upload-link/:
     get:
@@ -710,3 +947,55 @@ paths:
                 $ref: '#/components/schemas/ResponseSuccess'
 
   
+  /api/v2.1/via-repo-token/share-links/:
+    post:
+      summary: Create share link
+      tags: 
+        - Via Repo-Token
+      description: Create a sharing link for the library/folder. (For a file exists)
+      security:
+        - RepoTokenAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                path: 
+                  type: string
+                  description: path of folder/file
+                  example: "/folder"
+                permissions:
+                  type: string
+                  example: '{"can_edit":false,"can_download":false,"can_upload":false}'              
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/share_links'
+              example: 
+                {
+                "username": "Seafile@example.local",
+                "repo_id": "761f27e6-c198-4c93-8a06-05a3f6e1ac2f",
+                "repo_name": "repo",
+                "path": "/Folder",
+                "obj_name": "Folder",
+                "obj_id": "026f15f4643e8a74e5e2312c509908fedba48604",
+                "is_dir": true,
+                "token": "35769cb342fc43a3adf5",
+                "link": "http://cloud.seafile.com/d/35769cb342fc43a3adf5/",
+                "view_cnt": 0,
+                "ctime": "2024-08-29T03:48:04+00:00",
+                "expire_date": "",
+                "is_expired": false,
+                "permissions": {
+                    "can_edit": false,
+                    "can_download": false,
+                    "can_upload": false
+                },
+                "password": "",
+                "user_scope": "all_users",
+                "can_edit": false
+              }
