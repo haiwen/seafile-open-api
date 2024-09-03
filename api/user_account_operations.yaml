@@ -4806,7 +4806,7 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/group_id'
-        - $ref: '#/components/parameters/email'
+        - $ref: '#/components/parameters/user_id'
       responses:
         '200':
           description: OK
