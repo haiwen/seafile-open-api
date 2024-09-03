@@ -586,13 +586,15 @@ components:
       schema:
         type: integer
 
-    email:
-      name: email
+    user_id: 
+      name: user_id
+      description: The unique user id in the form ...@auth.local. This is not the email address of the user.
       in: path
-      required: true
-      description: Member email
       schema:
         type: string
+        pattern: "^[a-f0-9]{32}(@auth.local)$"
+      required: true
+      example: 23abc456def789ghi123jkl456mno789@auth.local
 
     repo_id:
       name: repo_id
@@ -4693,7 +4695,7 @@ paths:
                          
 
 
-  /api/v2.1/groups/{group_id}/members/{email}/:
+  /api/v2.1/groups/{group_id}/members/{user_id}/:
     get:
       tags:
         - Groups
@@ -4703,7 +4705,7 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/group_id'
-        - $ref: '#/components/parameters/email'
+        - $ref: '#/components/parameters/user_id'
         - $ref: '#/components/parameters/avatar_size'
       responses:
         '200':
@@ -4749,7 +4751,7 @@ paths:
         - AccountTokenAuth: []
       parameters:
         - $ref: '#/components/parameters/group_id'
-        - $ref: '#/components/parameters/email'
+        - $ref: '#/components/parameters/user_id'
       requestBody:
         required: true
         content:
