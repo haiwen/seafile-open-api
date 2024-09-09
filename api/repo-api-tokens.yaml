@@ -155,6 +155,10 @@ components:
         - r
         - rw
 
+    path: 
+      type: string
+      example: '/Folder'
+
     operation_dir:
       type: object
       properties:
@@ -267,6 +271,26 @@ components:
       required:
         - parent_dir
         - dirents
+
+    share_link_permission: 
+      type: object
+      description: Operation permission
+      properties:
+        can_edit: 
+          type: boolean
+          enum:
+            - false
+            - true
+        can_download: 
+          type: boolean
+          enum:
+            - true
+            - false
+        can_upload:
+          type: boolean
+          enum:
+            - true
+            - false
 
     # response
     ResponseSuccess:
@@ -701,7 +725,7 @@ paths:
       security:
         - AccountTokenAuth: []
       parameters:
-        - $ref: '#/components/parameters/file_p'
+        - $ref: '#/components/parameters/file_path'
       requestBody:
         content:
           application/json:
@@ -775,7 +799,7 @@ paths:
                   "commit_id": "d6c213abcaf50ae1f5e775eaf1808b4c80c9ed61"
                     }
 
-  /api/v2.1/via-repo-token/move-folder-merge/:
+  /api/v2.1/via-repo-token/move-dir/:
     post:
       tags:
         - Via Repo-Token
@@ -961,13 +985,10 @@ paths:
             schema:
               type: object
               properties:
-                path: 
-                  type: string
-                  description: path of folder/file
-                  example: "/folder"
-                permissions:
-                  type: string
-                  example: '{"can_edit":false,"can_download":false,"can_upload":false}'              
+                permissions: 
+                  $ref: '#/components/schemas/share_link_permission'  
+                path:   
+                  $ref: '#/components/schemas/path'    
       responses:
         '200':
           description: OK
