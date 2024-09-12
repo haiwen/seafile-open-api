@@ -258,7 +258,7 @@ components:
         properties:
           quota:
             type: integer
-            description: -2 means no quota limit.
+            description: Max quota user can use.
 
       org_name: 
         type: string
@@ -2864,7 +2864,7 @@ paths:
                   description: Max user number
                 quota:
                   type: integer
-                  description: -2 means no quota limit.
+                  description: Max quota user can use.
               required:
                 - org_name
       responses:
