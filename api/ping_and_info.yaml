@@ -3,7 +3,7 @@ info:
   title: Ping and Server Info
   description: >-
     The official Seafile API Reference (OpenAPI 3.0) - Part 'Ping and Server Info'.
-  version: '11'
+  version: '11.0'
 servers:
   - url: 'https://{server}'
     variables:

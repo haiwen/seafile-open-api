@@ -3,12 +3,12 @@ info:
   title: authentication
   description: |-
     The official Seafile API Reference
-  version: '11'
+  version: '11.0'
 tags:
   - name: Account-Token
     description: Access library with Account-Token
   - name: Repo-Token
-    description: Access library with Repo-Token
+    description: Access library with Repo API Token
 servers:
   - url: https://{server}
     variables:
