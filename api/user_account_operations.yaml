@@ -7856,7 +7856,7 @@ paths:
   /api/v2.1/repos/batch/: 
     post:
       tags:
-        - Share batch operation
+        - Share to user/group
       summary: Batch share libraries to user/group
       description: Batch sharing existing libraries with user/group.
       security:
@@ -7925,7 +7925,7 @@ paths:
   /api2/repos/{repo_id}/dir/shared_items/p={path}:
     put: 
       tags:
-        - Share folder
+        - Share to user/group
       summary: Share a folder
       description: |-
         Share folders with other users and groups.
@@ -8000,7 +8000,7 @@ paths:
   /api/v2.1/shared-folders/:
     get: 
       tags:
-        - Share folder
+        - Share to user/group
       summary: List shared folders
       description: Return all shared folder information.
       security:
@@ -8066,7 +8066,7 @@ paths:
   /api2/repos/{repo_id}/dir/shared_items/?p={path}:
     post: 
       tags:
-        - Share folder
+        - Share to user/group
       summary: Update folder share permission
       description: |-
         Update shared folder permissions.
@@ -8104,7 +8104,7 @@ paths:
 
     delete: 
       tags:
-        - Share folder
+        - Share to user/group
       summary: Remove the specified shared folder
       description: |-
         - username, necessary if share_type is user
