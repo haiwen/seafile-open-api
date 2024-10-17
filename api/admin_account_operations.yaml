@@ -263,6 +263,15 @@ components:
       org_name: 
         type: string
         description: organization name
+      
+      org_quota:
+        type: integer
+        description: Max quota an organization can use.
+
+      org_member_limit:
+        type: integer
+        description: Max user numbers an organization can use. The 'ORG_MEMBER_QUOTA_ENABLED' should be set to true in the config file.
+
 
 
     # response schemas
@@ -2810,6 +2819,11 @@ paths:
                   $ref: '#/components/schemas/email'
                 owner_password: 
                   $ref: '#/components/schemas/password'
+                quota:
+                  $ref: '#/components/schemas/org_quota'
+                member_limit:
+                  $ref: '#/components/schemas/org_member_limit'
+
       responses:
         '200': 
           description: OK
