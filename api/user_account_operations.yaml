@@ -1086,6 +1086,10 @@ components:
         replace:
           type: string
           description: whether to overwrite file when it already exists. 1 for replace, 0 for not replace. If existing file is not replaced, the uploaded file will be renamed to the form "filename (1).txt".
+        last_modify:
+          type: string
+          description: the last modified time of the file when uploaded.
+          example: '2024-07-30T18:18:25+08:00'
 
     file:
       type: object
