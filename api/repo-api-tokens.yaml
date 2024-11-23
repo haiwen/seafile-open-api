@@ -3,7 +3,7 @@ info:
   title: Via Repo-Token
   description: |-
     Access library Via Repo-Token
-  version: '11'
+  version: '11.0'
 tags:
   - name: Via Repo-Token
     description: Access library Via Repo-Token

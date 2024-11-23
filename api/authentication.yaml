@@ -3,12 +3,12 @@ info:
   title: authentication
   description: |-
     The official Seafile API Reference
-  version: '11'
+  version: '11.0'
 tags:
   - name: Account-Token
     description: Access library with Account-Token
   - name: Repo-Token
-    description: Access library with Repo-Token
+    description: Access library with Repo API Token
 servers:
   - url: https://{server}
     variables:
@@ -28,6 +28,17 @@ components:
       scheme: bearer
       description: This is the [API-Token](/reference/authentication).
       bearerFormat: API-Token
+  
+  parameters:
+    X-SEAFILE-OTP:
+      name: X-SEAFILE-OTP
+      in: header
+      schema:
+        type: string
+        pattern: '^\d{6}$'
+      description: >
+        Two-factor token (usually generated with a mobile app like the
+        google authenticator), optional, only needed if 2FA is activated for your account.
 
   schemas:
     AccountTokenResponse:
@@ -71,7 +82,9 @@ paths:
       summary: Obtain account token
       tags:
         - Account-Token
-      description: Obtain account token with username and password
+      description: |
+        Generate an *Account-Token* with your username and password. This Account-Token is necessary for all the following account operations.
+        Use the optional paramater if two-factor-authentication (2FA) is activated for your account.
       security: []
       requestBody:
         content:
@@ -88,6 +101,8 @@ paths:
               required:
                 - username
                 - password
+      parameters:
+        - $ref: "#/components/parameters/X-SEAFILE-OTP"
       responses:
         '200':
           description: OK
