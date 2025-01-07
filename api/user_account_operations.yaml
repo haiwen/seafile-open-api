@@ -555,6 +555,22 @@ components:
           - user
 
     # Path parameters
+    wiki_id:
+      name: wiki_id
+      in: path
+      required: true
+      description: Wiki's id
+      schema: 
+        type: string
+
+    page_id: 
+      name: page_id
+      in: path
+      required: true
+      description: Page's id
+      schema:
+        type: string
+
     folder_link_token: 
       name: token
       in: path
@@ -1195,6 +1211,40 @@ components:
     extra_msg: 
       type: string
       description: Extra message
+
+    # wiki request body
+    wiki_name:
+      type: string
+      description: Wiki's name
+      example: wiki1
+    wiki_config: 
+      type: string
+      description: Wiki config info
+      example: "{\"version\":1,\"navigation\":[{\"id\":\"I8pB\",\"type\":\"page\"}],\"pages\":[{\"id\":\"I8pB\",\"name\":\"page1\",\"path\":\"/wiki-pages/57bc693a-2bf1-48c4-a9f0-7738a74316ec/page1.sdoc\",\"icon\":\"\",\"docUuid\":\"57bc693a-2bf1-48c4-a9f0-7738a74316ec\"}]}"
+    page_name:
+      type: string
+      description: New page's name
+      example: wikiPage 
+    
+    page_id:
+      type: string
+      description: Page's id
+      example: 9jBW
+    
+    current_id:
+      type: string
+      description: Current page id
+      example: as5g
+    
+    insert_position:
+      type: string
+      description: The position of the new page on the current page
+      enum:
+        - inner
+        - above
+        - below
+
+
       
     # Response body
     FileRevert: 
@@ -8544,3 +8594,947 @@ paths:
                       }
                   ]
                  }
+  /api/v2.1/wikis2/: 
+    get: 
+      tags:
+        - Wiki
+      summary: List wikis
+      description: List all wikis of the current user.
+      security:
+        - AccountTokenAuth: []
+      responses:
+        '200':
+          description: OK  
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  wikis:
+                    type: array
+                    items:
+                      type: object
+                      description: wiki info
+                      properties:
+                        id:
+                          type: string
+                        owner:
+                          type: string
+                        name:
+                          type: string
+                        updated_at:
+                          type: string
+                        repo_id:
+                          type: string
+                        type:
+                          type: string
+                        last_modified:
+                          type: string
+                        permission:
+                          type: string
+                        owner_nickname:
+                          type: string
+                  group_wikis:
+                    type: array
+                    items:
+                      type: object
+                      description: Group info
+                      properties:
+                        group_name:
+                          type: string
+                        group_id:
+                          type: integer
+                        group_admins:
+                          type: array
+                          items:
+                            type: string
+                            description: Admin email
+                        parent_group_id:
+                          type: integer
+                        owner:  
+                          type: string
+                        created_at: 
+                          type: string
+                        wiki_info:
+                          type: array
+                          items:
+                            type: object
+                            description: Wiki info
+                            properties:
+                              id:
+                                type: string
+                              owner:
+                                type: string
+                              name:
+                                type: string
+                              updated_at:
+                                type: string
+                              repo_id:
+                                type: string
+                              type:
+                                type: string
+                              mtime:
+                                type: integer
+                              last_modified:
+                                type: string
+                              permission:
+                                type: string
+                example: {
+                    "wikis": [
+                        {
+                            "id": "36c38bc9-d8e7-43d1-9cef-1555c30bd2ce",
+                            "owner": "27@seafile_group",
+                            "name": "DepWiki1",
+                            "updated_at": "2024-07-23T02:05:22+00:00",
+                            "repo_id": "36c38bc9-d8e7-43d1-9cef-1555c30bd2ce",
+                            "owner_nickname": "Dep"
+                        },
+                        {
+                            "id": "ccf61c6d-76fb-4455-9cd7-ec2fe7e9d717",
+                            "owner": "aa54297e93b44d50a2efb65437cf1cc4@auth.local",
+                            "name": "Wiki1",
+                            "updated_at": "2024-07-23T02:05:06+00:00",
+                            "repo_id": "ccf61c6d-76fb-4455-9cd7-ec2fe7e9d717",
+                            "type": "mine",
+                            "last_modified": "2024-07-23T02:05:06+00:00",
+                            "permission": "rw",
+                            "owner_nickname": "nickName"
+                        },
+                        {
+                            "id": "353d6400-46e3-4643-a213-c8ea0b1e0e8f",
+                            "owner": "aa54297e93b44d50a2efb65437cf1cc4@auth.local",
+                            "name": "Wiki2",
+                            "updated_at": "2024-07-23T01:37:25+00:00",
+                            "repo_id": "353d6400-46e3-4643-a213-c8ea0b1e0e8f",
+                            "type": "mine",
+                            "last_modified": "2024-07-23T01:37:25+00:00",
+                            "permission": "rw",
+                            "owner_nickname": "nickName"
+                        }
+                    ],
+                    "group_wikis": [
+                        {
+                            "group_name": "Dep",
+                            "group_id": 27,
+                            "group_admins": [
+                                "aa54297e93b44d50a2efb65437cf1cc4@auth.local",
+                                "69643729fcb9497d8daa2815d0158967@auth.local"
+                            ],
+                            "parent_group_id": -1,
+                            "owner": "system admin",
+                            "created_at": "2024-04-19T09:14:57+00:00",
+                            "wiki_info": [
+                                {
+                                    "id": "36c38bc9-d8e7-43d1-9cef-1555c30bd2ce",
+                                    "owner": "27@seafile_group",
+                                    "name": "DepWiki1",
+                                    "updated_at": "2024-07-23T02:05:22+00:00",
+                                    "repo_id": "36c38bc9-d8e7-43d1-9cef-1555c30bd2ce",
+                                    "type": "group",
+                                    "mtime": 1721700322,
+                                    "last_modified": "2024-07-23T02:05:22+00:00",
+                                    "permission": "rw"
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+    post: 
+        tags:
+          - Wiki
+        summary: Add wiki
+        description: Add wiki and return wiki info.
+        security:
+          - AccountTokenAuth: []
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    $ref: '#/components/schemas/wiki_name'
+                required:
+                  - name
+        responses:
+          '200':
+            description: OK  
+            content:
+              application/json:
+                schema:  
+                  type: object
+                  description: Wiki info
+                  properties:
+                    id:
+                      type: integer
+                    owner:
+                      type: string
+                    owner_nickname:
+                      type: string
+                    name:
+                      type: string
+                    created_at:
+                      type: string
+                    updated_at:
+                      type: string
+                    repo_id:
+                      type: string
+                  example: {
+                        "id": 8,
+                        "owner": "7cb70586b3a549d4ae978054b8038e8b@auth.local",
+                        "owner_nickname": "joinTy",
+                        "name": "wiki1",
+                        "created_at": "2024-05-27T03:19:56+00:00",
+                        "updated_at": "2024-05-27T03:19:56+00:00",
+                        "repo_id": "9ff87a32-6d8a-4ee8-ab2d-300bbf9ee4d4"
+                    }
+
+  /api/v2.1/wiki2/{wiki_id}/:
+    delete:
+      tags:
+          - Wiki
+      summary: Delete wiki
+      description: Delete specified wiki.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/wiki_id'
+      responses:
+          '200':
+            description: OK
+      
+    put:
+      tags:
+          - Wiki
+      summary: Update wiki
+      description: Rename wiki.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/wiki_id'
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                wiki_name:
+                  $ref: '#/components/schemas/wiki_name'
+              required:
+                - wiki_name
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Success state
+
+  /api/v2.1/wiki2/{wiki_id}/config/:
+    get:
+      tags:
+          - Wiki
+      summary: Get wiki config
+      description: Get wiki config info.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/wiki_id'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema: 
+                  type: object
+                  properties:
+                    wiki: 
+                      type: object
+                      description: Wiki info
+                      properties:
+                        id:
+                          type: integer
+                        owner:
+                          type: string
+                        owner_nickname:
+                          type: string
+                        name:
+                          type: string
+                        created_at:
+                          type: string
+                        updated_at:
+                          type: string
+                        repo_id:
+                          type: string
+                        wiki_config:
+                          type: string
+                          description: Wiki config info
+                  example: {
+                      "wiki": {
+                          "id": 4,
+                          "owner": "7cb70586b3a549d4ae978054b8038e8b@auth.local",
+                          "owner_nickname": "joinTy",
+                          "name": "wiki222",
+                          "created_at": "2024-05-14T08:24:26+00:00",
+                          "updated_at": "2024-05-27T02:50:47+00:00",
+                          "repo_id": "2e53faaf-fdfc-4549-9bf2-485d90719337",
+                          "wiki_config": "{\"version\":1,\"navigation\":[{\"id\":\"st0X\",\"type\":\"page\"},{\"type\":\"folder\",\"id\":\"jlCr\",\"name\":\"\u6587\u4ef6\u5b58\u5728wiki_pages\u4e2d\",\"children\":[{\"id\":\"d1FL\",\"type\":\"page\"},{\"id\":\"m35s\",\"type\":\"page\"}]},{\"id\":\"71FJ\",\"type\":\"page\"}],\"pages\":[{\"id\":\"st0X\",\"name\":\"new\",\"path\":\"/wiki-pages/ec2af173-3dee-43f0-9a9e-3b8158954fe4/new.sdoc\",\"icon\":\"\",\"docUuid\":\"ec2af173-3dee-43f0-9a9e-3b8158954fe4\"},{\"id\":\"d1FL\",\"name\":\"file1\",\"path\":\"/wiki-pages/file1.sdoc\",\"icon\":\"\",\"docUuid\":\"833f3a2c-55bc-42bf-950f-4756a69916b9\"},{\"id\":\"m35s\",\"name\":\"file2\",\"path\":\"/wiki-pages/file2.sdoc\",\"icon\":\"\",\"docUuid\":\"5396c11c-ade8-4c16-b742-c9ba1aed903a\"},{\"id\":\"71FJ\",\"name\":\"new1\",\"path\":\"/wiki-pages/d50d1840-43fc-4b97-92cd-e137a19dc1e4/new1.sdoc\",\"icon\":\"\",\"docUuid\":\"d50d1840-43fc-4b97-92cd-e137a19dc1e4\"}]}"
+                      }
+                  }
+    
+    put: 
+      tags:
+        - Wiki
+      summary: Update wiki config
+      description: Update existing wiki config.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/wiki_id'
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                wiki_config:
+                  $ref: '#/components/schemas/wiki_config'
+              required:
+                - wiki_config
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:   
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    owner:
+                      type: string
+                    owner_nickname:
+                      type: string
+                    name:
+                      type: string
+                    created_at:
+                      type: string
+                    updated_at:
+                      type: string
+                    repo_id:
+                      type: string
+                    wiki_config:
+                      type: string
+                  example: {
+                      "wiki": {
+                          "id": 8,
+                          "owner": "7cb70586b3a549d4ae978054b8038e8b@auth.local",
+                          "owner_nickname": "joinTy",
+                          "name": "new-wiki",
+                          "created_at": "2024-05-27T03:19:56+00:00",
+                          "updated_at": "2024-05-27T05:38:41+00:00",
+                          "repo_id": "9ff87a32-6d8a-4ee8-ab2d-300bbf9ee4d4",
+                          "wiki_config": "{\"version\":1,\"navigation\":[{\"id\":\"I8pB\",\"type\":\"page\"}],\"pages\":[{\"id\":\"I8pB\",\"name\":\"page1\",\"path\":\"/wiki-pages/57bc693a-2bf1-48c4-a9f0-7738a74316ec/page1.sdoc\",\"icon\":\"\",\"docUuid\":\"57bc693a-2bf1-48c4-a9f0-7738a74316ec\"}]}"
+                      }
+                  }
+  /api/v2.1/wiki2/{wiki_id}/pages/:
+    post:
+      tags:
+        - Wiki
+      summary: Create wiki page
+      description: In the wiki visual page, create a new wiki page.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/wiki_id'
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                page_name:
+                  $ref: '#/components/schemas/page_name'
+                current_id:
+                  $ref: '#/components/schemas/current_id'
+                insert_position:
+                  $ref: '#/components/schemas/insert_position'
+              required:
+                - page_name
+                - current_id
+                - insert_position
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:   
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                    repo_id:
+                      type: string
+                    parent_dir:
+                      type: string
+                    obj_name:
+                      type: string
+                    mtime:
+                      type: string
+                    doc_uuid:
+                      type: string
+                  example: {
+                    "type": "file",
+                    "repo_id": "9ff87a32-6d8a-4ee8-ab2d-300bbf9ee4d4",
+                    "parent_dir": "/wiki-pages/24f96984-eb01-4700-9122-57160bd6c354",
+                    "obj_name": "wikiPage.sdoc",
+                    "mtime": "2024-05-27T05:58:19+00:00",
+                    "doc_uuid": "24f96984-eb01-4700-9122-57160bd6c354"
+                  }
+  
+  /api/v2.1/wiki2/{wiki_id}/page/{page_id}/:
+    delete: 
+      tags:
+        - Wiki
+      summary: Delete wiki page
+      description: Delete specific wiki page.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/wiki_id'
+        - $ref: '#/components/parameters/page_id'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:   
+                  type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Success state
+    get:
+      tags:
+        - Wiki
+      summary: Get wiki page
+      description: Get wiki page info.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/wiki_id'
+        - $ref: '#/components/parameters/page_id'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:   
+                  type: object      
+                  properties:
+                    latest_contributor:
+                      type: string
+                    last_modified:
+                      type: integer
+                    permission:
+                      type: string
+                    seadoc_access_token:
+                      type: string
+                    assets_url:
+                      type: string
+                  example: {
+                      "latest_contributor": "joinTy",
+                      "last_modified": 1716889857,
+                      "permission": "rw",
+                      "seadoc_access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaWxlX3V1aWQiOiJkNTBkMTg0MC00M2ZjLTRiOTctOTJjZC1lMTM3YTE5ZGMxZTQiLCJmaWxlbmFtZSI6Im5ldzEuc2RvYyIsInVzZXJuYW1lIjoiN2NiNzA1ODZiM2E1NDlkNGFlOTc4MDU0YjgwMzhlOGJAYXV0aC5sb2NhbCIsIm5hbWUiOiJqb2luVHkiLCJhdmF0YXJfdXJsIjoiaHR0cDovLzEyNy4wLjAuMTo4MDAwL21lZGlhL2F2YXRhcnMvNS9lLzgwYmQ0ODFkNjljZGNjNWYwYzY3MDA0YjRmZTYzMy9yZXNpemVkLzcyLzg3ZGY0MDMyMzJmN2M0MTM5NDljMDE3MjU2MDJhOWM0LnBuZyIsInBlcm1pc3Npb24iOiJydyIsImV4cCI6MTcxNzIwOTUyNn0.aTidb3r1A8Z6qPkrmVg68l9rR8FswTD9FeZE2DYAI7Y",
+                      "assets_url": "/api/v2.1/seadoc/download-image/d50d1840-43fc-4b97-92cd-e137a19dc1e4"
+                    }
+  /api/v2.1/wiki2/8/duplicate-page/:
+    post: 
+      tags:
+        - Wiki
+      summary: Duplicate wiki page
+      description: Duplicate an existing wiki page.
+      security:
+        - AccountTokenAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:   
+              type: object
+              properties:
+                page_id:
+                  $ref: '#/components/schemas/page_id'
+              required:
+                - page_id
+            
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:   
+                  type: object
+                  properties:
+                    wiki_config: 
+                      type: string
+                      description: wiki config info
+                  example: {
+                        "wiki_config": "{\"version\": 1, \"navigation\": [{\"id\": \"ewsu\", \"type\": \"page\", \"children\": [{\"id\": \"c4wT\", \"type\": \"page\", \"_path\": \"ewsu\", \"children\": [{\"id\": \"gxnA\", \"type\": \"page\", \"_path\": \"ewsu-c4wT\"}, {\"id\": \"bsO0\", \"type\": \"page\", \"_path\": \"ewsu-c4wT\"}, {\"id\": \"ApK6\", \"type\": \"page\", \"_path\": \"ewsu-c4wT\"}, {\"id\": \"hQ7D\", \"type\": \"page\", \"_path\": \"ewsu-c4wT\", \"children\": []}, {\"id\": \"9jBW\", \"type\": \"page\"}, {\"id\": \"gL8r\", \"type\": \"page\", \"_path\": null, \"children\": []}]}], \"_path\": \"\"}, {\"type\": \"folder\", \"id\": \"W4lR\", \"name\": \"dir1\", \"children\": [], \"_path\": \"\"}, {\"id\": \"8xP9\", \"type\": \"page\", \"children\": [{\"id\": \"V8ZS\", \"_path\": \"8xP9\", \"type\": \"page\", \"children\": [{\"id\": \"6hkH\", \"_path\": \"8xP9-V8ZS\", \"type\": \"page\", \"children\": []}, {\"id\": \"o3g4\", \"_path\": \"8xP9-V8ZS\", \"type\": \"page\", \"children\": []}, {\"id\": \"x4pE\", \"type\": \"page\", \"_path\": \"8xP9-V8ZS\", \"children\": []}, {\"id\": \"P2wI\", \"type\": \"page\", \"_path\": \"8xP9-V8ZS\", \"children\": []}, {\"id\": \"5vN1\", \"type\": \"page\", \"_path\": \"8xP9-V8ZS\", \"children\": []}, {\"id\": \"bcVe\", \"type\": \"page\", \"_path\": \"8xP9-V8ZS\", \"children\": []}]}], \"_path\": \"\"}], \"pages\": [{\"id\": \"ewsu\", \"name\": \"p1\", \"path\": \"/wiki-pages/2ebaac46-ca4e-4a7d-8b1e-b11d8c48d942/p1.sdoc\", \"icon\": \"\", \"docUuid\": \"2ebaac46-ca4e-4a7d-8b1e-b11d8c48d942\", \"children\": []}, {\"id\": \"c4wT\", \"name\": \"subp1\", \"path\": \"/wiki-pages/691530a2-5cbb-4ae6-a7d4-cefde4baca44/subp1.sdoc\", \"icon\": \"\", \"docUuid\": \"691530a2-5cbb-4ae6-a7d4-cefde4baca44\", \"children\": []}, {\"id\": \"gxnA\", \"name\": \"sub_subp1\", \"path\": \"/wiki-pages/38f57a8f-1ca3-4746-8caa-4852ee9b9ed5/sub_subp1.sdoc\", \"icon\": \"\", \"docUuid\": \"38f57a8f-1ca3-4746-8caa-4852ee9b9ed5\", \"children\": []}, {\"id\": \"bsO0\", \"name\": \"sub_subp2\", \"path\": \"/wiki-pages/6420928d-7a6b-4021-819f-d6dce1e2103f/sub_subp2.sdoc\", \"icon\": \"\", \"docUuid\": \"6420928d-7a6b-4021-819f-d6dce1e2103f\", \"children\": []}, {\"id\": \"8xP9\", \"name\": \"p1 (1)\", \"path\": \"/wiki-pages/c5eb2ffe-366a-43c3-ab90-225445997f98/p1.sdoc\", \"icon\": \"\", \"docUuid\": \"c5eb2ffe-366a-43c3-ab90-225445997f98\", \"children\": []}, {\"id\": \"V8ZS\", \"name\": \"subp1\", \"path\": \"/wiki-pages/446ab215-f82f-438c-a89c-8df0cc5511d9/subp1.sdoc\", \"icon\": \"\", \"docUuid\": \"446ab215-f82f-438c-a89c-8df0cc5511d9\", \"children\": []}, {\"id\": \"6hkH\", \"name\": \"sub_subp1\", \"path\": \"/wiki-pages/759183dc-d295-464b-b980-21ebd8d66dc0/sub_subp1.sdoc\", \"icon\": \"\", \"docUuid\": \"759183dc-d295-464b-b980-21ebd8d66dc0\", \"children\": []}, {\"id\": \"o3g4\", \"name\": \"sub_subp2\", \"path\": \"/wiki-pages/d6a2aa14-7115-43fd-9adc-72f358c1c8e5/sub_subp2.sdoc\", \"icon\": \"\", \"docUuid\": \"d6a2aa14-7115-43fd-9adc-72f358c1c8e5\", \"children\": []}, {\"id\": \"ApK6\", \"name\": \"ABV\", \"path\": \"/wiki-pages/3963d5e6-35c1-40cf-8086-17ca99ab925c/ABV.sdoc\", \"icon\": \"\", \"docUuid\": \"3963d5e6-35c1-40cf-8086-17ca99ab925c\", \"children\": []}, {\"id\": \"hQ7D\", \"name\": \"sub_subp1 (1)\", \"path\": \"/wiki-pages/3e98bf84-332e-4344-85ba-b5c3467fe3e8/sub_subp1.sdoc\", \"icon\": \"\", \"docUuid\": \"3e98bf84-332e-4344-85ba-b5c3467fe3e8\", \"children\": []}, {\"id\": \"x4pE\", \"name\": \"sub_subp2 (1)\", \"path\": \"/wiki-pages/958510f8-b4f3-4f1c-ab0b-b5b074b52d44/sub_subp2.sdoc\", \"icon\": \"\", \"docUuid\": \"958510f8-b4f3-4f1c-ab0b-b5b074b52d44\", \"children\": []}, {\"id\": \"P2wI\", \"name\": \"sub_subp2 (1) (1)\", \"path\": \"/wiki-pages/a26d84ad-6e72-4b3f-9b94-20fb98642d0e/sub_subp2.sdoc\", \"icon\": \"\", \"docUuid\": \"a26d84ad-6e72-4b3f-9b94-20fb98642d0e\", \"children\": []}, {\"id\": \"5vN1\", \"name\": \"sub_subp2 (1) (1) (1)\", \"path\": \"/wiki-pages/f6a7bce9-ec26-4bac-b076-4afc5d412ad9/sub_subp2.sdoc\", \"icon\": \"\", \"docUuid\": \"f6a7bce9-ec26-4bac-b076-4afc5d412ad9\", \"children\": []}, {\"id\": \"bcVe\", \"name\": \"sub_subp2 (1) (1) (2)\", \"path\": \"/wiki-pages/98286614-b6ed-463e-aab9-a63c4d564be2/sub_subp2.sdoc\", \"icon\": \"\", \"docUuid\": \"98286614-b6ed-463e-aab9-a63c4d564be2\", \"children\": []}, {\"id\": \"9jBW\", \"name\": \"ccc\", \"path\": \"/wiki-pages/bc08275a-ffe8-47f8-97ac-e5a7f829a74d/ccc.sdoc\", \"icon\": \"\", \"docUuid\": \"bc08275a-ffe8-47f8-97ac-e5a7f829a74d\", \"children\": []}, {\"id\": \"gL8r\", \"name\": \"ccc (1)\", \"path\": \"/wiki-pages/4acba427-3eaf-4690-8aec-2ef28bdac19e/ccc.sdoc\", \"icon\": \"\", \"docUuid\": \"4acba427-3eaf-4690-8aec-2ef28bdac19e\"}]}"
+                    }
+  /api/v2.1/wiki2/{wiki_id}/publish/:
+    get: 
+      tags:
+        - Wiki
+      summary: Get publish wiki link
+      description: List published wiki custom link.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/wiki_id'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:   
+                  type: object
+                  properties:
+                    publish_url:
+                      type: string
+                    creator:
+                      type: string
+                    created_at:
+                      type: string
+                    visit_count:
+                      type: integer
+                example: {
+                    "publish_url": "custom-url",
+                    "creator": "aa54297e93b44d50a2efb65437cf1cc4@auth.local",
+                    "created_at": "2024-08-07T03:56:02",
+                    "visit_count": 2
+                  }
+    post:
+      tags:
+        - Wiki
+      summary: Publish wiki
+      description: Customize wiki link.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/wiki_id'
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                publish_url: 
+                  type: string
+                  example: custom-url
+              required:
+                - publish_url
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:   
+                  type: object
+                  properties:
+                    publish_url: 
+                      type: string
+                  example: {
+                    "publish_url": "custom-url"
+                   }
+    delete:
+      tags:
+        - Wiki
+      summary: Delete published wiki link
+      description: Delete custom links for published wikis.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/wiki_id'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:   
+                  type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Success state
+  /api/v2.1/wiki2/{wiki_id}/publish/config/:
+    get: 
+      tags:
+        - Wiki
+      summary: Get publish wiki config
+      description: Anonymous access to wiki config.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/wiki_id'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:   
+                  type: object
+                  properties:
+                    wiki: 
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        owner:
+                          type: string
+                        name:
+                          type: string
+                        updated_at:
+                          type: string
+                        repo_id:
+                          type: string
+                        wiki_config:
+                          type: object
+                          properties:
+                            version: 
+                              type: integer
+                            pages: 
+                              type: array
+                              items: 
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  name:
+                                    type: string
+                                  path:
+                                    type: string
+                                  icon:
+                                    type: string
+                                  docUuid:
+                                    type: string
+                                  cover_img_url:
+                                    type: string
+                                  children:
+                                    type: array
+                                    description: children page info
+                            navigation:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  type:
+                                    type: string
+                                  children:
+                                    type: array
+                                    description: children nav info
+                                  _path:
+                                    type: string
+                  example: {
+                      "wiki": {
+                          "id": "d29ebf5d-a595-4bb9-bdb9-3d1cef5c0817",
+                          "owner": null,
+                          "name": "Wiki",
+                          "updated_at": "2024-08-07T05:58:57+00:00",
+                          "repo_id": "d29ebf5d-a595-4bb9-bdb9-3d1cef5c0817",
+                          "wiki_config": {
+                              "version": 1,
+                              "pages": [
+                                  {
+                                      "id": "HYy5",
+                                      "name": "Page",
+                                      "path": "/wiki-pages/13e4f8b4-0d95-4668-8add-a9b73eebb96d/Untitled.sdoc",
+                                      "icon": "🖕🏿",
+                                      "docUuid": "13e4f8b4-0d95-4668-8add-a9b73eebb96d",
+                                      "cover_img_url": "wiki-cover-8.jpg",
+                                      "children": []
+                                  }
+                              ],
+                              "navigation": [
+                                  {
+                                      "id": "HYy5",
+                                      "type": "page",
+                                      "children": [],
+                                      "_path": ""
+                                  }
+                              ]
+                          }
+                      }
+                  }
+  /api/v2.1/wiki2/{wiki_id}/publish/page/{page_id}/:
+    get:
+      tags:
+        - Wiki
+      summary: Get publish wiki page
+      description: Get wiki page info.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/wiki_id'
+        - $ref: '#/components/parameters/page_id'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:   
+                  type: object
+                  properties:
+                    latest_contributor:
+                      type: string
+                    last_modified:
+                      type: integer
+                    permission:
+                      type: string
+                    seadoc_access_token:
+                      type: string
+                    assets_url:
+                      type: string
+                  example: {
+                      "latest_contributor": "nickName",
+                      "last_modified": 1723010344,
+                      "permission": "r",
+                      "seadoc_access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaWxlX3V1aWQiOiIxM2U0ZjhiNC0wZDk1LTQ2NjgtOGFkZC1hOWI3M2VlYmI5NmQiLCJmaWxlbmFtZSI6IlVudGl0bGVkLnNkb2MiLCJ1c2VybmFtZSI6IiIsIm5hbWUiOiIiLCJhdmF0YXJfdXJsIjoiaHR0cDovLzEyNy4wLjAuMTo4MDAwL21lZGlhL2F2YXRhcnMvZGVmYXVsdC5wbmciLCJwZXJtaXNzaW9uIjoiciIsImRlZmF1bHRfdGl0bGUiOiIiLCJleHAiOjE3MjMyNjk4MTJ9.lJOmsky4Ks5fqq3QLoodfexQ5KpkzvCe0Z9JdSGtMCc",
+                      "assets_url": "/api/v2.1/seadoc/download-image/13e4f8b4-0d95-4668-8add-a9b73eebb96d"
+                    }
+  /api/v2.1/wiki2/search/:
+    post:
+      tags:
+        - Wiki
+      summary: Search wiki
+      description: |- 
+        Search wiki page. 
+
+        *Note: The middle of \<mark> \</mark> in matching_content is the field that is searched and matched*
+      security:
+        - AccountTokenAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:   
+              type: object
+              properties:
+                query: 
+                  type: string
+                  description: The query statement entered by the user.
+                search_wiki: 
+                  type: string
+                  description: String for wiki repo id
+                count: 
+                  type: integer
+                  default: 20
+              required:
+                - query
+                - search_wiki
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:   
+                  type: object
+                  properties:
+                    results:  
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          _id:
+                            type: string
+                          content:
+                            type: string
+                          doc_uuid:
+                            type: string
+                          wiki_id:
+                            type: string
+                  example: {
+                    "results": [
+                        {
+                            "_id": "f163cecd-a0e1-480b-b9d0-402643738b4b",
+                            "content": "<mark>asddsas</mark>",
+                            "doc_uuid": "f163cecd-a0e1-480b-b9d0-402643738b4b",
+                            "score": 0.6538228919358657,
+                            "wiki_id": "e99e5ccf-0935-490a-93f0-828cdc8d9491"
+                        }
+                    ]
+                    }
+  /api/v2.1/convert-wiki/: 
+    post:
+      tags:
+        - Wiki
+      summary: Convert wiki
+      description: Convert old version wiki to new version wiki.
+      security:
+        - AccountTokenAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:   
+              type: object
+              properties:
+                old_wiki_id: 
+                  type: string
+                  description: Old wiki's id. 
+                name: 
+                  type: string
+                  description: New wiki's name
+                owner: 
+                  type: string
+                  description: New wiki's id
+              required:
+                - old_wiki_id
+                - name
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:   
+                  type: object
+                  properties:
+                    task_id: 
+                      type: string
+                      example: a0db77ae-4e91-4e5c-925d-3c7da347a3f4
+  /api/v2.1/wiki2/{wiki_id}/trash/:
+    get:
+      tags:
+        - Wiki
+      summary: Get wiki page trash
+      description: List items in a wiki trash.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/wiki_id'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:   
+                  type: object
+                  properties:
+                    items: 
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          repo_id:
+                            type: string
+                          doc_uuid:
+                            type: string
+                          page_id:
+                            type: string
+                          parent_page_id:
+                            type: string
+                          subpages:
+                            type: string
+                          name:
+                            type: string
+                          delete_time:
+                            type: string
+                          size:
+                            type: integer
+                    total_count:
+                      type: integer
+                  example: {
+                      "items": [
+                          {
+                              "id": 86,
+                              "repo_id": "2a957e8b-1fe9-4670-b4af-a537b4642b38",
+                              "doc_uuid": "e501555e-4100-4192-9df9-ba2f9c37603c",
+                              "page_id": "uF72",
+                              "parent_page_id": null,
+                              "subpages": "{'id': 'uF72', 'type': 'page'}",
+                              "name": "page1",
+                              "delete_time": "2024-08-12T03:50:04",
+                              "size": 244
+                          },
+                          {
+                              "id": 85,
+                              "repo_id": "2a957e8b-1fe9-4670-b4af-a537b4642b38",
+                              "doc_uuid": "e7f97b59-4040-435d-845a-885b909ebf02",
+                              "page_id": "63C5",
+                              "parent_page_id": "DrJW",
+                              "subpages": "{'id': '63C5', 'type': 'page', 'children': [{'id': 'Rx37', 'type': 'page', 'children': []}]}",
+                              "name": "page2",
+                              "delete_time": "2024-08-12T03:49:43",
+                              "size": 244
+                          }
+                      ],
+                      "total_count": 2
+                  }
+    put: 
+      tags:
+        - Wiki
+      summary: Revert page
+      description: Restore the specified page to wiki.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/wiki_id'
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              properties:
+                page_id:
+                  $ref: '#/components/schemas/page_id'
+              required:
+                - page_id
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:   
+                  type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Success state
+    delete: 
+      tags:
+        - Wiki
+      summary: Clean wiki page trash
+      description: Clear the wiki trash within the specified time.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/wiki_id'
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              properties:
+                keep_days:
+                  type: integer
+                  example: 3
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:   
+                  type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Success state
+                      
+
