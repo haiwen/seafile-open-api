@@ -560,6 +560,7 @@ components:
       in: path
       required: true
       description: Wiki's id
+      example: 17936b08-09c0-4c77-9ef0-c3f478c29bc5
       schema: 
         type: string
 
@@ -568,6 +569,7 @@ components:
       in: path
       required: true
       description: Page's id
+      example: 7weH
       schema:
         type: string
 
@@ -9328,12 +9330,15 @@ paths:
               properties:
                 query: 
                   type: string
+                  example: page
                   description: The query statement entered by the user.
                 search_wiki: 
                   type: string
+                  example: e99e5ccf-0935-490a-93f0-828cdc8d9491
                   description: String for wiki repo id
                 count: 
                   type: integer
+                  example: 20
                   default: 20
               required:
                 - query
@@ -9386,12 +9391,15 @@ paths:
               properties:
                 old_wiki_id: 
                   type: string
+                  example: 23
                   description: Old wiki's id. 
                 name: 
                   type: string
+                  example: new wiki
                   description: New wiki's name
                 owner: 
                   type: string
+                  example: 47
                   description: New wiki's id
               required:
                 - old_wiki_id
@@ -9429,6 +9437,7 @@ paths:
                   properties:
                     items: 
                       type: array
+                      description: Each page info
                       items: 
                         type: object
                         properties:
@@ -9452,6 +9461,7 @@ paths:
                             type: integer
                     total_count:
                       type: integer
+                      description: Total amount of page in wiki trash
                   example: {
                       "items": [
                           {
