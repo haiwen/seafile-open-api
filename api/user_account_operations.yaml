@@ -1225,17 +1225,17 @@ components:
       example: "{\"version\":1,\"navigation\":[{\"id\":\"I8pB\",\"type\":\"page\"}],\"pages\":[{\"id\":\"I8pB\",\"name\":\"page1\",\"path\":\"/wiki-pages/57bc693a-2bf1-48c4-a9f0-7738a74316ec/page1.sdoc\",\"icon\":\"\",\"docUuid\":\"57bc693a-2bf1-48c4-a9f0-7738a74316ec\"}]}"
     page_name:
       type: string
-      description: New page's name
+      description: The name of page
       example: wikiPage 
     
     page_id:
       type: string
-      description: Page's id
+      description: The unique identifier of the page in the current wiki
       example: 9jBW
     
     current_id:
       type: string
-      description: Current page id
+      description: The page id that currently exist in the wiki
       example: as5g
     
     insert_position:
