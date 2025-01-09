@@ -559,7 +559,7 @@ components:
       name: wiki_id
       in: path
       required: true
-      description: Wiki's id
+      description: The unique identifier of a wiki
       example: 17936b08-09c0-4c77-9ef0-c3f478c29bc5
       schema: 
         type: string
@@ -568,7 +568,7 @@ components:
       name: page_id
       in: path
       required: true
-      description: Page's id
+      description: The unique identifier of the page in the current wiki
       example: 7weH
       schema:
         type: string
@@ -1217,11 +1217,11 @@ components:
     # wiki request body
     wiki_name:
       type: string
-      description: Wiki's name
+      description: Name of your wiki
       example: wiki1
     wiki_config: 
       type: string
-      description: Wiki config info
+      description: The configuration information for wiki is a JSON string
       example: "{\"version\":1,\"navigation\":[{\"id\":\"I8pB\",\"type\":\"page\"}],\"pages\":[{\"id\":\"I8pB\",\"name\":\"page1\",\"path\":\"/wiki-pages/57bc693a-2bf1-48c4-a9f0-7738a74316ec/page1.sdoc\",\"icon\":\"\",\"docUuid\":\"57bc693a-2bf1-48c4-a9f0-7738a74316ec\"}]}"
     page_name:
       type: string
@@ -9138,6 +9138,7 @@ paths:
               properties:
                 publish_url: 
                   type: string
+                  description: The custom part of the URL must be between 5 and 30 characters long and may only contain letters (a-z), numbers, and hyphens.
                   example: custom-url
               required:
                 - publish_url
@@ -9392,15 +9393,13 @@ paths:
                 old_wiki_id: 
                   type: string
                   example: 23
-                  description: Old wiki's id. 
-                name: 
-                  type: string
-                  example: new wiki
-                  description: New wiki's name
+                  description: Unique identifier for old version wiki. 
+                name:
+                  $ref: '#/components/schemas/wiki_name'
                 owner: 
                   type: string
                   example: 47
-                  description: New wiki's id
+                  description: Unique identifier of the department.
               required:
                 - old_wiki_id
                 - name
