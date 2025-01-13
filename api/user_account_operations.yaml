@@ -946,7 +946,8 @@ components:
           type: string
           enum: [revert]
         commit_id: 
-          $ref: '#/components/schemas/revert'
+          type: string
+          example: 20c1faf15e4da61e446503704245c3b84e62f627
 
     file_operation:
       oneOf:
