@@ -3113,6 +3113,28 @@ paths:
                     "next_start_commit": false
                         }
 
+  /api2/repos/{repo_id}/file/revision/:
+    get:
+      tags:
+        - File history
+      summary: Download file from a revision
+      description: Return to the link to download the file
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/p'
+        - $ref: '#/components/parameters/commit_id_query'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: string
+                description: Download file link
+                example: "https://cloud.seafile.com/seafhttp/files/c7764c20-bcef-42fe-ab7c-e37a4f0bd246/1.docx"
+
   /api/v2.1/repos/{repo_id}/file/:
     post:
       tags:
@@ -3249,28 +3271,6 @@ paths:
                 type: string
                 example: {"success":true,"commit_id":"20c1faf15e4da61e446503704245c3b84e62f627"}
 
-
-  /api2/repos/{repo_id}/file/revision/:
-    get:
-      tags:
-        - File history
-      summary: Download file from a revision
-      description: Return to the link to download the file
-      security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
-        - $ref: '#/components/parameters/p'
-        - $ref: '#/components/parameters/commit_id_query'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema: 
-                type: string
-                description: Download file link
-                example: "https://cloud.seafile.com/seafhttp/files/c7764c20-bcef-42fe-ab7c-e37a4f0bd246/1.docx"
 
   /api2/search/:
     get:
