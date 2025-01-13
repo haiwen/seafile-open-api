@@ -3136,64 +3136,64 @@ paths:
                 example: "https://cloud.seafile.com/seafhttp/files/c7764c20-bcef-42fe-ab7c-e37a4f0bd246/1.docx"
 
   /api/v2.1/repos/{repo_id}/file/:
-    # post:
-    #   tags:
-    #     - Files
-    #   summary: Create/Rename/Move/Copy/Revert file
-    #   description: With this request, you can create/rename/move/copy/revert a file.
-    #   security:
-    #     - AccountTokenAuth: []
-    #   parameters:
-    #     - $ref: '#/components/parameters/repo_id'
-    #     - $ref: '#/components/parameters/p'
-    #   requestBody:
-    #     required: true
-    #     content:
-    #       multipart/form-data:
-    #         schema:
-    #           $ref: '#/components/schemas/file_operation'
-    #   responses:
-    #     '200':
-    #       description: OK
-    #       content:
-    #         application/json:
-    #           schema: 
-    #             oneOf:
-    #               - $ref: '#/components/schemas/create'
-    #               - $ref: '#/components/schemas/rename'
-    #               - $ref: '#/components/schemas/move'
-    #               - $ref: '#/components/schemas/copy'
-    #               - $ref: '#/components/schemas/revert'
-    #           examples: 
-    #             Create file: 
-    #               value: {
-    #                   'is_locked': False,
-    #                   'mtime': '2024-03-12T14:57:42+08:00',
-    #                   'obj_id': u'44bdca6005429390d1ecc6943b05c821bd30917a',
-    #                   'obj_name': u'test.xlsx',
-    #                   'parent_dir': u'/',
-    #                   'repo_id': u'7460f7ac-a0ff-4585-8906-bb5a57d2e118',
-    #                   'size': 7631,
-    #                   'type': 'file'
-    #               }
-    #             Rename file: 
-    #               value: success
-    #             Move file: 
-    #               value: {
-    #                 "repo_id": "affc837f-7fdd-4e91-b88a-32caf99897f2",
-    #                 "parent_dir": "/example-folder",
-    #                 "obj_name": "foo.c"
-    #                   }
-    #             Copy file: 
-    #               value: {
-    #                 "repo_id": "affc837f-7fdd-4e91-b88a-32caf99897f2",
-    #                 "parent_dir": "/example-folder",
-    #                 "obj_name": "foo.c"
-    #                   }
-    #             Revert file: 
-    #               value: {
-    #                   "success": true
-    #                 }
+    post:
+      tags:
+        - Files
+      summary: Create/Rename/Move/Copy/Revert a file
+      description: With this request, you can create/rename/move/copy/revert a file.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/p'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/file_operation'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                oneOf:
+                  - $ref: '#/components/schemas/create'
+                  - $ref: '#/components/schemas/rename'
+                  - $ref: '#/components/schemas/move'
+                  - $ref: '#/components/schemas/copy'
+                  - $ref: '#/components/schemas/revert'
+              examples: 
+                Create file: 
+                  value: {
+                      'is_locked': False,
+                      'mtime': '2024-03-12T14:57:42+08:00',
+                      'obj_id': u'44bdca6005429390d1ecc6943b05c821bd30917a',
+                      'obj_name': u'test.xlsx',
+                      'parent_dir': u'/',
+                      'repo_id': u'7460f7ac-a0ff-4585-8906-bb5a57d2e118',
+                      'size': 7631,
+                      'type': 'file'
+                  }
+                Rename file: 
+                  value: success
+                Move file: 
+                  value: {
+                    "repo_id": "affc837f-7fdd-4e91-b88a-32caf99897f2",
+                    "parent_dir": "/example-folder",
+                    "obj_name": "foo.c"
+                      }
+                Copy file: 
+                  value: {
+                    "repo_id": "affc837f-7fdd-4e91-b88a-32caf99897f2",
+                    "parent_dir": "/example-folder",
+                    "obj_name": "foo.c"
+                      }
+                Revert file: 
+                  value: {
+                      "success": true
+                    }
     put:
       tags:
         - Files
