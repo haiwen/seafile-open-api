@@ -347,7 +347,46 @@ components:
       description: true or false. Whether return permission info of the file or not, default is false.
       schema:
         type: boolean
+    input_fexts:
+      name: input_fexts
+      in: query
+      required: false
+      description: file extensions manually specific.
+      schema: 
+        type: string
 
+    time_from:
+      name: time_from
+      in: query
+      required: false
+      description: filter the result that the updated time greater than or equal to  this value. default unit is second.
+      schema:
+        type: integer
+
+    time_to:
+      name: time_to
+      in: query
+      required: false
+      description: filter the result that the updated time less than or equal to  this value. default unit is second.
+      schema:
+        type: integer
+    
+    size_from:
+      name: size_from
+      in: query
+      required: false
+      description: filter the result that the size greater than or equal to  this value. default unit is byte.
+      schema: 
+        type: string
+    size_to: 
+      name: size_to
+      in: query
+      required: false
+      description: filter the result that the size less than or equal to this value. default unit is byte.
+      schema: 
+        type: string
+  
+          
     task_id:
       name: task_id
       in: query
@@ -432,6 +471,7 @@ components:
       name: p
       in: query
       description: 'The path of the file in the library'
+      example: /file
       required: true
       schema:
         type: string
@@ -618,6 +658,7 @@ components:
       name: repo_id
       in: path
       description: The unique identifier of a library
+      example: 90c4e9c2-ca5f-4881-8453-164d8b819f6f
       required: true
       schema:
         type: string
@@ -896,6 +937,16 @@ components:
           enum: [rename]
         newname:
           $ref: '#/components/schemas/new_name'
+      
+    file_operation_revert: 
+      title: 'Revert file'
+      type: object
+      properties:
+        opertaion: 
+          type: string
+          enum: [revert]
+        commit_id: 
+          $ref: '#/components/schemas/revert'
 
     file_operation:
       oneOf:
@@ -903,6 +954,7 @@ components:
         - $ref: '#/components/schemas/file_operation_copy'
         - $ref: '#/components/schemas/file_operation_move'
         - $ref: '#/components/schemas/file_operation_rename'
+        - $ref: '#/components/schemas/file_operation_revert'
     
     share_type_library: 
       type: string
@@ -1426,6 +1478,12 @@ components:
           type: string
         obj_name: 
           type: string
+    revert: 
+      title: revert
+      type: object
+      properties:
+        success: 
+          type: boolean
 
     share_type_user: 
       title: user
@@ -3057,9 +3115,9 @@ paths:
   /api/v2.1/repos/{repo_id}/file/:
     post:
       tags:
-        - File history
-      summary: Create/Restore file from history
-      description: Recover the file by getting commit_id in the history.
+        - Files
+      summary: Create/Rename/Move/Copy/Revert file
+      description: With this request, you can create/rename/move/copy/revert a file.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -3068,45 +3126,51 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              properties:
-                operation:
-                  type: string
-                  enum:
-                    - "revert"
-                    - "create"
-                  example: revert
-                commit_id:
-                  type: string
-                  example: 'b5d0996980e9199184b92c74e858fa6cba9b6b02'
+              $ref: '#/components/schemas/file_operation'
       responses:
         '200':
           description: OK
           content:
             application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/FileRevert'
-                  - $ref: '#/components/schemas/FileCreate'
-              examples:
-                revert:
+              schema: 
+                oneOf:
+                  - $ref: '#/components/schemas/create'
+                  - $ref: '#/components/schemas/rename'
+                  - $ref: '#/components/schemas/move'
+                  - $ref: '#/components/schemas/copy'
+                  - $ref: '#/components/schemas/revert'
+              examples: 
+                Create file: 
                   value: {
-                    "success": true
-                        }
-                create:
+                      'is_locked': False,
+                      'mtime': '2024-03-12T14:57:42+08:00',
+                      'obj_id': u'44bdca6005429390d1ecc6943b05c821bd30917a',
+                      'obj_name': u'test.xlsx',
+                      'parent_dir': u'/',
+                      'repo_id': u'7460f7ac-a0ff-4585-8906-bb5a57d2e118',
+                      'size': 7631,
+                      'type': 'file'
+                  }
+                Rename file: 
+                  value: success
+                Move file: 
                   value: {
-                      "type": "file",
-                      "repo_id": "c1d658ca-9570-46f3-b055-452cbbf0a1fb",
-                      "parent_dir": "/",
-                      "obj_name": "test.txt",
-                      "obj_id": "0000000000000000000000000000000000000000",
-                      "size": 0,
-                      "mtime": "2024-03-07T11:36:35+08:00",
-                      "is_locked": false,
-                      "can_preview": true,
-                      "can_edit": true
-                        }
+                    "repo_id": "affc837f-7fdd-4e91-b88a-32caf99897f2",
+                    "parent_dir": "/example-folder",
+                    "obj_name": "foo.c"
+                      }
+                Copy file: 
+                  value: {
+                    "repo_id": "affc837f-7fdd-4e91-b88a-32caf99897f2",
+                    "parent_dir": "/example-folder",
+                    "obj_name": "foo.c"
+                      }
+                Revert file: 
+                  value: {
+                      "success": true
+                    }
     put:
       tags:
         - Files
@@ -3164,7 +3228,26 @@ paths:
                   mtime: "2024-03-04T15:44:56+08:00"
                   is_locked: true
                   can_preview: false
-                  can_edit: false   
+                  can_edit: false
+    delete:
+      tags:
+        - Files
+      summary: Delete file
+      description: Deletes the specified file.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/p'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                example: {"success":true,"commit_id":"20c1faf15e4da61e446503704245c3b84e62f627"}
+
 
   /api2/repos/{repo_id}/file/revision/:
     get:
@@ -3206,28 +3289,12 @@ paths:
         - $ref: '#/components/parameters/search_ftypes'
         - $ref: '#/components/parameters/ftype'
         - $ref: '#/components/parameters/with_permission'
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema: 
-              type: object
-              properties:
-                input_fexts:
-                  type: string
-                  description: file extensions manually specific.
-                time_from:
-                  type: integer
-                  description: filter the result that the updated time greater than or equal to  this value. default unit is second.
-                time_to:
-                  type: integer
-                  description: filter the result that the updated time less than or equal to  this value. default unit is second.
-                size_from:
-                  type: string
-                  description: filter the result that the size greater than or equal to  this value. default unit is byte.
-                size_to: 
-                  type: string
-                  description: filter the result that the size less than or equal to this value. default unit is byte.
+        - $ref: '#/components/parameters/input_fexts'
+        - $ref: '#/components/parameters/time_from'
+        - $ref: '#/components/parameters/time_to'
+        - $ref: '#/components/parameters/size_from'
+        - $ref: '#/components/parameters/size_to'
+
       responses:
         '200':
           description: OK
@@ -3851,81 +3918,7 @@ paths:
                 type: string
                 description: Return a download link for this file
                 example: "https://cloud.seafile.com/seafhttp/files/48a7b633-25a4-4c8d-a10e-37dcfa34c65d/example.pdf"
-          
-    post:
-      tags:
-        - Files
-      summary: Create/Rename/Move/Copy file
-      description: With this request, you can create/rename/move/copy a file.
-      security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
-        - $ref: '#/components/parameters/p'
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/file_operation'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema: 
-                oneOf:
-                  - $ref: '#/components/schemas/create'
-                  - $ref: '#/components/schemas/rename'
-                  - $ref: '#/components/schemas/move'
-                  - $ref: '#/components/schemas/copy'
-              examples: 
-                Create file: 
-                  value: {
-                      'is_locked': False,
-                      'mtime': '2024-03-12T14:57:42+08:00',
-                      'obj_id': u'44bdca6005429390d1ecc6943b05c821bd30917a',
-                      'obj_name': u'test.xlsx',
-                      'parent_dir': u'/',
-                      'repo_id': u'7460f7ac-a0ff-4585-8906-bb5a57d2e118',
-                      'size': 7631,
-                      'type': 'file'
-                  }
-                Rename file: 
-                  value: success
-                Move file: 
-                  value: {
-                    "repo_id": "affc837f-7fdd-4e91-b88a-32caf99897f2",
-                    "parent_dir": "/example-folder",
-                    "obj_name": "foo.c"
-                      }
-                Copy file: 
-                  value: {
-                    "repo_id": "affc837f-7fdd-4e91-b88a-32caf99897f2",
-                    "parent_dir": "/example-folder",
-                    "obj_name": "foo.c"
-                      }
   
-    delete:
-      tags:
-        - Files
-      summary: Delete file
-      description: Deletes the specified file.
-      security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
-        - $ref: '#/components/parameters/p'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: string
-                description: Response code is 200, and a string "success" is returned.
-                example: success
-                  
   /api2/repos/{repo_id}/file/detail/:
     get:
       tags:
