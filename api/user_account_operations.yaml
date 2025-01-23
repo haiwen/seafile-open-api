@@ -1238,6 +1238,16 @@ components:
       type: string
       description: Set expiration time
     
+    user_scope:
+      type: string
+      description: Access scope, Optional to specific_users, specific_emails, and all_users
+      example: "specific_users"
+    
+    share_emails: 
+      type: array
+      description: When specifying a user, the type is a list, and when specifying an email, the type is a string, separated by "," between the email addresses
+      example: "seafile@mail.com, xiaowu@seafile.com"
+    
     share_link_permission: 
       type: object
       description: Operation permission
@@ -6311,8 +6321,246 @@ paths:
                     "password": "",
                     "can_edit": false
                    }
-          
-  /api/v2.1/share-links/?repo_id={repo_id}:
+  /api/v2.1/multi-share-links/:
+    post: 
+      tags:
+        - Share links
+      summary: Create multi share links
+      description: Create a shared link for the library with specific permissions.
+      security:
+        - AccountTokenAuth: []
+      requestBody: 
+        description: Content type of parameter must be application/json and passed through POST request's body.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                repo_id:
+                  $ref: '#/components/schemas/repo_id'
+                path: 
+                  $ref: '#/components/schemas/path'
+                password: 
+                  $ref: '#/components/schemas/password'
+                expire_days: 
+                  $ref: '#/components/schemas/expire_days'
+                permissions: 
+                  $ref: '#/components/schemas/share_link_permission'
+                user_scope:
+                  $ref: '#/components/schemas/user_scope'
+                emails:
+                  $ref: '#/components/schemas/share_emails'
+              required:
+                - repo_id
+                - path
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                description: Share links info
+                properties:
+                  username: 
+                      type: string
+                  repo_id: 
+                    type: string
+                  repo_name: 
+                    type: string
+                  path: 
+                    type: string
+                  obj_name: 
+                    type: string
+                  obj_id: 
+                    type: string
+                  is_dir: 
+                    type: boolean
+                  token: 
+                    type: string
+                  link: 
+                    type: string
+                  download_link: 
+                    type: string
+                  show_download_link:
+                    type: boolean
+                  view_cnt: 
+                    type: integer
+                  ctime: 
+                    type: string
+                  expire_date: 
+                    type: string
+                  is_expired: 
+                    type: boolean
+                  permissions: 
+                    type: array
+                    items: 
+                      type: object
+                      properties:
+                        can_edit:
+                          type: boolean
+                        can_download: 
+                          type: boolean
+                        can_upload: 
+                          type: boolean
+                        can_copy_content:
+                          type: boolean
+                  password: 
+                    type: string
+                  can_edit:
+                    type: boolean
+                  user_scope:
+                    type: string
+                example: {
+                        "username": "aa54297e93b44d50a2efb65437cf1cc4@auth.local",
+                        "repo_id": "973ef414-6914-49a7-8757-645c2f42a823",
+                        "repo_name": "func",
+                        "path": "/",
+                        "obj_name": "/",
+                        "obj_id": "0faed1af7ed1463b2ad79f98d662b4c204c96c0e",
+                        "is_dir": true,
+                        "token": "b718c7bf1349483f96c9",
+                        "link": "http://127.0.0.1/d/b718c7bf1349483f96c9/",
+                        "download_link": "http://127.0.0.1/seafhttp/f/b718c7bf1349483f96c9/",
+                        "show_download_link": false,
+                        "view_cnt": 0,
+                        "ctime": "2025-01-23T10:18:39+08:00",
+                        "expire_date": "2025-01-26T10:18:39+08:00",
+                        "is_expired": false,
+                        "permissions": {
+                            "can_edit": false,
+                            "can_download": true,
+                            "can_upload": false,
+                            "can_copy_content": true
+                        },
+                        "password": "passwordaaaddd",
+                        "user_scope": "specific_emails",
+                        "can_edit": false
+                    }
+  /api/v2.1/multi-share-links/batch/:
+    post: 
+      tags:
+        - Share links
+      summary: Batch create shared links
+      description: Create a specified number of shared links, access scope is currently not supported.
+      security:
+        - AccountTokenAuth: []
+      requestBody: 
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                repo_id:
+                  type: string
+                  description: Unique identifier of the database
+                  example: 973ef414-6914-49a7-8757-645c2f42a823
+                path: 
+                  $ref: '#/components/schemas/path'
+                auto_generate_password: 
+                  type: boolean
+                  description: Whether to generate a random password
+                expiration_time: 
+                  $ref: '#/components/schemas/expire_days'
+                permissions: 
+                  $ref: '#/components/schemas/share_link_permission'
+                number:
+                  type: integer
+                  description: Number of shared links generated
+              required:
+                - repo_id
+                - path
+                - number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: array
+                items: 
+                  type: object
+                  description: Share links info
+                  properties:
+                    username: 
+                        type: string
+                    repo_id: 
+                      type: string
+                    repo_name: 
+                      type: string
+                    path: 
+                      type: string
+                    obj_name: 
+                      type: string
+                    is_dir: 
+                      type: boolean
+                    token: 
+                      type: string
+                    link: 
+                      type: string
+                    ctime: 
+                      type: string
+                    expire_date: 
+                      type: string
+                    is_expired: 
+                      type: boolean
+                    permissions: 
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          can_edit:
+                            type: boolean
+                          can_download: 
+                            type: boolean
+                          can_upload: 
+                            type: boolean
+                          can_copy_content:
+                            type: boolean
+                    password: 
+                      type: string
+                example: [
+                          {
+                              "username": "aa54297e93b44d50a2efb65437cf1cc4@auth.local",
+                              "repo_id": "973ef414-6914-49a7-8757-645c2f42a823",
+                              "repo_name": "Repo",
+                              "path": "/",
+                              "obj_name": "/",
+                              "is_dir": true,
+                              "token": "2408d25117b74e46bd41",
+                              "link": "http://cloud.seafile.com/d/2408d25117b74e46bd41/",
+                              "ctime": "2025-01-23T10:36:03+08:00",
+                              "expire_date": "2025-01-24T10:35:54+08:00",
+                              "permissions": {
+                                  "can_edit": false,
+                                  "can_download": true,
+                                  "can_upload": false,
+                                  "can_copy_content": true
+                              },
+                              "password": "%%.4$d~D"
+                          },
+                          {
+                              "username": "aa54297e93b44d50a2efb65437cf1cc4@auth.local",
+                              "repo_id": "973ef414-6914-49a7-8757-645c2f42a823",
+                              "repo_name": "RepoName",
+                              "path": "/",
+                              "obj_name": "/",
+                              "is_dir": true,
+                              "token": "f9cada1c17404f529246",
+                              "link": "http://cloud.seafile.com/d/f9cada1c17404f529246/",
+                              "ctime": "2025-01-23T10:36:03+08:00",
+                              "expire_date": "2025-01-24T10:35:54+08:00",
+                              "permissions": {
+                                  "can_edit": false,
+                                  "can_download": true,
+                                  "can_upload": false,
+                                  "can_copy_content": true
+                              },
+                              "password": "1H[P\\Iwq"
+                          }
+                      ]
+
+  /api/v2.1/share-links/?repo_id={repo_id}/:
     get:
       tags:
         - Share links
