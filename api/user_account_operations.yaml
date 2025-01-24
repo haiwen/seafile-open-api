@@ -495,7 +495,7 @@ components:
     path_in_query_true: 
       name: path
       in: query
-      description: / stands for unstar a library.
+      description: / stands for a library.
       required: true
       schema: 
         type: string
@@ -595,6 +595,15 @@ components:
           - user
 
     # Path parameters
+    link_token: 
+      name: link_token
+      in: path
+      required: true
+      description: Token for sharing links
+      example: 2408d25117b74e46bd41
+      schema: 
+        type: string
+
     wiki_id:
       name: wiki_id
       in: path
@@ -1195,6 +1204,11 @@ components:
       type: string
       title: emails
       example: new_owner@new_owner.com,new_owner2@new_owner.com
+    
+    emails_list:
+      type: array
+      title: emails
+      example: ["new_owner@new_owner.com" ,"new_owner2@new_owner.com"]
 
     is_admin: 
       type: string
@@ -6920,9 +6934,253 @@ paths:
                       }
                   ]
                     }
+  /api/v2.1/share-links/{link_token}/user-auth/:
+    get:
+      tags:
+        - Share links
+      summary: List user authorizations
+      description: |- 
+        List user authorizations for specified sharing links.
+
+        *NOTE: The primary distinction between user authorization and email authorization lies in the scope of the authorized recipients.*
+
+        - User authorization is typically limited to existing users within the site, meaning you can only grant permissions to those who have already registered and have an account on the platform.
+
+        - Email authorization enables sharing permissions or resources with any user who has a valid email address, regardless of whether they have an account on your site. 
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/link_token'
+        - $ref: '#/components/parameters/path_in_query_true'
+      responses:
+        '200':
+          description: OK
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  auth_list: 
+                    type: array
+                    items:
+                      type: object
+                      description: User info
+                      properties:
+                        username:
+                          type: string
+                        name:
+                          type: string
+                        avatar_url:
+                          type: string
+                        link_token:
+                          type: string
+                        contact_email:
+                          type: string
+              example: {
+                "auth_list": [
+                        {
+                            "username": "6826e5e1959248e0827a9d81b5234f69@auth.local",
+                            "name": "user",
+                            "avatar_url": "http://127.0.0.1/media/avatars/0/a/68dd47af214b0a8d3de0005036619b/resized/256/182845aceb39c9e413e28fd549058cf8.png",
+                            "link_token": "2408d25117b74e46bd41",
+                            "contact_email": "Seafile@example.com"
+                        },
+                        {
+                            "username": "88b58df69f7d43eb8fe1eee7c7b6cd25@auth.local",
+                            "name": "user2",
+                            "avatar_url": "http://127.0.0.1/media/avatars/default.png",
+                            "link_token": "2408d25117b74e46bd41",
+                            "contact_email": "Seafile@seafile.com"
+                        }
+                    ]
+                }
+    post:
+      tags:
+        - Share links
+      summary: Add user authorization
+      description: Add user authorization for shared links.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/link_token'
+        - $ref: '#/components/parameters/path_in_query_true'
+      requestBody:
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  emails: 
+                    $ref: '#/components/schemas/emails_list'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  auth_list: 
+                    type: array
+                    items:
+                      type: object
+                      description: User info
+                      properties:
+                        username:
+                          type: string
+                        name:
+                          type: string
+                        avatar_url:
+                          type: string
+                        link_token:
+                          type: string
+                        contact_email:
+                          type: string
+              example: {
+                "auth_list": [
+                        {
+                            "username": "6826e5e1959248e0827a9d81b5234f69@auth.local",
+                            "name": "user",
+                            "avatar_url": "http://127.0.0.1/media/avatars/0/a/68dd47af214b0a8d3de0005036619b/resized/256/182845aceb39c9e413e28fd549058cf8.png",
+                            "link_token": "2408d25117b74e46bd41",
+                            "contact_email": "Seafile@example.com"
+                        },
+                        {
+                            "username": "88b58df69f7d43eb8fe1eee7c7b6cd25@auth.local",
+                            "name": "user2",
+                            "avatar_url": "http://127.0.0.1/media/avatars/default.png",
+                            "link_token": "2408d25117b74e46bd41",
+                            "contact_email": "Seafile@seafile.com"
+                        }
+                    ]
+                }
+    delete: 
+      tags:
+        - Share links
+      summary: Delete user authorization
+      description: Remove the specified access authorization from the shared link.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/link_token'
+        - $ref: '#/components/parameters/path_in_query_true'
+      requestBody:
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  emails: 
+                    $ref: '#/components/schemas/emails_list'
+      responses:
+        '200':
+          description: OK   
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  success: 
+                    type: boolean
+                    description: Success state
+  
+  /api/v2.1/share-links/{link_token}/email-auth/:
+    get:
+      tags:
+        - Share links
+      summary: List email authorizations
+      description: List email authorizations for specified sharing links.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/link_token'
+        - $ref: '#/components/parameters/path_in_query_true'
+      responses:
+        '200':
+          description: OK
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  auth_list: 
+                    type: array
+                    items:
+                      type: string
+                      description: User email
+              example: {
+                "auth_list": [
+                        'awu@seafile.com', 'seafile@seafile.com'
+                    ]
+                }
+    post:
+      tags:
+        - Share links
+      summary: Add email authorization
+      description: Add email authorization for shared links.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/link_token'
+        - $ref: '#/components/parameters/path_in_query_true'
+      requestBody:
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  emails: 
+                    $ref: '#/components/schemas/emails_list'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  auth_list: 
+                    type: array
+                    items:
+                      type: string
+                      description: User email
+              example: {
+                "auth_list": [
+                        'awu@seafile.com', 'seafile@seafile.com'
+                    ]
+                }
+    delete: 
+      tags:
+        - Share links
+      summary: Delete email authorization
+      description: Remove the specified email access authorization from the shared link.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/link_token'
+        - $ref: '#/components/parameters/path_in_query_true'
+      requestBody:
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  emails: 
+                    $ref: '#/components/schemas/emails_list'
+      responses:
+        '200':
+          description: OK   
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  success: 
+                    type: boolean
+                    description: Success state
 
   /api/v2.1/repos/{repo_id}/commits/{commit_id}/dir/: 
-     get: 
+    get: 
       tags:
         - Snapshot
       summary: List items in directory of a snapshot
