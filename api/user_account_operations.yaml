@@ -10872,7 +10872,7 @@ paths:
                         type: 
                           type: string
                           example: text
-  /api/v2.1/repos/:repo_id/metadata/details-settings/:
+  /api/v2.1/repos/{repo_id}/metadata/details-settings/:
     put: 
       tags:
         - Metadata
