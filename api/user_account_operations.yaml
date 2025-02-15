@@ -10122,7 +10122,7 @@ paths:
     get:
       tags:
         - Metadata
-      summary: Get metadata enabled status of a library
+      summary: Get metadata enabled status
       description: Returns the enabled status of metadata and the status of metadata tags for the library.
       security:
         - AccountTokenAuth: []
@@ -10156,7 +10156,7 @@ paths:
     put: 
       tags:
         - Metadata
-      summary: Enabled metadata for a library
+      summary: Enabled metadata
       description: Enabled metadata for a library.
       security:
         - AccountTokenAuth: []
@@ -10176,7 +10176,7 @@ paths:
     delete: 
       tags:
         - Metadata
-      summary: Disable metadata for a library
+      summary: Disable metadata
       description: Disable metadata for a library.
       security:
         - AccountTokenAuth: []
@@ -10198,8 +10198,8 @@ paths:
     get: 
       tags:
         - Metadata
-      summary: List metadata records of a library
-      description: Gets a comprehensive inventory of all the metadata records contained within the library's collection.
+      summary: List metadata records
+      description: List metadata records of a library.
       security:
         - AccountTokenAuth: []
       parameters:
@@ -11132,7 +11132,7 @@ paths:
     get: 
       tags:
         - Metadata
-      summary: Get a view by view_id
+      summary: Get a view
       description: Get detailed information of existing views.
       security:
         - AccountTokenAuth: []
