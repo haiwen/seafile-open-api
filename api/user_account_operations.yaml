@@ -721,6 +721,24 @@ components:
         type: string
         pattern: '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
 
+    people_id:
+      name: people_id
+      in: path
+      description: The unique identifier of a people photo
+      example: BSeC48UiQGSmSY-BAOZc8g
+      required: true
+      schema: 
+        type: string
+
+    tag_id: 
+      name: tag_id
+      in: path
+      description: The unique identifier of a Tag
+      example: KvfhV8GpQPWEskVxBtwePA
+      required: true
+      schema: 
+        type: string
+
     comment_id:
       name: pk
       in: path
@@ -1628,6 +1646,7 @@ components:
       type: boolean
       description: "`true` or `false`, whether list your account in global address book, if no value passed, this field will not be changed"
       example: true
+  
 
 paths:
   # Account
@@ -11382,3 +11401,1173 @@ paths:
                       ]
                     }
 
+  /api/v2.1/repos/{repo_id}/metadata/tags-status/:
+    put: 
+      tags:
+        - Metadata
+      summary: Turn on tags feature
+      description: Enable tags to add tags to files and search files by tags.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+    delete: 
+      tags:
+        - Metadata
+      summary: Turn off tags feature
+      description: Turn off tags feature.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+  /api/v2.1/repos/{repo_id}/metadata/tags/: 
+    get:
+      tags:
+        - Metadata
+      summary: List tags
+      description: List all existing tags.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema: 
+                  type: object
+                  properties:
+                    metadata: 
+                      type: array
+                      description: Metadata of tags
+                      items: 
+                        type: object
+                        properties:
+                          key: 
+                            type: string
+                          name: 
+                            type: string
+                          type: 
+                            type: string
+                          data: 
+                            type: object
+                    results: 
+                      type: array
+                      description: Tags info
+                      items: 
+                        type: object
+                        properties:
+                          _creator:
+                            type: string
+                          _ctime:
+                            type: string
+                          _id:
+                            type: string
+                          _last_modifier:
+                            type: string
+                          _mtime:
+                            type: string
+                          _tag_color:
+                            type: string
+                          _tag_name:
+                            type: string
+                example: {
+                    "metadata": [
+                        {
+                            "key": "_id",
+                            "name": "_id",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_creator",
+                            "name": "_creator",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_ctime",
+                            "name": "_ctime",
+                            "type": "date",
+                            "data": null
+                        },
+                        {
+                            "key": "_last_modifier",
+                            "name": "_last_modifier",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_mtime",
+                            "name": "_mtime",
+                            "type": "date",
+                            "data": null
+                        },
+                        {
+                            "key": "_tag_name",
+                            "name": "_tag_name",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_tag_color",
+                            "name": "_tag_color",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_tag_file_links",
+                            "name": "_tag_file_links",
+                            "type": "link",
+                            "data": {
+                                "display_column_key": "_id",
+                                "link_id": "0002",
+                                "other_table_id": "z88R",
+                                "table_id": "0001"
+                            }
+                        },
+                        {
+                            "key": "_tag_parent_links",
+                            "name": "_tag_parent_links",
+                            "type": "link",
+                            "data": {
+                                "display_column_key": "_id",
+                                "is_linked_back": false,
+                                "link_id": "0003",
+                                "other_table_id": "z88R",
+                                "table_id": "z88R"
+                            }
+                        },
+                        {
+                            "key": "_tag_sub_links",
+                            "name": "_tag_sub_links",
+                            "type": "link",
+                            "data": {
+                                "display_column_key": "_id",
+                                "is_linked_back": true,
+                                "link_id": "0003",
+                                "other_table_id": "z88R",
+                                "table_id": "z88R"
+                            }
+                        }
+                    ],
+                    "results": [
+                        {
+                            "_creator": "e40151bbbe184577b11ed818a49f97f3@auth.local",
+                            "_ctime": "2025-02-13T18:27:20+08:00",
+                            "_id": "OP6ak-N7Q7i96oX6I3lkFw",
+                            "_last_modifier": "e40151bbbe184577b11ed818a49f97f3@auth.local",
+                            "_mtime": "2025-02-13T18:27:20+08:00",
+                            "_tag_color": "#FFFCB5",
+                            "_tag_name": "标签"
+                        }
+                    ]
+                }
+    post: 
+      tags:
+        - Metadata
+      summary: Add tags
+      description: Add custom tags.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                tags_data: 
+                  type: array
+                  items: 
+                    type: object
+                    properties:
+                      _tag_name: 
+                        type: string
+                        example: 'Tag1'
+                      _tag_color: 
+                        type: string
+                        example: '#F4667C'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema: 
+                  type: object
+                  properties:
+                    tags: 
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          _creator:
+                            type: string
+                          _ctime:
+                            type: string
+                          _id:
+                            type: string
+                          _last_modifier:
+                            type: string
+                          _mtime:
+                            type: string
+                          _tag_color:
+                            type: string
+                          _tag_name:
+                            type: string
+                example: {
+                    "tags": [
+                        {
+                            "_creator": "e40151bbbe184577b11ed818a49f97f3@auth.local",
+                            "_ctime": "2025-02-14T10:40:52+08:00",
+                            "_id": "dOSid9ECR26rHtgLokPXBw",
+                            "_last_modifier": "e40151bbbe184577b11ed818a49f97f3@auth.local",
+                            "_mtime": "2025-02-14T10:40:52+08:00",
+                            "_tag_color": "#F4667C",
+                            "_tag_name": "Tag1"
+                        }
+                    ]
+                }
+
+    put: 
+      tags:
+        - Metadata
+      summary: Update tags
+      description: Update existing tags.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                tags_data: 
+                  type: array
+                  items: 
+                    type: object
+                    properties:
+                      tag_id: 
+                        type: string
+                        example: 'dOSid9ECR26rHtgLokPXBw'
+                      tag: 
+                        type: object
+                        properties:
+                          _tag_color: 
+                            type: string
+                            example: "#9860E5"
+                          _tag_name: 
+                            type: string
+                            example: new tag
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+    delete: 
+      tags:
+        - Metadata
+      summary: Delete tags
+      description: Delete the tags with the specified tag id.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                tag_ids:
+                  type: array
+                  items: 
+                    type: string
+                    description: Unique identification of existing tags
+                    example: dOSid9ECR26rHtgLokPXBw
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+  /api/v2.1/repos/{repo_id}/metadata/file-tags:
+    put: 
+      tags:
+        - Metadata
+      summary: Update file tags
+      description: Add or modify existing tags to the specified records of metadata.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                file_tags_data:
+                  type: array
+                  items: 
+                    type: object
+                    properties:
+                      record_id: 
+                        type: string
+                        description: Unique identifier of the record
+                      tags: 
+                        type: array
+                        items: 
+                          type: string
+                          description: Unique identification of existing tags
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    fail: 
+                      type: array
+                      items: 
+                        type: string
+                        description: Add failed record id
+                    success: 
+                      type: array
+                      items: 
+                        type: string
+                        description: Add success record id
+                example: {"success":["al8SjKN0QxGrE6vr0SHDOw"],"fail":[]}
+  /api/v2.1/repos/{repo_id}/metadata/tag-files/{tag_id}/:
+    get: 
+      tags:
+        - Metadata
+      summary: List tag files
+      description: List all files marked by the current tag.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/tag_id'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    metadata: 
+                      type: array
+                      items: 
+                        type: object
+                        description: The metadata type of the file.
+                        properties:
+                          key: 
+                            type: string
+                          name: 
+                            type: string
+                          type: 
+                            type: string
+                          data: 
+                            type: object
+                    results: 
+                      type: array
+                      items: 
+                        type: object
+                        description: File info 
+                        properties:
+                          _file_mtime:
+                            type: string
+                          _id:
+                            type: string
+                          _name:
+                            type: string
+                          _parent_dir:
+                            type: string
+                          _size:
+                            type: integer
+                          _tags:
+                            type: array
+                            items: 
+                              type: object
+                              properties:
+                                row_id: 
+                                  type: string
+                                display_value: 
+                                  type: string
+                  example: {
+                      "metadata": [
+                          {
+                              "key": "_id",
+                              "name": "_id",
+                              "type": "text",
+                              "data": null
+                          },
+                          {
+                              "key": "_name",
+                              "name": "_name",
+                              "type": "text",
+                              "data": null
+                          },
+                          {
+                              "key": "_parent_dir",
+                              "name": "_parent_dir",
+                              "type": "text",
+                              "data": null
+                          },
+                          {
+                              "key": "_size",
+                              "name": "_size",
+                              "type": "number",
+                              "data": null
+                          },
+                          {
+                              "key": "_file_mtime",
+                              "name": "_file_mtime",
+                              "type": "date",
+                              "data": null
+                          },
+                          {
+                              "key": "_tags",
+                              "name": "_tags",
+                              "type": "link",
+                              "data": {
+                                  "display_column_key": "_tag_name",
+                                  "link_id": "0002",
+                                  "other_table_id": "wC6x",
+                                  "table_id": "0001"
+                              }
+                          }
+                      ],
+                      "results": [
+                          {
+                              "_file_mtime": "2025-02-14T11:21:33+08:00",
+                              "_id": "al8SjKN0QxGrE6vr0SHDOw",
+                              "_name": "file",
+                              "_parent_dir": "/",
+                              "_size": 3952270,
+                              "_tags": [
+                                  {
+                                      "row_id": "KvfhV8GpQPWEskVxBtwePA",
+                                      "display_value": "tag"
+                                  }
+                              ]
+                          }
+                      ]
+                  }
+  /api/v2.1/repos/{repo_id}/metadata/tags-files/:
+    post: 
+      tags:
+        - Metadata
+      summary: List tags files
+      description: List files marked by tags.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id' 
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                tags_ids:
+                  type: array
+                  items: 
+                    type: string
+                    example: iVVorGfDTuaFdJOwGhR4og                
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    metadata: 
+                      type: array
+                      items: 
+                        type: object
+                        description: The metadata type of the file.
+                        properties:
+                          key: 
+                            type: string
+                          name: 
+                            type: string
+                          type: 
+                            type: string
+                          data: 
+                            type: object
+                    results: 
+                      type: array
+                      items: 
+                        type: object
+                        description: File info 
+                        properties:
+                          _file_mtime:
+                            type: string
+                          _id:
+                            type: string
+                          _name:
+                            type: string
+                          _parent_dir:
+                            type: string
+                          _size:
+                            type: integer
+                          _tags:
+                            type: array
+                            items: 
+                              type: object
+                              properties:
+                                row_id: 
+                                  type: string
+                                display_value: 
+                                  type: string
+                  example: {
+                      "metadata": [
+                          {
+                              "key": "_id",
+                              "name": "_id",
+                              "type": "text",
+                              "data": null
+                          },
+                          {
+                              "key": "_name",
+                              "name": "_name",
+                              "type": "text",
+                              "data": null
+                          },
+                          {
+                              "key": "_parent_dir",
+                              "name": "_parent_dir",
+                              "type": "text",
+                              "data": null
+                          },
+                          {
+                              "key": "_size",
+                              "name": "_size",
+                              "type": "number",
+                              "data": null
+                          },
+                          {
+                              "key": "_file_mtime",
+                              "name": "_file_mtime",
+                              "type": "date",
+                              "data": null
+                          },
+                          {
+                              "key": "_tags",
+                              "name": "_tags",
+                              "type": "link",
+                              "data": {
+                                  "display_column_key": "_tag_name",
+                                  "link_id": "0002",
+                                  "other_table_id": "wC6x",
+                                  "table_id": "0001"
+                              }
+                          }
+                      ],
+                      "results": [
+                          {
+                              "_file_mtime": "2025-02-14T11:21:33+08:00",
+                              "_id": "al8SjKN0QxGrE6vr0SHDOw",
+                              "_name": "file",
+                              "_parent_dir": "/",
+                              "_size": 3952270,
+                              "_tags": [
+                                  {
+                                      "row_id": "KvfhV8GpQPWEskVxBtwePA",
+                                      "display_value": "tag"
+                                  }
+                              ]
+                          }
+                      ]
+                  }
+  /api/v2.1/repos/{repo_id}/metadata/tags-links/:
+    post: 
+      tags:
+        - Metadata
+      summary: Add tags links
+      description: Linking a tag to a sub layer of another tag.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id' 
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                link_column_key: 
+                  type: string
+                  description: _tag_sub_links or _tag_parent_links
+                  example: _tag_parent_links
+                row_id_map: 
+                  type: object
+                  description: The key is the parent tag ID, and the value is the child tag ID that needs to be linked
+                  properties:
+                    3Jwd1nwnSrO1vuDdpfmKUA: 
+                      type: array
+                      items: 
+                        type: string
+                        example: TMRFgo8OTJi2Mk4l4ABOy   
+      responses:
+          '200':
+            description: OK      
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+    put: 
+      tags:
+        - Metadata
+      summary: Update tags links
+      description: Update links between existing tags.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id' 
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                link_column_key: 
+                  type: string
+                  description: _tag_sub_links or _tag_parent_links
+                  example: _tag_parent_links
+                row_id_map: 
+                  type: object
+                  description: The key is the parent tag ID, and the value is the child tag ID that needs to be linked
+                  properties:
+                    3Jwd1nwnSrO1vuDdpfmKUA: 
+                      type: array
+                      items: 
+                        type: string
+                        example: TMRFgo8OTJi2Mk4l4ABOy   
+      responses:
+          '200':
+            description: OK      
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+    delete: 
+      tags:
+        - Metadata
+      summary: Delete tags links
+      description: Delete links between existing tags.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id' 
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                link_column_key: 
+                  type: string
+                  description: _tag_sub_links or _tag_parent_links
+                  example: _tag_parent_links
+                row_id_map: 
+                  type: object
+                  description: The key is the parent tag ID, and the value is the child tag ID that needs to be linked
+                  properties:
+                    3Jwd1nwnSrO1vuDdpfmKUA: 
+                      type: array
+                      items: 
+                        type: string
+                        example: TMRFgo8OTJi2Mk4l4ABOy   
+      responses:
+          '200':
+            description: OK      
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+  /api/v2.1/repos/{repo_id}/metadata/merge-tags/:
+    post:
+      tags:
+        - Metadata
+      summary: Merge tags
+      description: Merge other tags into the specified existing tag.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id' 
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                target_tag_id: 
+                  type: string
+                  example: EQhOJke4S4ykb53tEkrjBA
+                merged_tags_ids: 
+                  type: array
+                  items: 
+                    type: string
+                    example: TMRFgo8OTJi2Mk4l4ABOy   
+      responses:
+          '200':
+            description: OK      
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+  /api/v2.1/repos/{repo_id}/metadata/ocr/:
+    put:
+      tags:
+        - Metadata
+      summary: Turn on OCR feature
+      description: After enable OCR, you can extract text from images or scanned PDFs.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'  
+      responses:
+          '200':
+            description: OK      
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+    delete: 
+      tags:
+        - Metadata
+      summary: Turn off OCR feature
+      description: Turn off OCR feature.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'  
+      responses:
+          '200':
+            description: OK      
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+  /api/v2.1/repos/{repo_id}/metadata/face-recognition/:
+    get: 
+      tags:
+        - Metadata
+      summary: Get face recognition enabled status
+      description: Get face recognition enabled status.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'  
+      responses:
+          '200':
+            description: OK      
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    enabled: 
+                      type: boolean
+    post: 
+      tags:
+        - Metadata
+      summary: Open face recognition
+      description: Enable face recognition to identify people in your photos.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'  
+      responses:
+          '200':
+            description: OK      
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    task_id: 
+                      type: string
+                      example: 7a358454-2999-47c0-a68d-1087e7ab2d3b
+  /api/v2.1/repos/{repo_id}/metadata/face-records/:
+    get:
+      tags:
+        - Metadata
+      summary: List face records
+      description: List face records.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'  
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/limit'
+      responses:
+          '200':
+            description: OK      
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    results: 
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          _id:
+                            type: string
+                          _is_someone:
+                            type: boolean
+                            description: Is it the same person
+                          _name:
+                            type: string
+                          _photo_links:
+                            type: array
+                            items: 
+                              type: object
+                              properties:
+                                row_id: 
+                                  type: string
+                                display_value: 
+                                  type: string
+                          _similar_photo:
+                            type: object
+                            description: record info
+                  example: {
+                      "results": [
+                          {
+                              "_id": "W7El3_fISPyQI3blVXNNMA",
+                              "_is_someone": true,
+                              "_name": "test",
+                              "_photo_links": [
+                                  {
+                                      "row_id": "",
+                                      "display_value": "xxx",
+                                  }
+                              ],
+                              "_similar_photo": { },
+                          },
+                      ]
+                  }
+  /api/v2.1/repos/{repo_id}/metadata/people-photos/{people_id}/:
+    get: 
+      tags:
+        - Metadata
+      summary: List people photos
+      description: List all photos in the current people photos category.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/people_id'
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/limit'
+      responses:
+          '200':
+            description: OK  
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    metadata: 
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          key: 
+                            type: string
+                          name: 
+                            type: string
+                          width: 
+                            type: string
+                          data: 
+                            type: object
+                    results: 
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          _id:
+                            type: string
+                          creator:
+                            type: string
+                          create_time:
+                            type: string
+                          modifier:
+                            type: string
+                          modify_time:
+                            type: string
+                          current_dir:
+                            type: string
+                          name:
+                            type: string
+                          is_dir:
+                            type: boolean
+                example: {
+                        "metadata": [
+                            {
+                              "key": "_id",
+                              "name": "_id",
+                              "type": "text",
+                              "data": null
+                          },
+                          {
+                              "key": "creator",
+                              "name": "creator",
+                              "type": "text",
+                              "data": null
+                          },
+                          {
+                              "key": "create_time",
+                              "name": "create_time",
+                              "type": "text",
+                              "data": null
+                          },
+                          {
+                              "key": "modifier",
+                              "name": "modifier",
+                              "type": "text",
+                              "data": null
+                          },
+                          {
+                              "key": "modify_time",
+                              "name": "modify_time",
+                              "type": "text",
+                              "data": null
+                          },
+                          {
+                              "key": "current_dir",
+                              "name": "current_dir",
+                              "type": "text",
+                              "data": null
+                          },
+                          {
+                              "key": "name",
+                              "name": "name",
+                              "type": "text",
+                              "data": null
+                          },
+                          {
+                              "key": "is_dir",
+                              "name": "is_dir",
+                              "type": "boolean",
+                              "data": null
+                          },
+                        ],
+                        "results": [
+                            {
+                                "_id": "lKeue9RUTMyH6T6fla-lbQ",
+                                "creator": "a6731c4e05e9466f81d9e2ad3d994868@auth.local",
+                                "create_time": "2024-06-05T10:08:50Z",
+                                "modifier": "a6731c4e05e9466f81d9e2ad3d994868@auth.local",
+                                "modify_time": "2024-06-05T10:08:50Z",
+                                "current_dir": "/testfolder/aaa",
+                                "name": "test",
+                                "is_dir": false
+                            }
+                        ]
+                    }
+    delete: 
+      tags:
+        - Metadata
+      summary: Remove people photos
+      description: Remove people photos.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'  
+        - $ref: '#/components/parameters/people_id'  
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                record_ids: 
+                  type: array
+                  items: 
+                    type: string
+                    example: sA2uG6q7Sra67Qwbn3nNSg
+              required:
+                - record_ids 
+      responses:
+          '200':
+            description: OK      
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+    post: 
+      tags:
+        - Metadata
+      summary: Add people photos
+      description: Add people's photos to the current category.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'  
+        - $ref: '#/components/parameters/people_id'  
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                record_ids: 
+                  type: array
+                  items: 
+                    type: string
+                    example: sA2uG6q7Sra67Qwbn3nNSg
+              required:
+                - record_ids 
+      responses:
+          '200':
+            description: OK      
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+  /api/v2.1/repos/{repo_id}/metadata/face-record/:
+    put: 
+      tags:
+        - Metadata
+      summary: Update face name
+      description: Update existing face name.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'  
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                record_id:
+                  type: string
+                  example: W7El3_fISPyQI3blVXNNMA
+                  description: Unique identifier of the record
+                name: 
+                  type: string
+                  example: newName
+                  description: New name
+      responses:
+          '200':
+            description: OK      
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+  /api/v2.1/repos/{repo_id}/metadata/people-cover-photo/{people_id}/:
+    put: 
+      tags:
+        - Metadata
+      summary: Update people cover photo
+      description: Update people cover photo.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'  
+        - $ref: '#/components/parameters/people_id'  
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                record_id: 
+                  type: string
+                  example: sA2uG6q7Sra67Qwbn3nNSg
+              required:
+                - record_id
+      responses:
+          '200':
+            description: OK      
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
