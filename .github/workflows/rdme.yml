@@ -27,22 +27,28 @@ jobs:
       - name: authentication 🚀
         uses: readmeio/rdme@v8
         with:
-          rdme: openapi ./api/authentication.yaml --key=${{ secrets.README_API_KEY }} --id=67418aa439f73d005444fcbd --useSpecVersion
+          rdme: openapi ./api/authentication.yaml --key=${{ secrets.README_API_KEY }} --id=67b7f8e66714a0002932b048 --useSpecVersion
 
       # repo token api
       - name: repo token api 🚀
         uses: readmeio/rdme@v8
         with:
-          rdme: openapi ./api/repo-api-tokens.yaml --key=${{ secrets.README_API_KEY }} --id=67418aa439f73d005444fcbf --useSpecVersion
+          rdme: openapi ./api/repo-api-tokens.yaml --key=${{ secrets.README_API_KEY }} --id=67b7f8e66714a0002932b04a --useSpecVersion
 
       # account operations: user
       - name: user account operations 🚀
         uses: readmeio/rdme@v8
         with:
-          rdme: openapi ./api/user_account_operations.yaml --key=${{ secrets.README_API_KEY }} --id=67418aa439f73d005444fcbc --useSpecVersion
+          rdme: openapi ./api/user_account_operations.yaml --key=${{ secrets.README_API_KEY }} --id=67b7f8e66714a0002932b047 --useSpecVersion
 
       # account operations: system admin
       - name: admin account operations 🚀
         uses: readmeio/rdme@v8
         with:
-          rdme: openapi ./api/admin_account_operations.yaml --key=${{ secrets.README_API_KEY }} --id=67418aa439f73d005444fcc0 --useSpecVersion
+          rdme: openapi ./api/admin_account_operations.yaml --key=${{ secrets.README_API_KEY }} --id=67b7f8e66714a0002932b04b --useSpecVersion
+
+       # metadata operations:  user
+      - name: admin account operations 🚀
+        uses: readmeio/rdme@v8
+        with:
+          rdme: openapi ./api/metadata_operations.yaml --key=${{ secrets.README_API_KEY }} --id=67b7f8e66714a0002932b045 --useSpecVersion
