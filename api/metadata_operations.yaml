@@ -133,6 +133,18 @@ components:
       description: Group name
       type: string
       example: 'test'
+    
+    row:
+      type: object
+      title: Row
+      description: |
+        Pass the set of column names and their values. The column names must be present in your table. Different column types require different ways to input values. For eg:
+        {"Name":"Max", "Age":"21", "Birthday":"2023-02-18", "Checkbox":"true"}
+      example:
+        Name: "Max"
+        Age: 18
+        Birthday: "2025-06-18"
+        Checkbox: true
 
 paths:
   /api/v2.1/repos/{repo_id}/metadata/:
@@ -519,15 +531,7 @@ paths:
                         example: 940762f77e6f2159f5493a20f9db156b8a3327cf
                         description: Unique identifier of file object
                       record: 
-                        type: object
-                        properties:
-                          column_name: 
-                            type: string
-                            example: value
-                            description: "example, _description: value" 
-                          column_name1:
-                            type: string
-                            example: value2
+                        $ref: '#/components/schemas/row'
                 
       responses:
           '200':
@@ -821,11 +825,7 @@ paths:
                   example: file.sdoc
                 data: 
                   type: object
-                  properties:
-                    column_name: 
-                      type: string
-                      example: value
-                      description: Existing column names
+                  $ref: '#/components/schemas/row'
       responses:
           '200':
             description: OK
