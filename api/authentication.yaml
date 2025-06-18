@@ -3,7 +3,7 @@ info:
   title: authentication
   description: |-
     The official Seafile API Reference
-  version: '12.0'
+  version: '13.0'
 tags:
   - name: Account-Token
     description: Access library with Account-Token
