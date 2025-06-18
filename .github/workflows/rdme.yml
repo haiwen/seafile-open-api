@@ -51,4 +51,4 @@ jobs:
       - name: admin account operations 🚀
         uses: readmeio/rdme@v8
         with:
-          rdme: openapi ./api/metadata_operations.yaml --key=${{ secrets.README_API_KEY }} --id=685271644cddac00449c9605 --useSpecVersion
+          rdme: openapi ./api/metadata_operations.yaml --key=${{ secrets.README_API_KEY }} --id=67b7fcf56714a0002932b301 --useSpecVersion
