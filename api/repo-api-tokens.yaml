@@ -1083,7 +1083,6 @@ paths:
       security:
         - RepoTokenAuth: []
       parameters:
-        - $ref: '#/components/parameters/repo_id'
         - $ref: '#/components/parameters/view_id'
         - $ref: '#/components/parameters/start'
         - $ref: '#/components/parameters/limit'
@@ -1360,8 +1359,6 @@ paths:
       description: Update existing metadata records.
       security:
         - RepoTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
       requestBody: 
         content:
           application/json:
