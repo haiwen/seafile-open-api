@@ -146,6 +146,48 @@ components:
       schema:
         type: string
       example: test-app
+    
+    view_id:
+      name: view_id
+      in: query
+      required: true
+      description: The unique view identifier of the current metadata
+      schema: 
+        type: integer
+
+    start: 
+      name: start
+      in: query
+      required: false
+      schema: 
+        type: integer
+        default: 0
+
+    limit: 
+      name: limit
+      in: query
+      required: false
+      schema: 
+        type: integer
+        default: 1000
+
+    file_name:
+      name: file_name
+      in: query
+      required: true
+      description: 'filename'
+      schema:
+        type: string
+    
+    parent_dir:
+      name: parent_dir
+      in: query
+      description: 'Path to the parent_dir'
+      required: true
+      schema:
+        type: string
+
+    
 
   # Reusable schemas (request body)
   schemas:
@@ -393,6 +435,17 @@ components:
             type: string
           can_edit:
             type: boolean
+    row:
+      type: object
+      title: Row
+      description: |
+        Pass the set of column names and their values. The column names must be present in your table. Different column types require different ways to input values. For eg:
+        {"Name":"Max", "Age":"21", "Birthday":"2023-02-18", "Checkbox":"true"}
+      example:
+        Name: "Max"
+        Age: 18
+        Birthday: "2025-06-18"
+        Checkbox: true
         
           
 paths:
@@ -1020,3 +1073,618 @@ paths:
                 "user_scope": "all_users",
                 "can_edit": false
               }
+
+  /api/v2.1/repos/{repo_id}/metadata/records/:
+    get: 
+      tags:
+        - Metadata records
+      summary: List metadata records
+      description: List metadata records of a library.
+      security:
+        - RepoTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/view_id'
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/limit'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    metadata: 
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          key:
+                            type: string
+                          name:
+                            type: string
+                          type:
+                            type: string
+                          data:
+                            type: string
+                    results: 
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          _creator:
+                            type: string
+                          _ctime:
+                            type: string
+                          _file_creator:
+                            type: string
+                          _file_ctime:
+                            type: string
+                          _file_details:
+                            type: string
+                          _file_modifier:
+                            type: string
+                          _file_mtime:
+                            type: string
+                          _file_type:
+                            type: string
+                          _id:
+                            type: string
+                          _is_dir:
+                            type: boolean
+                          _last_modifier:
+                            type: string
+                          _location:
+                            type: object
+                            properties:
+                              lnt: 
+                                type: integer
+                              lng: 
+                                type: integer
+                          _mtime:
+                            type: string
+                          _name:
+                            type: string
+                          _obj_id:
+                            type: string
+                          _parent_dir:
+                            type: string
+                          _size:
+                            type: integer
+                          _suffix:
+                            type: string
+                example: {
+                    "metadata": [
+                        {
+                            "key": "_id",
+                            "name": "_id",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_creator",
+                            "name": "_creator",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_ctime",
+                            "name": "_ctime",
+                            "type": "date",
+                            "data": null
+                        },
+                        {
+                            "key": "_last_modifier",
+                            "name": "_last_modifier",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_mtime",
+                            "name": "_mtime",
+                            "type": "date",
+                            "data": null
+                        },
+                        {
+                            "key": "_file_creator",
+                            "name": "_file_creator",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_file_ctime",
+                            "name": "_file_ctime",
+                            "type": "date",
+                            "data": null
+                        },
+                        {
+                            "key": "_file_modifier",
+                            "name": "_file_modifier",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_file_mtime",
+                            "name": "_file_mtime",
+                            "type": "date",
+                            "data": null
+                        },
+                        {
+                            "key": "_parent_dir",
+                            "name": "_parent_dir",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_name",
+                            "name": "_name",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_is_dir",
+                            "name": "_is_dir",
+                            "type": "checkbox",
+                            "data": null
+                        },
+                        {
+                            "key": "_file_type",
+                            "name": "_file_type",
+                            "type": "single-select",
+                            "data": {
+                                "options": [
+                                    {
+                                        "id": "_picture",
+                                        "name": "_picture"
+                                    },
+                                    {
+                                        "id": "_document",
+                                        "name": "_document"
+                                    },
+                                    {
+                                        "id": "_code",
+                                        "name": "_code"
+                                    },
+                                    {
+                                        "id": "_video",
+                                        "name": "_video"
+                                    },
+                                    {
+                                        "id": "_audio",
+                                        "name": "_audio"
+                                    },
+                                    {
+                                        "id": "_compressed",
+                                        "name": "_compressed"
+                                    },
+                                    {
+                                        "id": "_diagram",
+                                        "name": "_diagram"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "key": "_location",
+                            "name": "_location",
+                            "type": "geolocation",
+                            "data": {
+                                "geo_format": "lng_lat"
+                            }
+                        },
+                        {
+                            "key": "_obj_id",
+                            "name": "_obj_id",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_size",
+                            "name": "_size",
+                            "type": "number",
+                            "data": null
+                        },
+                        {
+                            "key": "_suffix",
+                            "name": "_suffix",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_file_details",
+                            "name": "_file_details",
+                            "type": "long-text",
+                            "data": null
+                        },
+                        {
+                            "key": "_description",
+                            "name": "_description",
+                            "type": "long-text",
+                            "data": null
+                        }
+                    ],
+                    "results": [
+                        {
+                            "_creator": "aa54297e93b44d50a2efb65437cf1cc4@auth.local",
+                            "_ctime": "2025-02-08T10:49:48+08:00",
+                            "_file_creator": "aa54297e93b44d50a2efb65437cf1cc4@auth.local",
+                            "_file_ctime": "2025-02-08T10:49:47+08:00",
+                            "_file_details": "\n\n```json\n{\"Dimensions\": \"6528x4896\", \"Device make\": \"HUAWEI\", \"Device model\": \"BMH-AN20\", \"Color space\": \"\", \"Capture time\": \"2024-09-16T07:07:16+08:00\", \"Focal length\": \"3.85mm\", \"F number\": \"f/2\", \"Exposure time\": 0.01}\n```\n\n\n",
+                            "_file_modifier": "aa54297e93b44d50a2efb65437cf1cc4@auth.local",
+                            "_file_mtime": "2025-02-08T10:49:47+08:00",
+                            "_file_type": "_picture",
+                            "_id": "gSlIZWzlRJ-V16V_F7nsHA",
+                            "_is_dir": false,
+                            "_last_modifier": "seafevents",
+                            "_location": {
+                                "lat": 39.0805091855556,
+                                "lng": 115.207695007222
+                            },
+                            "_mtime": "2025-02-08T10:49:48+08:00",
+                            "_name": "IMG_20240916_070716.jpg",
+                            "_obj_id": "9a3a835434573c0ac7f1ca1da59527dd2e2414ce",
+                            "_parent_dir": "/",
+                            "_size": 3952270,
+                            "_suffix": "jpg"
+                        },
+                        {
+                            "_creator": "aa54297e93b44d50a2efb65437cf1cc4@auth.local",
+                            "_ctime": "2025-02-08T10:47:46+08:00",
+                            "_file_creator": "aa54297e93b44d50a2efb65437cf1cc4@auth.local",
+                            "_file_ctime": "2025-02-08T10:47:46+08:00",
+                            "_file_details": "\n\n```json\n{\"Dimensions\": \"3648x2736\", \"Device make\": \"HUAWEI\", \"Device model\": \"BMH-AN20\", \"Color space\": \"\", \"Capture time\": \"2025-01-01T12:03:39+08:00\", \"Focal length\": \"5.58mm\", \"F number\": \"f/1.8\", \"Exposure time\": 0.03}\n```\n\n\n",
+                            "_file_modifier": "aa54297e93b44d50a2efb65437cf1cc4@auth.local",
+                            "_file_mtime": "2025-02-08T10:47:46+08:00",
+                            "_file_type": "_picture",
+                            "_id": "imKnK8BJS4S1eAJ1TL9q1Q",
+                            "_is_dir": false,
+                            "_last_modifier": "seafevents",
+                            "_location": {
+                                "lat": 40.0894966125,
+                                "lng": 116.223930358611
+                            },
+                            "_mtime": "2025-02-08T10:47:46+08:00",
+                            "_name": "IMG_20250101_120339.jpg",
+                            "_obj_id": "5b8f6f5c4d147792632f406b6d45884e95e6296e",
+                            "_parent_dir": "/",
+                            "_size": 4031090,
+                            "_suffix": "jpg"
+                        }
+                    ]
+                }
+    put:  
+      tags:
+        - Metadata records
+      summary: Update metadata records
+      description: Update existing metadata records.
+      security:
+        - RepoTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                records_data:
+                  type: array
+                  items: 
+                    type: object
+                    properties:
+                      record_id: 
+                        type: string
+                        example: beT8DpTvQn6zmMScvH--gw
+                        description: Unique identifier of the record
+                      _obj_id: 
+                        type: string
+                        example: 940762f77e6f2159f5493a20f9db156b8a3327cf
+                        description: Unique identifier of file object
+                      record: 
+                        $ref: '#/components/schemas/row'
+                
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+  /api/v2.1/repos/{repo_id}/metadata/record/:
+    get: 
+      tags:
+        - Metadata records
+      summary: Get metadata record
+      description: Get detailed information of the specified metadata record.
+      security:
+        - RepoTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/parent_dir'
+        - $ref: '#/components/parameters/file_name'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema: 
+                  type: object
+                  properties:
+                    metadata: 
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          key:
+                            type: string
+                          name:
+                            type: string
+                          type:
+                            type: string
+                          data:
+                            type: string
+                    results: 
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          _creator:
+                            type: string
+                          _ctime:
+                            type: string
+                          _file_creator:
+                            type: string
+                          _file_ctime:
+                            type: string
+                          _file_details:
+                            type: string
+                          _file_modifier:
+                            type: string
+                          _file_mtime:
+                            type: string
+                          _file_type:
+                            type: string
+                          _id:
+                            type: string
+                          _is_dir:
+                            type: boolean
+                          _last_modifier:
+                            type: string
+                          _location:
+                            type: object
+                            properties:
+                              lnt: 
+                                type: integer
+                              lng: 
+                                type: integer
+                          _mtime:
+                            type: string
+                          _name:
+                            type: string
+                          _obj_id:
+                            type: string
+                          _parent_dir:
+                            type: string
+                          _size:
+                            type: integer
+                          _suffix:
+                            type: string
+                example: {
+                    "metadata": [
+                        {
+                            "key": "_id",
+                            "name": "_id",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_creator",
+                            "name": "_creator",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_ctime",
+                            "name": "_ctime",
+                            "type": "date",
+                            "data": null
+                        },
+                        {
+                            "key": "_last_modifier",
+                            "name": "_last_modifier",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_mtime",
+                            "name": "_mtime",
+                            "type": "date",
+                            "data": null
+                        },
+                        {
+                            "key": "_file_creator",
+                            "name": "_file_creator",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_file_ctime",
+                            "name": "_file_ctime",
+                            "type": "date",
+                            "data": null
+                        },
+                        {
+                            "key": "_file_modifier",
+                            "name": "_file_modifier",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_file_mtime",
+                            "name": "_file_mtime",
+                            "type": "date",
+                            "data": null
+                        },
+                        {
+                            "key": "_parent_dir",
+                            "name": "_parent_dir",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_name",
+                            "name": "_name",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_is_dir",
+                            "name": "_is_dir",
+                            "type": "checkbox",
+                            "data": null
+                        },
+                        {
+                            "key": "_file_type",
+                            "name": "_file_type",
+                            "type": "single-select",
+                            "data": {
+                                "options": [
+                                    {
+                                        "id": "_picture",
+                                        "name": "_picture"
+                                    },
+                                    {
+                                        "id": "_document",
+                                        "name": "_document"
+                                    },
+                                    {
+                                        "id": "_code",
+                                        "name": "_code"
+                                    },
+                                    {
+                                        "id": "_video",
+                                        "name": "_video"
+                                    },
+                                    {
+                                        "id": "_audio",
+                                        "name": "_audio"
+                                    },
+                                    {
+                                        "id": "_compressed",
+                                        "name": "_compressed"
+                                    },
+                                    {
+                                        "id": "_diagram",
+                                        "name": "_diagram"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "key": "_location",
+                            "name": "_location",
+                            "type": "geolocation",
+                            "data": {
+                                "geo_format": "lng_lat"
+                            }
+                        },
+                        {
+                            "key": "_obj_id",
+                            "name": "_obj_id",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_size",
+                            "name": "_size",
+                            "type": "number",
+                            "data": null
+                        },
+                        {
+                            "key": "_suffix",
+                            "name": "_suffix",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_file_details",
+                            "name": "_file_details",
+                            "type": "long-text",
+                            "data": null
+                        },
+                        {
+                            "key": "_description",
+                            "name": "_description",
+                            "type": "long-text",
+                            "data": null
+                        }
+                    ],
+                    "results": [
+                        {
+                            "_creator": "aa54297e93b44d50a2efb65437cf1cc4@auth.local",
+                            "_ctime": "2025-02-08T10:49:48+08:00",
+                            "_description": "aaa\n",
+                            "_file_creator": "aa54297e93b44d50a2efb65437cf1cc4@auth.local",
+                            "_file_ctime": "2025-02-08T10:49:47+08:00",
+                            "_file_details": "\n\n```json\n{\"Dimensions\": \"6528x4896\", \"Device make\": \"HUAWEI\", \"Device model\": \"BMH-AN20\", \"Color space\": \"\", \"Capture time\": \"2024-09-16T07:07:16+08:00\", \"Focal length\": \"3.85mm\", \"F number\": \"f/2\", \"Exposure time\": 0.01}\n```\n\n\n",
+                            "_file_modifier": "aa54297e93b44d50a2efb65437cf1cc4@auth.local",
+                            "_file_mtime": "2025-02-08T10:49:47+08:00",
+                            "_file_type": "_picture",
+                            "_id": "gSlIZWzlRJ-V16V_F7nsHA",
+                            "_is_dir": false,
+                            "_last_modifier": "aa54297e93b44d50a2efb65437cf1cc4@auth.local",
+                            "_location": {
+                                "lat": 39.0805091855556,
+                                "lng": 115.207695007222
+                            },
+                            "_mtime": "2025-02-10T11:03:51+08:00",
+                            "_name": "IMG_20240916_070716.jpg",
+                            "_obj_id": "9a3a835434573c0ac7f1ca1da59527dd2e2414ce",
+                            "_parent_dir": "/",
+                            "_size": 3952270,
+                            "_suffix": "jpg"
+                        }
+                    ]
+                }
+    put: 
+      tags:
+        - Metadata records
+      summary: Update metadata record
+      description: Update the data of the specified record.
+      security:
+        - RepoTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                parent_dir: 
+                  type: string
+                  example: /
+                  description: Path to the parent_dir
+                file_name: 
+                  type: string
+                  description: Name of file
+                  example: file.sdoc
+                data: 
+                  type: object
+                  $ref: '#/components/schemas/row'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
