@@ -186,7 +186,14 @@ components:
       required: true
       schema:
         type: string
-
+        
+    view_id_path:
+      name: view_id
+      in: path
+      required: true
+      description: The unique view identifier of the current metadata
+      schema: 
+        type: integer
     
 
   # Reusable schemas (request body)
@@ -446,7 +453,12 @@ components:
         Age: 18
         Birthday: "2025-06-18"
         Checkbox: true
-        
+
+    # request body
+    view_id: 
+      type: string
+      description: The unique view identifier of the current metadata
+      example: nc5t        
           
 paths:
   /api/v2.1/repos/{repo_id}/repo-api-tokens/:
@@ -1387,6 +1399,771 @@ paths:
             content:
               application/json:
                 schema:
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+
+
+  /api/v2.1/via-repo-token/metadata/views/:
+    get: 
+      tags:
+        - Via Repo-Token
+      summary: List views
+      description: List all view information for the current metadata.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    views: 
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          _id:
+                            type: string
+                          table_id:
+                            type: string
+                          name:
+                            type: string
+                          filters:
+                            type: array
+                          sorts:
+                            type: array
+                          groupbys:
+                            type: array
+                          filter_conjunction:
+                            type: string
+                          hidden_columns:
+                            type: array
+                    navigation: 
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          _id: 
+                            type: string
+                            description: Id of view
+                          type: 
+                            type: string
+                            description: View type
+                  example: {
+                      "views": [
+                          {
+                              "_id": "uh51",
+                              "table_id": "0001",
+                              "name": "All files",
+                              "filters": [],
+                              "sorts": [
+                                  {
+                                      "column_key": "_file_mtime",
+                                      "sort_type": "down"
+                                  }
+                              ],
+                              "groupbys": [],
+                              "filter_conjunction": "And",
+                              "hidden_columns": [],
+                              "type": "table",
+                              "basic_filters": [
+                                  {
+                                      "column_key": "_is_dir",
+                                      "filter_predicate": "is",
+                                      "filter_term": "file"
+                                  }
+                              ]
+                          }
+                      ],
+                      "navigation": [
+                          {
+                              "_id": "uh51",
+                              "type": "view"
+                          }
+                      ]
+                  }
+    post: 
+      tags:
+        - Via Repo-Token
+      summary: Add view
+      description: Add a view to the current database, provided that metadata is enabled.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                name: 
+                  type: string
+                  description: Name of view
+      responses:
+          '200':
+            description: OK    
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    view: 
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        table_id:
+                          type: string
+                        name:
+                          type: string
+                        filters:
+                          type: array
+                        sorts:
+                          type: array
+                        groupbys:
+                          type: array
+                        filter_conjunction:
+                          type: string
+                        hidden_columns:
+                          type: array
+                        type:
+                          type: string
+                example: {
+                      "view": {
+                          "_id": "80u7",
+                          "table_id": "0001",
+                          "name": "v1",
+                          "filters": [],
+                          "sorts": [],
+                          "groupbys": [],
+                          "filter_conjunction": "And",
+                          "hidden_columns": [],
+                          "type": "table"
+                      }
+                  }
+    put: 
+      tags:
+        - Via Repo-Token
+      summary: Update view
+      description: Rename view or filter view.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                viwe_id: 
+                  type: string
+                  example: 80u7
+                view_data: 
+                  type: object
+                  oneOf:
+                    - properties:
+                        name: 
+                          type: string
+                          description: New name
+                    - properties:
+                        filters: 
+                          type: array
+                          description: Filter Criteria
+                          items: 
+                            type: object
+                            properties:
+                              column_key: 
+                                type: string
+                              filter_predicate: 
+                                type: string
+                              filter_term: 
+                                type: string
+                        filter_conjunction: 
+                          type: string
+      responses:
+          '200':
+            description: OK  
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+    delete: 
+      tags:
+        - Via Repo-Token
+      summary: Delete view
+      description: Delete existing views.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                view_id:
+                  $ref: "#/components/schemas/view_id"
+      responses:
+          '200':
+            description: OK  
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+  /api/v2.1/via-repo-token/metadata/views/{view_id}/:
+    get: 
+      tags:
+        - Via Repo-Token
+      summary: Get a view
+      description: Get detailed information of existing views.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+        - $ref: '#/components/parameters/view_id_path'
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                view_id: 
+                  $ref: "#/components/schemas/view_id"
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    view: 
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        table_id:
+                          type: string
+                        name:
+                          type: string
+                        filters:
+                          type: array
+                          items: 
+                            type: object
+                        sorts:
+                          type: array
+                          items: 
+                            type: object
+                        groupbys:
+                          type: array
+                          items: 
+                            type: object
+                        filter_conjunction:
+                          type: string
+                        hidden_columns:
+                          type: array
+                          items: 
+                            type: object
+                        type:
+                          type: string
+                        basic_filters:
+                          type: array
+                          items: 
+                            type: object
+                  example:  {"view": {
+                          "_id": "erzk",
+                          "table_id": "0001",
+                          "name": "All files",
+                          "filters": [],
+                          "sorts": [],
+                          "groupbys": [],
+                          "filter_conjunction": "And",
+                          "hidden_columns": [],
+                          "type": "table",
+                          "basic_filters": [
+                              {
+                                  "column_key": "_is_dir",
+                                  "filter_predicate": "is",
+                                  "filter_term": "file"
+                              }
+                          ]
+                      }
+                    }
+  /api/v2.1/via-repo-token/metadata/move-views/:
+    post: 
+      tags:
+        - Via Repo-Token
+      summary: Move view
+      description: Move source_view_id ahead of target_view_id, if the original order is ['a', 'b', 'c', 'd'], source_view_id is d, target_view_id is b, the order will change to ["a", 'd', 'b', 'c'] after moving.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                source_view_id: 
+                  type: string
+                  example: erzk
+                  description: The unique view identifier of the current metadata
+                target_view_id: 
+                  type: string
+                  example: l877
+                  description: The unique view identifier of the current metadata
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    navigation:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          _id: 
+                            type: string
+                          type: 
+                            type: string
+                example: {
+                    "navigation": [
+                        {
+                            "_id": "erzk",
+                            "type": "view"
+                        },
+                        {
+                            "_id": "l877",
+                            "type": "view"
+                        },
+                        {
+                            "_id": "wtdb",
+                            "type": "view"
+                        }
+                    ]
+                }
+  /api/v2.1/via-repo-token/metadata/duplicate-view/:
+    post: 
+      tags:
+        - Via Repo-Token
+      summary: Duplicate view
+      description: Copy an existing view.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                view_id: 
+                  $ref: "#/components/schemas/view_id"
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    view: 
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        table_id:
+                          type: string
+                        name:
+                          type: string
+                        filters:
+                          type: array
+                          items: 
+                            type: object
+                        sorts:
+                          type: array
+                          items: 
+                            type: object
+                        groupbys:
+                          type: array
+                          items: 
+                            type: object
+                        filter_conjunction:
+                          type: string
+                        hidden_columns:
+                          type: array
+                          items: 
+                            type: object
+                        type:
+                          type: string
+                        basic_filters:
+                          type: array
+                          items: 
+                            type: object
+                  example:  {"view": {
+                          "_id": "erzk",
+                          "table_id": "0001",
+                          "name": "All files",
+                          "filters": [],
+                          "sorts": [],
+                          "groupbys": [],
+                          "filter_conjunction": "And",
+                          "hidden_columns": [],
+                          "type": "table",
+                          "basic_filters": [
+                              {
+                                  "column_key": "_is_dir",
+                                  "filter_predicate": "is",
+                                  "filter_term": "file"
+                              }
+                          ]
+                      }
+                    }
+  /api/v2.1/via-repo-token/metadata/tags-status/:
+    put: 
+      tags:
+        - Via Repo-Token
+      summary: Turn on tags feature
+      description: Enable tags to add tags to files and search files by tags.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+    delete: 
+      tags:
+        - Via Repo-Token
+      summary: Turn off tags feature
+      description: Turn off tags feature.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+  /api/v2.1/via-repo-token/metadata/tags/: 
+    get:
+      tags:
+        - Via Repo-Token
+      summary: List tags
+      description: List all existing tags.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema: 
+                  type: object
+                  properties:
+                    metadata: 
+                      type: array
+                      description: Metadata of tags
+                      items: 
+                        type: object
+                        properties:
+                          key: 
+                            type: string
+                          name: 
+                            type: string
+                          type: 
+                            type: string
+                          data: 
+                            type: object
+                    results: 
+                      type: array
+                      description: Tags info
+                      items: 
+                        type: object
+                        properties:
+                          _creator:
+                            type: string
+                          _ctime:
+                            type: string
+                          _id:
+                            type: string
+                          _last_modifier:
+                            type: string
+                          _mtime:
+                            type: string
+                          _tag_color:
+                            type: string
+                          _tag_name:
+                            type: string
+                example: {
+                    "metadata": [
+                        {
+                            "key": "_id",
+                            "name": "_id",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_creator",
+                            "name": "_creator",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_ctime",
+                            "name": "_ctime",
+                            "type": "date",
+                            "data": null
+                        },
+                        {
+                            "key": "_last_modifier",
+                            "name": "_last_modifier",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_mtime",
+                            "name": "_mtime",
+                            "type": "date",
+                            "data": null
+                        },
+                        {
+                            "key": "_tag_name",
+                            "name": "_tag_name",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_tag_color",
+                            "name": "_tag_color",
+                            "type": "text",
+                            "data": null
+                        },
+                        {
+                            "key": "_tag_file_links",
+                            "name": "_tag_file_links",
+                            "type": "link",
+                            "data": {
+                                "display_column_key": "_id",
+                                "link_id": "0002",
+                                "other_table_id": "z88R",
+                                "table_id": "0001"
+                            }
+                        },
+                        {
+                            "key": "_tag_parent_links",
+                            "name": "_tag_parent_links",
+                            "type": "link",
+                            "data": {
+                                "display_column_key": "_id",
+                                "is_linked_back": false,
+                                "link_id": "0003",
+                                "other_table_id": "z88R",
+                                "table_id": "z88R"
+                            }
+                        },
+                        {
+                            "key": "_tag_sub_links",
+                            "name": "_tag_sub_links",
+                            "type": "link",
+                            "data": {
+                                "display_column_key": "_id",
+                                "is_linked_back": true,
+                                "link_id": "0003",
+                                "other_table_id": "z88R",
+                                "table_id": "z88R"
+                            }
+                        }
+                    ],
+                    "results": [
+                        {
+                            "_creator": "e40151bbbe184577b11ed818a49f97f3@auth.local",
+                            "_ctime": "2025-02-13T18:27:20+08:00",
+                            "_id": "OP6ak-N7Q7i96oX6I3lkFw",
+                            "_last_modifier": "e40151bbbe184577b11ed818a49f97f3@auth.local",
+                            "_mtime": "2025-02-13T18:27:20+08:00",
+                            "_tag_color": "#FFFCB5",
+                            "_tag_name": "标签"
+                        }
+                    ]
+                }
+    post: 
+      tags:
+        - Via Repo-Token
+      summary: Add tags
+      description: Add custom tags.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                tags_data: 
+                  type: array
+                  items: 
+                    type: object
+                    properties:
+                      _tag_name: 
+                        type: string
+                        example: 'Tag1'
+                      _tag_color: 
+                        type: string
+                        example: '#F4667C'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema: 
+                  type: object
+                  properties:
+                    tags: 
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          _creator:
+                            type: string
+                          _ctime:
+                            type: string
+                          _id:
+                            type: string
+                          _last_modifier:
+                            type: string
+                          _mtime:
+                            type: string
+                          _tag_color:
+                            type: string
+                          _tag_name:
+                            type: string
+                example: {
+                    "tags": [
+                        {
+                            "_creator": "e40151bbbe184577b11ed818a49f97f3@auth.local",
+                            "_ctime": "2025-02-14T10:40:52+08:00",
+                            "_id": "dOSid9ECR26rHtgLokPXBw",
+                            "_last_modifier": "e40151bbbe184577b11ed818a49f97f3@auth.local",
+                            "_mtime": "2025-02-14T10:40:52+08:00",
+                            "_tag_color": "#F4667C",
+                            "_tag_name": "Tag1"
+                        }
+                    ]
+                }
+
+    put: 
+      tags:
+        - Via Repo-Token
+      summary: Update tags
+      description: Update existing tags.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                tags_data: 
+                  type: array
+                  items: 
+                    type: object
+                    properties:
+                      tag_id: 
+                        type: string
+                        example: 'dOSid9ECR26rHtgLokPXBw'
+                      tag: 
+                        type: object
+                        properties:
+                          _tag_color: 
+                            type: string
+                            example: "#9860E5"
+                          _tag_name: 
+                            type: string
+                            example: new tag
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+    delete: 
+      tags:
+        - Via Repo-Token
+      summary: Delete tags
+      description: Delete the tags with the specified tag id.
+      security:
+        - AccountTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/repo_id'
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                tag_ids:
+                  type: array
+                  items: 
+                    type: string
+                    description: Unique identification of existing tags
+                    example: dOSid9ECR26rHtgLokPXBw
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json: 
+                schema: 
                   type: object
                   properties:
                     success: 
