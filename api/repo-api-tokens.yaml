@@ -1557,7 +1557,7 @@ paths:
             schema: 
               type: object
               properties:
-                viwe_id: 
+                view_id: 
                   type: string
                   example: 80u7
                 view_data: 
