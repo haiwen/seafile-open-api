@@ -186,7 +186,6 @@ components:
       required: true
       schema:
         type: string
-        
     view_id_path:
       name: view_id
       in: path
@@ -1413,9 +1412,7 @@ paths:
       summary: List views
       description: List all view information for the current metadata.
       security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
+        - RepoTokenAuth: []
       responses:
           '200':
             description: OK
@@ -1495,9 +1492,7 @@ paths:
       summary: Add view
       description: Add a view to the current database, provided that metadata is enabled.
       security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
+        - RepoTokenAuth: []
       requestBody: 
         content:
           application/json:
@@ -1555,9 +1550,7 @@ paths:
       summary: Update view
       description: Rename view or filter view.
       security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
+        - RepoTokenAuth: []
       requestBody: 
         content:
           application/json:
@@ -1606,9 +1599,7 @@ paths:
       summary: Delete view
       description: Delete existing views.
       security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
+        - RepoTokenAuth: []
       requestBody: 
         content:
           application/json: 
@@ -1635,9 +1626,8 @@ paths:
       summary: Get a view
       description: Get detailed information of existing views.
       security:
-        - AccountTokenAuth: []
+        - RepoTokenAuth: []
       parameters:
-        - $ref: '#/components/parameters/repo_id'
         - $ref: '#/components/parameters/view_id_path'
       requestBody: 
         content:
@@ -1714,9 +1704,7 @@ paths:
       summary: Move view
       description: Move source_view_id ahead of target_view_id, if the original order is ['a', 'b', 'c', 'd'], source_view_id is d, target_view_id is b, the order will change to ["a", 'd', 'b', 'c'] after moving.
       security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
+        - RepoTokenAuth: []
       requestBody: 
         content:
           application/json: 
@@ -1771,9 +1759,7 @@ paths:
       summary: Duplicate view
       description: Copy an existing view.
       security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
+        - RepoTokenAuth: []
       requestBody: 
         content:
           application/json: 
@@ -1849,9 +1835,7 @@ paths:
       summary: Turn on tags feature
       description: Enable tags to add tags to files and search files by tags.
       security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
+        - RepoTokenAuth: []
       responses:
           '200':
             description: OK
@@ -1869,9 +1853,7 @@ paths:
       summary: Turn off tags feature
       description: Turn off tags feature.
       security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
+        - RepoTokenAuth: []
       responses:
           '200':
             description: OK
@@ -1890,9 +1872,7 @@ paths:
       summary: List tags
       description: List all existing tags.
       security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
+        - RepoTokenAuth: []
       responses:
           '200':
             description: OK
@@ -2033,9 +2013,7 @@ paths:
       summary: Add tags
       description: Add custom tags.
       security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
+        - RepoTokenAuth: []
       requestBody: 
         content:
           application/json: 
@@ -2100,9 +2078,7 @@ paths:
       summary: Update tags
       description: Update existing tags.
       security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
+        - RepoTokenAuth: []
       requestBody: 
         content:
           application/json: 
@@ -2143,9 +2119,7 @@ paths:
       summary: Delete tags
       description: Delete the tags with the specified tag id.
       security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/repo_id'
+        - RepoTokenAuth: []
       requestBody: 
         content:
           application/json: 
