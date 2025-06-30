@@ -471,7 +471,7 @@ paths:
     get:
       summary: List repo api tokens
       tags:
-        - Via Repo-Token
+        - API tokens
       description: List all repo tokens of a library
       security:
         - AccountTokenAuth: []
@@ -505,7 +505,7 @@ paths:
     put:
       summary: Update repo api token
       tags:
-        - Via Repo-Token
+        - API tokens
       description: Update a repo api token
       security:
         - AccountTokenAuth: []
@@ -547,7 +547,7 @@ paths:
     delete:
       summary: Delete repo api token
       tags:
-        - Via Repo-Token
+        - API tokens
       description: Delete a repo api token
       security:
         - AccountTokenAuth: []
@@ -566,7 +566,7 @@ paths:
     get:
       summary: List items in directory
       tags:
-        - Via Repo-Token
+        - Dir / Files
       description: List all files and folders in a directory
       security:
         - RepoTokenAuth: []
@@ -630,7 +630,7 @@ paths:
     post:
       summary: Operation directory
       tags:
-        - Via Repo-Token
+        - Dir / Files
       description: Create or rename or revert a directory
       security:
         - RepoTokenAuth: []
@@ -672,7 +672,7 @@ paths:
     delete:
       summary: Delete dir
       tags:
-        - Via Repo-Token
+        - Dir / Files
       description: Delete the current repo directory
       security:
         - AccountTokenAuth: []
@@ -700,7 +700,7 @@ paths:
     get:
       summary: Get file info
       tags:
-        - Via Repo-Token
+        - Dir / Files
       description: Get detailed information about the specified file
       security:
         - RepoTokenAuth: []
@@ -747,7 +747,7 @@ paths:
     post:
       summary: Operation file
       tags:
-        - Via Repo-Token
+        - Dir / Files
       description: |-
         Rename or revert or create or move a file
         *Note: If you want to create a file, simply pass in the path*
@@ -790,7 +790,7 @@ paths:
     
     put:
       tags:
-        - Via Repo-Token
+        - Dir / Files
       summary: Lock/Unlock file
       description:  Lock or unlock the file, locked files cannot be modified
       security:
@@ -846,7 +846,7 @@ paths:
     delete:
       summary: Delete file
       tags:
-        - Via Repo-Token
+        - Dir / Files
       description: Delete existing files
       security:
         - RepoTokenAuth: []
@@ -873,7 +873,7 @@ paths:
   /api/v2.1/via-repo-token/move-dir/:
     post:
       tags:
-        - Via Repo-Token
+        - Dir / Files
       summary: Move directory with items merged
       description: Move the directory in the current repo.
       security:
@@ -913,7 +913,7 @@ paths:
     get:
       summary: Get upload link
       tags:
-        - Via Repo-Token
+        - Dir / Files
       description: Get the upload link of a directory
       security:
         - RepoTokenAuth: []
@@ -936,7 +936,7 @@ paths:
     get:
       summary: Get download link
       tags:
-        - Via Repo-Token
+        - Dir / Files
       description: Get the download link of a file
       security:
         - RepoTokenAuth: []
@@ -957,7 +957,7 @@ paths:
     get:
       summary: Get repo info
       tags:
-        - Via Repo-Token
+        - Dir / Files
       description: Get repo info Via Repo-Token
       security:
         - RepoTokenAuth: []
@@ -982,7 +982,7 @@ paths:
     post:
       summary: Sync batch move item
       tags:
-        - Via Repo-Token
+        - Dir / Files
       description: Batch move files and directories, all the parameters are required
       security:
         - RepoTokenAuth: []
@@ -1003,7 +1003,7 @@ paths:
     post:
       summary: Sync batch copy item
       tags:
-        - Via Repo-Token
+        - Dir / Files
       description: Batch copy files and directories, all the parameters are required
       security:
         - RepoTokenAuth: []
@@ -1024,7 +1024,7 @@ paths:
     delete:
       summary: Batch delete items
       tags:
-        - Via Repo-Token
+        - Dir / Files
       description: Batch delete files and directories
       security:
         - RepoTokenAuth: []
@@ -1046,7 +1046,7 @@ paths:
     post:
       summary: Create share link
       tags: 
-        - Via Repo-Token
+        - Share links
       description: Create a sharing link for the library/folder. (For a file exists)
       security:
         - RepoTokenAuth: []
@@ -1095,7 +1095,7 @@ paths:
   /api/v2.1/via-repo-token/metadata/records/:
     get: 
       tags:
-        - Via Repo-Token
+        - Metadata records
       summary: List metadata records
       description: List metadata records of a library.
       security:
@@ -1372,7 +1372,7 @@ paths:
                 }
     put:  
       tags:
-        - Via Repo-Token
+        - Metadata records
       summary: Update metadata records
       description: Update existing metadata records.
       security:
@@ -1415,7 +1415,7 @@ paths:
   /api/v2.1/via-repo-token/metadata/views/:
     get: 
       tags:
-        - Via Repo-Token
+        - Metadata views
       summary: List views
       description: List all view information for the current metadata.
       security:
@@ -1495,7 +1495,7 @@ paths:
                   }
     post: 
       tags:
-        - Via Repo-Token
+        - Metadata views
       summary: Add view
       description: Add a view to the current database, provided that metadata is enabled.
       security:
@@ -1553,7 +1553,7 @@ paths:
                   }
     put: 
       tags:
-        - Via Repo-Token
+        - Metadata views
       summary: Update view
       description: Rename view or filter view.
       security:
@@ -1602,7 +1602,7 @@ paths:
                       description: Success state
     delete: 
       tags:
-        - Via Repo-Token
+        - Metadata views
       summary: Delete view
       description: Delete existing views.
       security:
@@ -1629,7 +1629,7 @@ paths:
   /api/v2.1/via-repo-token/metadata/views/{view_id}/:
     get: 
       tags:
-        - Via Repo-Token
+        - Metadata views
       summary: Get a view
       description: Get detailed information of existing views.
       security:
@@ -1707,7 +1707,7 @@ paths:
   /api/v2.1/via-repo-token/metadata/move-views/:
     post: 
       tags:
-        - Via Repo-Token
+        - Metadata views
       summary: Move view
       description: Move source_view_id ahead of target_view_id, if the original order is ['a', 'b', 'c', 'd'], source_view_id is d, target_view_id is b, the order will change to ["a", 'd', 'b', 'c'] after moving.
       security:
@@ -1762,7 +1762,7 @@ paths:
   /api/v2.1/via-repo-token/metadata/duplicate-view/:
     post: 
       tags:
-        - Via Repo-Token
+        - Metadata views
       summary: Duplicate view
       description: Copy an existing view.
       security:
@@ -1838,7 +1838,7 @@ paths:
   /api/v2.1/via-repo-token/metadata/tags-status/:
     put: 
       tags:
-        - Via Repo-Token
+        - Tags
       summary: Turn on tags feature
       description: Enable tags to add tags to files and search files by tags.
       security:
@@ -1856,7 +1856,7 @@ paths:
                       description: Success state
     delete: 
       tags:
-        - Via Repo-Token
+        - Tags
       summary: Turn off tags feature
       description: Turn off tags feature.
       security:
@@ -1875,7 +1875,7 @@ paths:
   /api/v2.1/via-repo-token/metadata/tags/: 
     get:
       tags:
-        - Via Repo-Token
+        - Tags
       summary: List tags
       description: List all existing tags.
       security:
@@ -2016,7 +2016,7 @@ paths:
                 }
     post: 
       tags:
-        - Via Repo-Token
+        - Tags
       summary: Add tags
       description: Add custom tags.
       security:
@@ -2081,7 +2081,7 @@ paths:
 
     put: 
       tags:
-        - Via Repo-Token
+        - Tags
       summary: Update tags
       description: Update existing tags.
       security:
@@ -2122,7 +2122,7 @@ paths:
                       description: Success state
     delete: 
       tags:
-        - Via Repo-Token
+        - Tags
       summary: Delete tags
       description: Delete the tags with the specified tag id.
       security:
@@ -2154,7 +2154,7 @@ paths:
   /api/v2.1/via-repo-token/metadata/file-tags:
     put: 
       tags:
-        - Via Repo-Token
+        - Tags
       summary: Update file tags
       description: Add or modify existing tags to the specified records of metadata.
       security:
@@ -2200,7 +2200,7 @@ paths:
   /api/v2.1/via-repo-token/metadata/tag-files/{tag_id}/:
     get: 
       tags:
-        - Via Repo-Token
+        - Tags
       summary: List tag files
       description: List all files marked by the current tag.
       security:
@@ -2317,7 +2317,7 @@ paths:
   /api/v2.1/via-repo-token/metadata/tags-files/:
     post: 
       tags:
-        - Via Repo-Token
+        - Tags
       summary: List tags files
       description: List files marked by tags.
       security:
@@ -2443,7 +2443,7 @@ paths:
   /api/v2.1/via-repo-token/metadata/tags-links/:
     post: 
       tags:
-        - Via Repo-Token
+        - Tags
       summary: Add tags links
       description: Linking a tag to a sub layer of another tag.
       security:
@@ -2555,7 +2555,7 @@ paths:
   /api/v2.1/via-repo-token/metadata/merge-tags/:
     post:
       tags:
-        - Via Repo-Token
+        - Tags
       summary: Merge tags
       description: Merge other tags into the specified existing tag.
       security:
