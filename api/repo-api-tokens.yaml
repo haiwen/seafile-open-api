@@ -193,7 +193,14 @@ components:
       description: The unique view identifier of the current metadata
       schema: 
         type: integer
-    
+    tag_id: 
+      name: tag_id
+      in: path
+      description: The unique identifier of a Tag
+      example: KvfhV8GpQPWEskVxBtwePA
+      required: true
+      schema: 
+        type: string    
 
   # Reusable schemas (request body)
   schemas:
@@ -2135,6 +2142,441 @@ paths:
       responses:
           '200':
             description: OK
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+
+  /api/v2.1/via-repo-token/metadata/file-tags:
+    put: 
+      tags:
+        - Via Repo-Token
+      summary: Update file tags
+      description: Add or modify existing tags to the specified records of metadata.
+      security:
+        - RepoTokenAuth: []
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                file_tags_data:
+                  type: array
+                  items: 
+                    type: object
+                    properties:
+                      record_id: 
+                        type: string
+                        description: Unique identifier of the record
+                      tags: 
+                        type: array
+                        items: 
+                          type: string
+                          description: Unique identification of existing tags
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    fail: 
+                      type: array
+                      items: 
+                        type: string
+                        description: Add failed record id
+                    success: 
+                      type: array
+                      items: 
+                        type: string
+                        description: Add success record id
+                example: {"success":["al8SjKN0QxGrE6vr0SHDOw"],"fail":[]}
+  /api/v2.1/via-repo-token/metadata/tag-files/{tag_id}/:
+    get: 
+      tags:
+        - Via Repo-Token
+      summary: List tag files
+      description: List all files marked by the current tag.
+      security:
+        - RepoTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tag_id'
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    metadata: 
+                      type: array
+                      items: 
+                        type: object
+                        description: The metadata type of the file.
+                        properties:
+                          key: 
+                            type: string
+                          name: 
+                            type: string
+                          type: 
+                            type: string
+                          data: 
+                            type: object
+                    results: 
+                      type: array
+                      items: 
+                        type: object
+                        description: File info 
+                        properties:
+                          _file_mtime:
+                            type: string
+                          _id:
+                            type: string
+                          _name:
+                            type: string
+                          _parent_dir:
+                            type: string
+                          _size:
+                            type: integer
+                          _tags:
+                            type: array
+                            items: 
+                              type: object
+                              properties:
+                                row_id: 
+                                  type: string
+                                display_value: 
+                                  type: string
+                  example: {
+                      "metadata": [
+                          {
+                              "key": "_id",
+                              "name": "_id",
+                              "type": "text",
+                              "data": null
+                          },
+                          {
+                              "key": "_name",
+                              "name": "_name",
+                              "type": "text",
+                              "data": null
+                          },
+                          {
+                              "key": "_parent_dir",
+                              "name": "_parent_dir",
+                              "type": "text",
+                              "data": null
+                          },
+                          {
+                              "key": "_size",
+                              "name": "_size",
+                              "type": "number",
+                              "data": null
+                          },
+                          {
+                              "key": "_file_mtime",
+                              "name": "_file_mtime",
+                              "type": "date",
+                              "data": null
+                          },
+                          {
+                              "key": "_tags",
+                              "name": "_tags",
+                              "type": "link",
+                              "data": {
+                                  "display_column_key": "_tag_name",
+                                  "link_id": "0002",
+                                  "other_table_id": "wC6x",
+                                  "table_id": "0001"
+                              }
+                          }
+                      ],
+                      "results": [
+                          {
+                              "_file_mtime": "2025-02-14T11:21:33+08:00",
+                              "_id": "al8SjKN0QxGrE6vr0SHDOw",
+                              "_name": "file",
+                              "_parent_dir": "/",
+                              "_size": 3952270,
+                              "_tags": [
+                                  {
+                                      "row_id": "KvfhV8GpQPWEskVxBtwePA",
+                                      "display_value": "tag"
+                                  }
+                              ]
+                          }
+                      ]
+                  }
+  /api/v2.1/via-repo-token/metadata/tags-files/:
+    post: 
+      tags:
+        - Via Repo-Token
+      summary: List tags files
+      description: List files marked by tags.
+      security:
+        - RepoTokenAuth: []
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                tags_ids:
+                  type: array
+                  items: 
+                    type: string
+                    example: iVVorGfDTuaFdJOwGhR4og                
+      responses:
+          '200':
+            description: OK
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    metadata: 
+                      type: array
+                      items: 
+                        type: object
+                        description: The metadata type of the file.
+                        properties:
+                          key: 
+                            type: string
+                          name: 
+                            type: string
+                          type: 
+                            type: string
+                          data: 
+                            type: object
+                    results: 
+                      type: array
+                      items: 
+                        type: object
+                        description: File info 
+                        properties:
+                          _file_mtime:
+                            type: string
+                          _id:
+                            type: string
+                          _name:
+                            type: string
+                          _parent_dir:
+                            type: string
+                          _size:
+                            type: integer
+                          _tags:
+                            type: array
+                            items: 
+                              type: object
+                              properties:
+                                row_id: 
+                                  type: string
+                                display_value: 
+                                  type: string
+                  example: {
+                      "metadata": [
+                          {
+                              "key": "_id",
+                              "name": "_id",
+                              "type": "text",
+                              "data": null
+                          },
+                          {
+                              "key": "_name",
+                              "name": "_name",
+                              "type": "text",
+                              "data": null
+                          },
+                          {
+                              "key": "_parent_dir",
+                              "name": "_parent_dir",
+                              "type": "text",
+                              "data": null
+                          },
+                          {
+                              "key": "_size",
+                              "name": "_size",
+                              "type": "number",
+                              "data": null
+                          },
+                          {
+                              "key": "_file_mtime",
+                              "name": "_file_mtime",
+                              "type": "date",
+                              "data": null
+                          },
+                          {
+                              "key": "_tags",
+                              "name": "_tags",
+                              "type": "link",
+                              "data": {
+                                  "display_column_key": "_tag_name",
+                                  "link_id": "0002",
+                                  "other_table_id": "wC6x",
+                                  "table_id": "0001"
+                              }
+                          }
+                      ],
+                      "results": [
+                          {
+                              "_file_mtime": "2025-02-14T11:21:33+08:00",
+                              "_id": "al8SjKN0QxGrE6vr0SHDOw",
+                              "_name": "file",
+                              "_parent_dir": "/",
+                              "_size": 3952270,
+                              "_tags": [
+                                  {
+                                      "row_id": "KvfhV8GpQPWEskVxBtwePA",
+                                      "display_value": "tag"
+                                  }
+                              ]
+                          }
+                      ]
+                  }
+  /api/v2.1/via-repo-token/metadata/tags-links/:
+    post: 
+      tags:
+        - Via Repo-Token
+      summary: Add tags links
+      description: Linking a tag to a sub layer of another tag.
+      security:
+        - RepoTokenAuth: []
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                link_column_key: 
+                  type: string
+                  description: _tag_sub_links or _tag_parent_links
+                  example: _tag_parent_links
+                row_id_map: 
+                  type: object
+                  description: The key is the parent tag ID, and the value is the child tag ID that needs to be linked
+                  properties:
+                    3Jwd1nwnSrO1vuDdpfmKUA: 
+                      type: array
+                      items: 
+                        type: string
+                        example: TMRFgo8OTJi2Mk4l4ABOy   
+      responses:
+          '200':
+            description: OK      
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+    put: 
+      tags:
+        - Tags
+      summary: Update tags links
+      description: Update links between existing tags.
+      security:
+        - RepoTokenAuth: []
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                link_column_key: 
+                  type: string
+                  description: _tag_sub_links or _tag_parent_links
+                  example: _tag_parent_links
+                row_id_map: 
+                  type: object
+                  description: The key is the parent tag ID, and the value is the child tag ID that needs to be linked
+                  properties:
+                    3Jwd1nwnSrO1vuDdpfmKUA: 
+                      type: array
+                      items: 
+                        type: string
+                        example: TMRFgo8OTJi2Mk4l4ABOy   
+      responses:
+          '200':
+            description: OK      
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+    delete: 
+      tags:
+        - Tags
+      summary: Delete tags links
+      description: Delete links between existing tags.
+      security:
+        - RepoTokenAuth: []
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                link_column_key: 
+                  type: string
+                  description: _tag_sub_links or _tag_parent_links
+                  example: _tag_parent_links
+                row_id_map: 
+                  type: object
+                  description: The key is the parent tag ID, and the value is the child tag ID that needs to be linked
+                  properties:
+                    3Jwd1nwnSrO1vuDdpfmKUA: 
+                      type: array
+                      items: 
+                        type: string
+                        example: TMRFgo8OTJi2Mk4l4ABOy   
+      responses:
+          '200':
+            description: OK      
+            content:
+              application/json: 
+                schema: 
+                  type: object
+                  properties:
+                    success: 
+                      type: boolean
+                      description: Success state
+  /api/v2.1/via-repo-token/metadata/merge-tags/:
+    post:
+      tags:
+        - Via Repo-Token
+      summary: Merge tags
+      description: Merge other tags into the specified existing tag.
+      security:
+        - RepoTokenAuth: []
+      requestBody: 
+        content:
+          application/json: 
+            schema: 
+              type: object
+              properties:
+                target_tag_id: 
+                  type: string
+                  example: EQhOJke4S4ykb53tEkrjBA
+                merged_tags_ids: 
+                  type: array
+                  items: 
+                    type: string
+                    example: TMRFgo8OTJi2Mk4l4ABOy   
+      responses:
+          '200':
+            description: OK      
             content:
               application/json: 
                 schema: 
