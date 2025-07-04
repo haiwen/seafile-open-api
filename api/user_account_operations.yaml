@@ -3774,7 +3774,7 @@ paths:
                 description: The id of the updated file
                 example: "adc83b19e793491b1c6ea0fd8b46cd9f32e592fc"
 
-  /api2/repos/{repo_id}/file/:
+  /api/v2.1/repos/{repo_id}/file/:
     get:
       tags:
         - Files
