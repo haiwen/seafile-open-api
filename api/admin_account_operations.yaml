@@ -3113,6 +3113,162 @@ paths:
                     type: boolean
                     description: Success state
 
+  /api/v2.1/admin/users/{user_id}/shared-folders/:
+    get:
+      tags:
+        - Share
+      summary: List shared folders
+      description: Return all folders a user share out.
+      security:
+        - AccountTokenAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  description: Shared info
+                  properties:
+                    repo_id:
+                      type: string
+                    repo_name:
+                      type: string
+                    path:
+                      type: string
+                    folder_name:
+                      type: string
+                    share_type:
+                      type: string
+                    share_permission:
+                      type: string
+                    share_permission_name:
+                      type: string
+                    user_name:
+                      type: string
+                    user_email:
+                      type: string
+                    contact_email:
+                      type: string
+                    share_from:
+                      type: string
+                    share_from_user_name:
+                      type: string
+                example: [
+                      {
+                          "repo_id": "daadb5e9-e9e2-431c-847f-c90731d821c6",
+                          "repo_name": "test-public-repo",
+                          "path": "/folder",
+                          "folder_name": "folder",
+                          "share_type": "personal",
+                          "share_permission": "rw",
+                          "share_permission_name": "",
+                          "user_name": "llin",
+                          "user_email": "Seafile@example.com",
+                          "contact_email": "Seafile@example.com",
+                          "share_from": "c07fec9713394a8f8212dcc349131946@auth.local",
+                          "share_from_user_name": "Test User",
+                      },
+                      {
+                          "repo_id": "daadb5e9-e9e2-431c-847f-c90731d821c6",
+                          "repo_name": "test-public-repo",
+                          "path": "/image",
+                          "folder_name": "image",
+                          "share_type": "personal",
+                          "share_permission": "rw",
+                          "share_permission_name": "",
+                          "user_name": "20240320",
+                          "user_email": "0005926c7d894c7e91e163fd399529a5@auth.local",
+                          "contact_email": "daniel@example.com",
+                          "share_from": "c07fec9713394a8f8212dcc349131946@auth.local",
+                          "share_from_user_name": "Test User",
+                      }
+                  ]
+
+  /api/v2.1/admin/users/{user_id}/shared-repos/:
+    get:
+      tags:
+        - Share
+      summary: List shared repos
+      description: Return all repos a user share out.
+      security:
+        - AccountTokenAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  description: Shared info
+                  properties:
+                    repo_id:
+                      type: string
+                    repo_name:
+                      type: string
+                    encrypted:
+                      type: boolean
+                    share_type:
+                      type: string
+                    share_permission:
+                      type: string
+                    share_permission_name:
+                      type: string
+                    user_name:
+                      type: string
+                    user_email:
+                      type: string
+                    contact_email:
+                      type: string
+                    modifier_email:
+                      type: string
+                    modifier_name:
+                      type: string
+                    modifier_contact_email:
+                      type: string
+                    share_from:
+                      type: string
+                    share_from_user_name:
+                      type: string
+                example: [
+                      {
+                          "repo_id": "f83d0b21-533a-4f66-b70c-6925f0c08218",
+                          "repo_name": "Seahub",
+                          "encrypted": false,
+                          "share_type": "personal",
+                          "share_permission": "rw",
+                          "share_permission_name": "",
+                          "modifier_email": "c07fec9713394a8f8212dcc349131946@auth.local",
+                          "modifier_name": "Test User",
+                          "modifier_contact_email": "r350178982@126.com",
+                          "share_from": "c07fec9713394a8f8212dcc349131946@auth.local",
+                          "share_from_user_name": "Test User",
+                          "user_name": "a",
+                          "user_email": "f34c3227bbcb4b589b63f101ab751b15@auth.local",
+                          "contact_email": "a@qq.com"
+                      },
+                      {
+                          "repo_id": "ef89d321-9461-43e6-89ac-85fdd71649e8",
+                          "repo_name": "Monitored",
+                          "encrypted": false,
+                          "share_type": "personal",
+                          "share_permission": "rw",
+                          "share_permission_name": "",
+                          "modifier_email": "c07fec9713394a8f8212dcc349131946@auth.local",
+                          "modifier_name": "Test User",
+                          "modifier_contact_email": "r350178982@126.com",
+                          "share_from": "c07fec9713394a8f8212dcc349131946@auth.local",
+                          "share_from_user_name": "Test User",
+                          "user_name": "a",
+                          "user_email": "f34c3227bbcb4b589b63f101ab751b15@auth.local",
+                          "contact_email": "a@qq.com"
+                      }
+                  ]
+
   /api/v2.1/admin/share-links/:
     get:
       tags:
