@@ -3121,6 +3121,8 @@ paths:
       description: Return all folders a user share out.
       security:
         - AccountTokenAuth: []
+      parameters:
+         - $ref: '#/components/parameters/user_id'
       responses:
         '200':
           description: OK
@@ -3195,6 +3197,8 @@ paths:
       description: Return all repos a user share out.
       security:
         - AccountTokenAuth: []
+      parameters:
+         - $ref: '#/components/parameters/user_id'
       responses:
         '200':
           description: OK
