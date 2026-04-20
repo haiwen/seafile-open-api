@@ -8622,7 +8622,8 @@ paths:
                             "permission": "rw",
                             "is_admin": false
                         }
-                    ]
+                    ],
+                    "virtual_repo_id": "f820bd12-0511-4542-b14b-3e48d8efc294"
                      }
 
   /api/v2.1/shared-folders/:
