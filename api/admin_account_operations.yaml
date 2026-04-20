@@ -452,9 +452,9 @@ paths:
                         create_time: 
                           type: string
                         is_active: 
-                          type: boolean
+                          type: integer
                         is_staff: 
-                          type: boolean
+                          type: integer
                         contact_email: 
                           type: string
                         reference_id: 
@@ -475,8 +475,8 @@ paths:
                           "last_login": "2019-08-12T01:31:49.873",
                           "name": "851958789",
                           "create_time": "2019-06-26T03:42:45+00:00",
-                          "is_active": true,
-                          "is_staff": true,
+                          "is_active": 1,
+                          "is_staff": 1,
                           "contact_email": "",
                           "reference_id": "",
                           "department": "",
@@ -490,8 +490,8 @@ paths:
                           "last_login": "2019-08-09T07:00:25.548",
                           "name": "123",
                           "create_time": "2019-06-26T06:06:59+00:00",
-                          "is_active": true,
-                          "is_staff": true,
+                          "is_active": 1,
+                          "is_staff": 0,
                           "contact_email": "",
                           "reference_id": "",
                           "department": "",
