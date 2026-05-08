@@ -474,6 +474,17 @@ paths:
                           type: string
                         email: 
                           type: string
+                        social_auth: 
+                          type: array
+                          items: 
+                            type: object
+                            description: Account bound to a third-party service, such as SAML or LDAP.
+                            properties:
+                              provider: 
+                                type: string
+                              uid: 
+                                type: string
+
                 example: {
                   "data": [
                       {
@@ -489,7 +500,8 @@ paths:
                           "department": "",
                           "quota_total": -2,
                           "role": "default",
-                          "email": "Seafile@qq.com"
+                          "email": "Seafile@qq.com",
+                          "social_auth": [],
                       },
                       {
                           "login_id": "",
@@ -504,7 +516,9 @@ paths:
                           "department": "",
                           "quota_total": -2,
                           "role": "can_generate_upload_link_false",
-                          "email": "Seahub@123.com"
+                          "email": "Seahub@123.com",
+                          "social_auth": [{"provider": "saml","uid": "xxx"}
+                          ],
                       }
                   ],
                   'total_count': 2
@@ -656,6 +670,16 @@ paths:
                           type: string
                         institution: 
                           type: string
+                        social_auth: 
+                          type: array
+                          items: 
+                            type: object
+                            description: Account bound to a third-party service, such as SAML or LDAP.
+                            properties:
+                              provider: 
+                                type: string
+                              uid: 
+                                type: string
                   page_info: 
                     type: object
                     properties:
@@ -678,7 +702,8 @@ paths:
                           "last_login": "2024-03-25T15:38:33+08:00",
                           "last_access_time": "2024-03-26T10:56:58+08:00",
                           "role": "default",
-                          "institution": null
+                          "institution": null,
+                          "social_auth": []
                       },
                       {
                           "email": "admin123@seafile.com",
@@ -693,7 +718,8 @@ paths:
                           "last_login": "2023-04-12T13:14:47+08:00",
                           "last_access_time": "2023-04-12T13:14:47+08:00",
                           "role": "default",
-                          "institution": null
+                          "institution": null,
+                          "social_auth": [{"provider": "ldap", "uid": "admin123@seafile.com"}]
                       }
                   ],
                   "page_info": {
@@ -759,6 +785,16 @@ paths:
                     type: string
                   last_access_time: 
                     type: string
+                  social_auth: 
+                    type: array
+                    items: 
+                      type: object
+                      description: Account bound to a third-party service, such as SAML or LDAP.
+                      properties:
+                        provider: 
+                          type: string
+                        uid: 
+                          type: string
                 example: {
                   "email": "admin123@seafile.com",
                   "name": "admin123",
@@ -778,7 +814,8 @@ paths:
                   "upload_rate_limit": "",
                   "download_rate_limit": "",
                   "last_login": "2023-04-12T13:14:47+08:00",
-                  "last_access_time": "2023-04-12T13:14:47+08:00"
+                  "last_access_time": "2023-04-12T13:14:47+08:00",
+                  "social_auth":[]
                  }
 
     put:
