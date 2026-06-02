@@ -1,3 +1,12 @@
+---
+title: Resumable File Upload
+excerpt: The HTTP response codes indicate success or error.
+category: 658bc87fd352d6004fe43f8f
+isReference: true
+slug: file_chunk_upload
+---
+
+
 ## Resumable File Upload
 
 This document describes how to upload a large file to Seafile in chunks.
