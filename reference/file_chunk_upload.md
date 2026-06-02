@@ -2,7 +2,7 @@
 
 This document describes how to upload a large file to Seafile in chunks.
 
-Examples below assume the Seafile service is available at `http://192.168.1.113:8000`.
+Examples below assume the Seafile service is available at `http://{server}`.
 
 ### Workflow
 
@@ -14,7 +14,7 @@ Examples below assume the Seafile service is available at `http://192.168.1.113:
 
 Use the following API before starting or resuming a chunked upload.
 
-**GET** <http://192.168.1.113:8000/api/v2.1/repos/{repo_id}/file-uploaded-bytes/?parent_dir={parent_dir}&file_name={file_name}>
+**GET** <http://{server}/api/v2.1/repos/{repo_id}/file-uploaded-bytes/?parent_dir={parent_dir}&file_name={file_name}>
 
 **Request parameters**
 
@@ -28,7 +28,7 @@ Use the following API before starting or resuming a chunked upload.
 curl -v \
   -H 'Authorization: Token e71c00e93af863ba9bcddb61a46bb4de11d713fc' \
   -H 'Accept: application/json; charset=utf-8; indent=4' \
-  "http://192.168.1.113:8000/api/v2.1/repos/09b7d3c0-5f0d-49be-9318-7ca136f386cd/file-uploaded-bytes/?parent_dir=/path-in-seafile-repo/&file_name=test.md"
+  "http://{server}/api/v2.1/repos/09b7d3c0-5f0d-49be-9318-7ca136f386cd/file-uploaded-bytes/?parent_dir=/path-in-seafile-repo/&file_name=test.md"
 ```
 
 If the response contains the header `Accept-Ranges: bytes`, the Seafile server supports resumable upload.
@@ -71,7 +71,7 @@ A large file is uploaded as multiple chunks. The chunk size is chosen by the cli
 
 After getting the upload link and `uploadedBytes`, POST each chunk to the upload link.
 
-**POST** <http://cloud.seafile.com:8082/upload-api/73c5d117-3bcf-48a0-aa2a-3f48d5274ae3>
+**POST** <http://{server}/seafhttp/upload-api/73c5d117-3bcf-48a0-aa2a-3f48d5274ae3>
 
 **Request parameters**
 
@@ -93,7 +93,7 @@ curl \
   -F file=@test.md \
   -F parent_dir=/path-in-seafile-repo/ \
   -F replace=1 \
-  http://cloud.seafile.com:8082/upload-api/73c5d117-3bcf-48a0-aa2a-3f48d5274ae3
+  http://{server}/seafhttp/upload-api/73c5d117-3bcf-48a0-aa2a-3f48d5274ae3
 ```
 
 In this example:
