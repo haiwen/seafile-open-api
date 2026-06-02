@@ -1,6 +1,6 @@
 ## Resumable Upload File
 
-Refer to <https://manual.seafile.com/deploy_pro/web_resumable_upload.html> to learn more about web resumable upload.
+For example, the seafile is deployed in http://192.168.1.113:8000
 
 ### Check If Enable Resumable Upload
 
