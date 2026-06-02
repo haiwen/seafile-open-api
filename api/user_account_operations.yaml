@@ -3911,6 +3911,7 @@ paths:
         After getting the upload link, POST to this link for uploading files.
         The request body must be in multipart/form-data format.
         Upon successful upload, this API returns information about uploaded files in the response body.
+        For chunked uploads of large files, refer to [file_chunk_upload.md](../reference/file_chunk_upload.md).
         - If ret-json parameter is set to 1, the returned information is encoded in JSON. For each uploaded file, a JSON object containing "name", "id", "size" fields will be returned.
         - If ret-json parameter is set to 0, the returned information is a tab separated list of file IDs.
       security:
