@@ -1,6 +1,6 @@
 ---
 title: Resumable File Upload
-excerpt: The HTTP response codes indicate success or error.
+excerpt: Notes for resumable file upload.
 category: 658bc87fd352d6004fe43f8f
 isReference: true
 slug: file_chunk_upload
