@@ -1,7 +1,7 @@
 ---
 title: Terminology
 excerpt: Here are some of the terms used in Seafile
-category: 658bc87fd352d6004fe43f8f
+category: 67b7f8e66714a0002932b041
 isReference: true
 slug: terms
 ---
@@ -12,7 +12,6 @@ slug: terms
 - **email**: Same as user_id. The term is still used in API's returned value. The term should be avoided in other places.
 - **username**: Same as user_id, used internally in Seafile's code.
 - **contact_email**: User's contact email, which is also a user's real email. It is changeable.
-
 
 
 

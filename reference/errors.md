@@ -1,7 +1,7 @@
 ---
 title: Status Codes
 excerpt: The HTTP response codes indicate success or error.
-category: 658bc87fd352d6004fe43f8f
+category: 67b7f8e66714a0002932b041
 isReference: true
 slug: errors
 ---
