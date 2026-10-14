@@ -3,7 +3,7 @@ info:
   title: Metadata Operations - User
   description: |-
     The official Seafile API Reference (OpenAPI 3.0). - Part 'User Metadata Operations'.
-  version: '13.0'
+  version: '14.0'
 servers:
   - url: https://{server}
     variables: 

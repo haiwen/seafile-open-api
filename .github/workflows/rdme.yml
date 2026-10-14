@@ -8,7 +8,7 @@ on:
       # This workflow will run every time you push code to the following branch: `v1.0.1`
       # Check out GitHub's docs for more info on configuring this:
       # https://docs.github.com/actions/using-workflows/events-that-trigger-workflows
-      - v13.0
+      - v14.0
   
 jobs:
   rdme-docs:
@@ -21,34 +21,34 @@ jobs:
       - name: Update Seafile API 🚀
         uses: readmeio/rdme@v8
         with:
-          rdme: docs ./reference --key=${{ secrets.README_API_KEY }} --version=13.0
+          rdme: docs ./reference --key=${{ secrets.README_API_KEY }} --version=14.0
 
       # authentication
       - name: authentication 🚀
         uses: readmeio/rdme@v8
         with:
-          rdme: openapi ./api/authentication.yaml --key=${{ secrets.README_API_KEY }} --id=67b7f8e66714a0002932b048 --useSpecVersion
+          rdme: openapi ./api/authentication.yaml --key=${{ secrets.README_API_KEY }} --id=6acf1af50098d4a382612ad6 --useSpecVersion
 
       # repo token api
       - name: repo token api 🚀
         uses: readmeio/rdme@v8
         with:
-          rdme: openapi ./api/repo-api-tokens.yaml --key=${{ secrets.README_API_KEY }} --id=67b7f8e66714a0002932b04a --useSpecVersion
+          rdme: openapi ./api/repo-api-tokens.yaml --key=${{ secrets.README_API_KEY }} --id=6acf1af50098d4a382612ad5 --useSpecVersion
 
       # account operations: user
       - name: user account operations 🚀
         uses: readmeio/rdme@v8
         with:
-          rdme: openapi ./api/user_account_operations.yaml --key=${{ secrets.README_API_KEY }} --id=67b7f8e66714a0002932b047 --useSpecVersion
+          rdme: openapi ./api/user_account_operations.yaml --key=${{ secrets.README_API_KEY }} --id=6acf1af50098d4a382612ad5 --useSpecVersion
 
       # account operations: system admin
       - name: admin account operations 🚀
         uses: readmeio/rdme@v8
         with:
-          rdme: openapi ./api/admin_account_operations.yaml --key=${{ secrets.README_API_KEY }} --id=67b7f8e66714a0002932b04b --useSpecVersion
+          rdme: openapi ./api/admin_account_operations.yaml --key=${{ secrets.README_API_KEY }} --id=6acf1af50098d4a382612ad8 --useSpecVersion
 
        # metadata operations:  user
       - name: user account metadata 🚀
         uses: readmeio/rdme@v8
         with:
-          rdme: openapi ./api/metadata_operations.yaml --key=${{ secrets.README_API_KEY }} --id=67b7fcf56714a0002932b301 --useSpecVersion
+          rdme: openapi ./api/metadata_operations.yaml --key=${{ secrets.README_API_KEY }} --id=6acf1af50098d4a382612ad9 --useSpecVersion
