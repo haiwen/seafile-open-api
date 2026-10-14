@@ -6919,49 +6919,7 @@ paths:
                   ]
                  }
 
-  /api2/d/{token}/dir/: 
-    get: 
-      tags:
-        - Share links
-      summary: List items in folder download link
-      description: Lists all items under the specified path in the shared link.
-      security:
-        - AccountTokenAuth: []
-      parameters:
-        - $ref: '#/components/parameters/upload_link_token'
-        - $ref: '#/components/parameters/share_path'
-        - $ref: '#/components/parameters/password'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items: 
-                  type: object
-                  description: File info
-                  properties:
-                    size: 
-                      type: integer
-                    type: 
-                      type: string
-                    name: 
-                      type: string
-                    id: 
-                      type: string
-                    mtime: 
-                      type: number
-                example: [
-                      {
-                          "size": 0,
-                          "type": "file",
-                          "name": "test.md",
-                          "id": "0000000000000000000000000000000000000000",
-                          "mtime": 1710404571
-                      }
-                    ]
-
+  
   /api/v2.1/share-links/{token}/dirents/:
     get: 
       tags:
