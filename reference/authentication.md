@@ -1,7 +1,7 @@
 ---
 title: Authentication
 excerpt: The authentication flows of Seafile.
-category: 658bc87fd352d6004fe43f8f
+category: 6ae005dbc2f83bf89cc9b53e
 isReference: true
 slug: authentication
 ---

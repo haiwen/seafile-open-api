@@ -5,7 +5,7 @@ name: ReadMe GitHub Action 🦉
 on:
   push:
     branches:
-      # This workflow will run every time you push code to the following branch: `v1.0.1`
+      # This workflow will run every time you push code to the following branch: `v11.0`
       # Check out GitHub's docs for more info on configuring this:
       # https://docs.github.com/actions/using-workflows/events-that-trigger-workflows
       - v11.0
@@ -33,7 +33,7 @@ jobs:
       - name: repo token api 🚀
         uses: readmeio/rdme@v8
         with:
-          rdme: openapi ./api/repo-api-tokens.yaml --key=${{ secrets.README_API_KEY }} --id= 6ae005dbc2f83bf89cc9b545 --useSpecVersion
+          rdme: openapi ./api/repo-api-tokens.yaml --key=${{ secrets.README_API_KEY }} --id=6ae005dbc2f83bf89cc9b545 --useSpecVersion
 
       # account operations: user
       - name: user account operations 🚀
