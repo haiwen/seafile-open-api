@@ -35,6 +35,15 @@ components:
   # Reusable path, query, header and cookie parameters
   parameters:
     # Query parameters
+    q:
+      name: q
+      in: query
+      description: Search keyword
+      required: true
+      schema:
+        type: string
+      example: report
+
     file_path:
       name: path
       in: query
@@ -977,6 +986,54 @@ paths:
                 example:
                   'repo_id': 'b8e06f24-edfe-44a3-b63b-ad9ecc59e1eb'
                   'repo_name': 'test-library'
+
+  /api/v2.1/via-repo-token/search-files/:
+    get:
+      summary: Search files
+      tags:
+        - Dir / Files
+      description: |-
+        Search files in the library associated with the Repo-Token. Only files with extensions `md`, `sdoc`, `docx`, `pdf`, and `pptx` are returned.
+
+        In Professional Edition, the enabled search service is used to search file names and indexed file contents, requesting up to 100 results. Otherwise, or if the search service raises an exception, the API falls back to file name search.
+
+        Pagination is not supported. If no files match, the response is `{"data": []}`.
+      security:
+        - RepoTokenAuth: []
+      parameters:
+        - $ref: '#/components/parameters/q'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                description: List of matching files
+                properties:
+                  data:
+                    type: array
+                    description: Matching files in the library
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          description: Full file path within the library
+                        size:
+                          type: integer
+                          description: File size in bytes
+                        mtime:
+                          type: string
+                          description: Last modification time in ISO 8601 format with a timezone offset
+                        type:
+                          type: string
+                example:
+                  data:
+                    - path: '/Documents/report.pdf'
+                      size: 102400
+                      mtime: '2026-11-07T10:30:00+08:00'
+                      type: file
 
   /api/v2.1/via-repo-token/sync-batch-move-item/:
     post:
