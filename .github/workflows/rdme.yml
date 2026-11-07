@@ -33,7 +33,7 @@ jobs:
       - name: repo token api 🚀
         uses: readmeio/rdme@v8
         with:
-          rdme: openapi ./api/repo-api-tokens.yaml --key=${{ secrets.README_API_KEY }} --id=6acf1af50098d4a382612ad5 --useSpecVersion
+          rdme: openapi ./api/repo-api-tokens.yaml --key=${{ secrets.README_API_KEY }} --id=6acf1af50098d4a382612ad7 --useSpecVersion
 
       # account operations: user
       - name: user account operations 🚀
