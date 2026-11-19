@@ -1234,8 +1234,15 @@ components:
           description: whether to overwrite file when it already exists. 1 for replace, 0 for not replace. If existing file is not replaced, the uploaded file will be renamed to the form "filename (1).txt".
         last_modify:
           type: string
-          description: the last modified time of the file when uploaded.
+          description: the last modified time of the file when uploaded (in RFC 3339 format). Used when uploading a single file; ignored when uploading multiple files.
           example: '2024-07-30T18:18:25+08:00'
+        last_modify_list:
+          type: string
+          description: |-
+            Added after Seafile Server 14.0.11. A JSON-encoded array string of last modified times (in RFC 3339 format) when uploading multiple files in a single request.
+            The array length and element order must match the uploaded `file` fields. Ignored for single-file uploads (use `last_modify` instead).
+            If omitted, invalid JSON, length-mismatched, or for any `null`/invalid element, the current server time is used instead.
+          example: '["2024-07-30T18:18:25+08:00", "2024-07-31T10:00:00+08:00"]'
 
     file:
       type: object
