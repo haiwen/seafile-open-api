@@ -1239,10 +1239,10 @@ components:
         last_modify_list:
           type: string
           description: |-
-            Added after Seafile Server 14.0.11. A JSON-encoded array string of last modified times (in RFC 3339 format) when uploading multiple files in a single request.
-            The array length and element order must match the uploaded `file` fields. Ignored for single-file uploads (use `last_modify` instead).
-            If omitted, invalid JSON, length-mismatched, or for any `null`/invalid element, the current server time is used instead.
-          example: '["2024-07-30T18:18:25+08:00", "2024-07-31T10:00:00+08:00"]'
+            Added after Seafile Server 14.0.11. A comma-separated list of last modified times (in RFC 3339 format; optional leading/trailing spaces or tabs around each item are trimmed) when uploading multiple files in a single request.
+            The item count and order must match the uploaded `file` fields (for example, `,2024-07-31T10:00:00+08:00` leaves the first file using the current server time). Ignored for single-file uploads (use `last_modify` instead).
+            If omitted or if the item count does not match the number of uploaded files, all files use the current server time; any empty or invalid item falls back to the current server time for that file.
+          example: '2024-07-30T18:18:25+08:00,2024-07-31T10:00:00+08:00'
 
     file:
       type: object
